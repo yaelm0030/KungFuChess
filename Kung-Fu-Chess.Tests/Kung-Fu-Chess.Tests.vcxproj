@@ -137,6 +137,7 @@
     <ClCompile Include="Parser\RoundTripTests.cpp" />
     <ClCompile Include="GameEngine\ClickTests.cpp" />
     <ClCompile Include="GameEngine\GameOverTests.cpp" />
+    <ClCompile Include="GameEngine\JumpTests.cpp" />
     <ClCompile Include="GameEngine\PromotionTests.cpp" />
     <ClCompile Include="GameEngine\WaitTests.cpp" />
     <ClCompile Include="GameEngine\PrintTests.cpp" />
