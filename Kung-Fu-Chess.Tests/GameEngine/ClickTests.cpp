@@ -204,6 +204,41 @@ TEST_CASE("the piece appears at the destination once enough time has passed") {
     CHECK(board_of(engine) == ". bN .\nbR . .\nwR . wN\n");
 }
 
+// ---- a moving piece cannot be redirected; no cooldown once it arrives ------
+
+TEST_CASE("a piece already moving cannot be redirected to a new destination") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // move down to (0,1); 1 cell of travel time
+
+    // Attempt to redirect it mid-route by reselecting its (still visible)
+    // origin cell; this fails, so there is no selection left to redirect.
+    engine.click(50, 50);
+    CHECK_FALSE(engine.has_selection());
+
+    // Once the original move arrives, the piece is at its first destination
+    // only; the redirect attempt had no effect.
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(engine) == ". bN .\nbR . .\nwR . wN\n");
+}
+
+TEST_CASE("a piece can be selected and moved again immediately after arriving, with no cooldown") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // move down to (0,1)
+    engine.wait(GameEngine::kDefaultMoveMsPerCell); // arrives; no extra wait afterward
+
+    engine.click(50, 150); // select the just-arrived piece right away
+    REQUIRE(engine.has_selection());
+    CHECK(engine.selected()->x == 0);
+    CHECK(engine.selected()->y == 1);
+
+    engine.click(50, 250); // immediately move it again, down to (0,2), capturing wR
+    CHECK_FALSE(engine.has_selection());
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(engine) == ". bN .\n. . .\nbR . wN\n");
+}
+
 // ---- moves that don't match the piece's shape are ignored -------------------
 
 TEST_CASE("a move that doesn't match the selected piece's shape is ignored") {
