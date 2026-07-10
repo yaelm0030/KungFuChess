@@ -22,8 +22,10 @@ public:
     // sends a move request to the selected cell. A move request is queued as
     // a pending move rather than applied immediately; it lands on the board
     // once wait() advances the clock past its arrival time. Clicks outside
-    // the board, on an empty cell with nothing selected, or on a cell with a
-    // move already in flight, are ignored.
+    // the board, on an empty cell with nothing selected, or on a cell whose
+    // piece is already moving, are ignored: a moving piece can neither be
+    // selected nor redirected mid-route. Once a move settles, the arriving
+    // piece is free to move again immediately, with no cooldown.
     void click(int pixel_x, int pixel_y);
 
     // Advances the game clock and settles any pending moves whose arrival
@@ -55,7 +57,14 @@ private:
     std::vector<PendingMove> pending_moves_;
 
     std::optional<Position> pixel_to_cell(int pixel_x, int pixel_y) const;
-    bool has_pending_move_from(int x, int y) const;
+
+    // True if the piece at (x, y) is currently mid-route to a destination
+    // (i.e. has a pending move that hasn't arrived yet). A moving piece
+    // cannot be selected, so it cannot be redirected.
+    bool is_moving(int x, int y) const;
+
+    bool destination_reserved(int x, int y) const;
+
     long long arrival_time_for(int start_x, int start_y, int dest_x, int dest_y) const;
     void settle_arrived_moves();
 };

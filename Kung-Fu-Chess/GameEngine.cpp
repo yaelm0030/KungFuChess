@@ -7,14 +7,15 @@
 
 namespace {
 
-int abs_diff(int a, int b) {
-    return a > b ? a - b : b - a;
-}
+    int abs_diff(int a, int b) {
+        return a > b ? a - b : b - a;
+    }
 
 } // namespace
 
 GameEngine::GameEngine(Board board, long long move_ms_per_cell)
-    : board_(std::move(board)), move_ms_per_cell_(move_ms_per_cell) {}
+    : board_(std::move(board)), move_ms_per_cell_(move_ms_per_cell) {
+}
 
 std::optional<Position> GameEngine::pixel_to_cell(int pixel_x, int pixel_y) const {
     if (pixel_x < 0 || pixel_y < 0) {
@@ -31,9 +32,18 @@ std::optional<Position> GameEngine::pixel_to_cell(int pixel_x, int pixel_y) cons
     return Position{ cell_x, cell_y };
 }
 
-bool GameEngine::has_pending_move_from(int x, int y) const {
+bool GameEngine::is_moving(int x, int y) const {
     for (const PendingMove& move : pending_moves_) {
         if (move.start.x == x && move.start.y == y) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GameEngine::destination_reserved(int x, int y) const {
+    for (const PendingMove& move : pending_moves_) {
+        if (move.dest.x == x && move.dest.y == y) {
             return true;
         }
     }
@@ -47,14 +57,17 @@ long long GameEngine::arrival_time_for(int start_x, int start_y, int dest_x, int
 
 void GameEngine::settle_arrived_moves() {
     std::vector<PendingMove> still_pending;
+
     for (const PendingMove& move : pending_moves_) {
         if (move.arrival_ms <= clock_ms_) {
             board_.place_at(move.dest.x, move.dest.y, move.piece);
             board_.clear_at(move.start.x, move.start.y);
-        } else {
+        }
+        else {
             still_pending.push_back(move);
         }
     }
+
     pending_moves_ = std::move(still_pending);
 }
 
@@ -65,20 +78,37 @@ void GameEngine::click(int pixel_x, int pixel_y) {
     }
 
     std::optional<Cell> clicked_piece = board_.get_at(cell->x, cell->y);
-    bool clicked_cell_is_selectable = clicked_piece.has_value() && !has_pending_move_from(cell->x, cell->y);
+
+    bool clicked_cell_is_selectable =
+        clicked_piece.has_value() &&
+        !is_moving(cell->x, cell->y);
 
     if (selected_.has_value()) {
-        std::optional<Cell> selected_piece = board_.get_at(selected_->x, selected_->y);
+        std::optional<Cell> selected_piece =
+            board_.get_at(selected_->x, selected_->y);
+
         if (selected_piece.has_value()) {
-            if (clicked_cell_is_selectable && clicked_piece->color == selected_piece->color) {
+
+            if (clicked_cell_is_selectable &&
+                clicked_piece->color == selected_piece->color) {
                 selected_ = cell;
                 return;
             }
 
-            const Piece* piece = PieceFactory::get_piece(selected_piece->type);
-            if (!piece || !piece->is_available_move(selected_->x, selected_->y, cell->x, cell->y, board_)) {
-                // The move doesn't match the piece's shape (or the path is
-                // blocked); ignore the click and keep the current selection.
+            if (destination_reserved(cell->x, cell->y)) {
+                return;
+            }
+
+            const Piece* piece =
+                PieceFactory::get_piece(selected_piece->type);
+
+            if (!piece ||
+                !piece->is_available_move(
+                    selected_->x,
+                    selected_->y,
+                    cell->x,
+                    cell->y,
+                    board_)) {
                 return;
             }
 
@@ -86,13 +116,17 @@ void GameEngine::click(int pixel_x, int pixel_y) {
                 *selected_,
                 *cell,
                 *selected_piece,
-                arrival_time_for(selected_->x, selected_->y, cell->x, cell->y),
+                arrival_time_for(
+                    selected_->x,
+                    selected_->y,
+                    cell->x,
+                    cell->y)
             });
+
             selected_.reset();
             return;
         }
-        // The selected cell no longer holds a piece; drop the stale selection
-        // and treat this click as a fresh one below.
+
         selected_.reset();
     }
 
