@@ -141,12 +141,40 @@ bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     return !captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
+bool Pawn::has_blockers(int, int, int, int, const Board&) const {
+    return false; // a pawn only ever moves one cell; nothing can be "between"
+}
+
+bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
+    std::optional<Cell> start_cell = board.get_at(start_x, start_y);
+    if (!start_cell.has_value()) {
+        return false;
+    }
+
+    int dx = dest_x - start_x;
+    int dy = dest_y - start_y;
+    int forward = (start_cell->color == Color::w) ? -1 : 1; // white moves up (-y), black moves down (+y)
+
+    std::optional<Cell> dest_cell = board.get_at(dest_x, dest_y);
+
+    if (dx == 0 && dy == forward) {
+        return !dest_cell.has_value(); // one cell forward, only onto an empty cell
+    }
+
+    if (std::abs(dx) == 1 && dy == forward) {
+        return dest_cell.has_value() && dest_cell->color != start_cell->color; // diagonal capture only
+    }
+
+    return false; // two-cell moves and forward captures are not allowed
+}
+
 const Piece* PieceFactory::get_piece(PieceType type) {
     static King king;
     static Queen queen;
     static Rook rook;
     static Bishop bishop;
     static Knight knight;
+    static Pawn pawn;
 
     switch (type) {
         case PieceType::K: return &king;
@@ -154,6 +182,7 @@ const Piece* PieceFactory::get_piece(PieceType type) {
         case PieceType::R: return &rook;
         case PieceType::B: return &bishop;
         case PieceType::N: return &knight;
+        case PieceType::P: return &pawn;
         default: return nullptr;
     }
 }

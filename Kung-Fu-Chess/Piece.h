@@ -49,6 +49,12 @@ public:
     bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
 };
 
+class Pawn : public Piece {
+public:
+    bool is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
+    bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
+};
+
 class PieceFactory {
 public:
     // Returns the shared instance (Flyweight) implementing the movement
