@@ -76,6 +76,9 @@
     <ClCompile Include="GameEngine\GameOverTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\PromotionTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\doctest.h">
