@@ -13,6 +13,12 @@
     <Filter Include="Source">
       <UniqueIdentifier>{b3f2a0c3-5b5c-4dac-9c3c-3b3c4d5e6f70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Piece">
+      <UniqueIdentifier>{e5b4c2d5-7d7e-4fbd-be5e-5d5e6f708192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TestMain.cpp" />
@@ -34,6 +40,24 @@
     <ClCompile Include="GameEngine\PrintTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Piece\KingTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
+    <ClCompile Include="Piece\QueenTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
+    <ClCompile Include="Piece\RookTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
+    <ClCompile Include="Piece\BishopTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
+    <ClCompile Include="Piece\KnightTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
+    <ClCompile Include="Piece\PieceFactoryTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -42,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\Piece.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +86,9 @@
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\Piece.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

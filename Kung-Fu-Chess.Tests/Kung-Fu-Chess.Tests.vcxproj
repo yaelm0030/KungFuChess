@@ -138,6 +138,12 @@
     <ClCompile Include="GameEngine\ClickTests.cpp" />
     <ClCompile Include="GameEngine\WaitTests.cpp" />
     <ClCompile Include="GameEngine\PrintTests.cpp" />
+    <ClCompile Include="Piece\KingTests.cpp" />
+    <ClCompile Include="Piece\QueenTests.cpp" />
+    <ClCompile Include="Piece\RookTests.cpp" />
+    <ClCompile Include="Piece\BishopTests.cpp" />
+    <ClCompile Include="Piece\KnightTests.cpp" />
+    <ClCompile Include="Piece\PieceFactoryTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -147,6 +153,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\Piece.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\doctest.h" />
@@ -154,6 +163,7 @@
     <ClInclude Include="..\Kung-Fu-Chess\Types.h" />
     <ClInclude Include="..\Kung-Fu-Chess\Parser.h" />
     <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\Piece.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

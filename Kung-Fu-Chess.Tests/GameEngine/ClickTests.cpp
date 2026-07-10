@@ -130,17 +130,17 @@ TEST_CASE("re-clicking the same selected piece keeps it selected") {
 
 TEST_CASE("clicking an empty cell while a piece is selected moves it there") {
     GameEngine engine(make_board());
-    engine.click(50, 50);   // select bR at (0,0)
-    engine.click(150, 150); // (1,1) is empty
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // (0,1) is empty; straight down is a legal rook move
 
     CHECK_FALSE(engine.has_selection());
-    CHECK(board_of(engine) == ". bN .\n. bR .\nwR . wN\n");
+    CHECK(board_of(engine) == ". bN .\nbR . .\nwR . wN\n");
 }
 
 TEST_CASE("clicking an enemy piece while a piece is selected captures it") {
     GameEngine engine(make_board());
     engine.click(50, 50);   // select bR at (0,0)
-    engine.click(50, 250);  // wR at (0,2) is white
+    engine.click(50, 250);  // wR at (0,2) is white; straight down the column
 
     CHECK_FALSE(engine.has_selection());
     CHECK(board_of(engine) == ". bN .\n. . .\nbR . wN\n");
@@ -148,8 +148,8 @@ TEST_CASE("clicking an enemy piece while a piece is selected captures it") {
 
 TEST_CASE("the vacated source cell is empty after a move") {
     GameEngine engine(make_board());
-    engine.click(50, 50);   // select bR at (0,0)
-    engine.click(150, 150); // move to (1,1)
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // move down to (0,1)
 
     engine.click(50, 50); // (0,0) is now empty; no selection to move
     CHECK_FALSE(engine.has_selection());
@@ -157,16 +157,43 @@ TEST_CASE("the vacated source cell is empty after a move") {
 
 TEST_CASE("consecutive moves chain correctly") {
     GameEngine engine(make_board());
-    engine.click(50, 50);   // select bR at (0,0)
-    engine.click(150, 150); // move bR to (1,1)
-    engine.click(150, 150); // re-select the piece that is now at (1,1)
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // move bR down to (0,1)
+    engine.click(50, 150); // re-select the piece that is now at (0,1)
     REQUIRE(engine.has_selection());
-    CHECK(engine.selected()->x == 1);
+    CHECK(engine.selected()->x == 0);
     CHECK(engine.selected()->y == 1);
 
-    engine.click(250, 250); // move to (2,2), capturing wN
+    engine.click(50, 250); // move down to (0,2), capturing wR
     CHECK_FALSE(engine.has_selection());
-    CHECK(board_of(engine) == ". bN .\n. . .\nwR . bR\n");
+    CHECK(board_of(engine) == ". bN .\n. . .\nbR . wN\n");
+}
+
+// ---- moves that don't match the piece's shape are ignored -------------------
+
+TEST_CASE("a move that doesn't match the selected piece's shape is ignored") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);   // select bR at (0,0)
+    engine.click(150, 150); // (1,1) is a diagonal move; illegal for a rook
+
+    REQUIRE(engine.has_selection());
+    CHECK(engine.selected()->x == 0);
+    CHECK(engine.selected()->y == 0);
+    CHECK(board_of(engine) == Parser::board_to_string(make_board()) + "\n");
+}
+
+TEST_CASE("a blocked straight move is ignored") {
+    GameEngine engine(Parser::parse_board({
+        "bR .",
+        "bN .",
+        ".  .",
+    }));
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 250); // (0,2) is past bN, which blocks the column at (0,1)
+
+    REQUIRE(engine.has_selection());
+    CHECK(engine.selected()->x == 0);
+    CHECK(engine.selected()->y == 0);
 }
 
 }
