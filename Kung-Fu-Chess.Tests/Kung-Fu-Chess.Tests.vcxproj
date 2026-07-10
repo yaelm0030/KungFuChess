@@ -143,6 +143,7 @@
     <ClCompile Include="Piece\RookTests.cpp" />
     <ClCompile Include="Piece\BishopTests.cpp" />
     <ClCompile Include="Piece\KnightTests.cpp" />
+    <ClCompile Include="Piece\PawnTests.cpp" />
     <ClCompile Include="Piece\PieceFactoryTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>

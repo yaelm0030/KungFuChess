@@ -11,15 +11,13 @@ TEST_CASE("each implemented piece type resolves to an instance of the matching c
     CHECK(dynamic_cast<const Rook*>(PieceFactory::get_piece(PieceType::R)) != nullptr);
     CHECK(dynamic_cast<const Bishop*>(PieceFactory::get_piece(PieceType::B)) != nullptr);
     CHECK(dynamic_cast<const Knight*>(PieceFactory::get_piece(PieceType::N)) != nullptr);
-}
-
-TEST_CASE("a piece type without an implemented movement rule resolves to nullptr") {
-    CHECK(PieceFactory::get_piece(PieceType::P) == nullptr);
+    CHECK(dynamic_cast<const Pawn*>(PieceFactory::get_piece(PieceType::P)) != nullptr);
 }
 
 TEST_CASE("repeated calls for the same type return the same shared instance") {
     CHECK(PieceFactory::get_piece(PieceType::K) == PieceFactory::get_piece(PieceType::K));
     CHECK(PieceFactory::get_piece(PieceType::R) == PieceFactory::get_piece(PieceType::R));
+    CHECK(PieceFactory::get_piece(PieceType::P) == PieceFactory::get_piece(PieceType::P));
 }
 
 }

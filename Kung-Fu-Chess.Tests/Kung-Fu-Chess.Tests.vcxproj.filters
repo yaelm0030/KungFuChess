@@ -55,6 +55,9 @@
     <ClCompile Include="Piece\KnightTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
+    <ClCompile Include="Piece\PawnTests.cpp">
+      <Filter>Piece</Filter>
+    </ClCompile>
     <ClCompile Include="Piece\PieceFactoryTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
