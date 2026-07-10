@@ -1,17 +1,28 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "Board.h"
+#include "GameEngine.h"
 #include "Parser.h"
 
 namespace {
+
+std::string trim(const std::string& s) {
+    size_t begin = s.find_first_not_of(" \t\r\n");
+    if (begin == std::string::npos) {
+        return "";
+    }
+    size_t end = s.find_last_not_of(" \t\r\n");
+    return s.substr(begin, end - begin + 1);
+}
 
 std::vector<std::string> read_lines_until(std::istream& in, const std::string& stop_marker) {
     std::vector<std::string> lines;
     std::string line;
     while (std::getline(in, line)) {
-        if (line == stop_marker) {
+        if (trim(line) == stop_marker) {
             break;
         }
         lines.push_back(line);
@@ -19,9 +30,31 @@ std::vector<std::string> read_lines_until(std::istream& in, const std::string& s
     return lines;
 }
 
-void run_command(const std::string& command, const Board& board) {
-    if (command == "print board") {
-        std::cout << Parser::board_to_string(board) << "\n";
+std::vector<std::string> tokenize(const std::string& line) {
+    std::vector<std::string> tokens;
+    std::istringstream iss(line);
+    std::string token;
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+void run_command(const std::vector<std::string>& tokens, GameEngine& engine) {
+    if (tokens.empty()) {
+        return;
+    }
+
+    try {
+        if (tokens[0] == "click" && tokens.size() == 3) {
+            engine.click(std::stoi(tokens[1]), std::stoi(tokens[2]));
+        } else if (tokens[0] == "wait" && tokens.size() == 2) {
+            engine.wait(std::stoi(tokens[1]));
+        } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
+            engine.print();
+        }
+    } catch (const std::exception&) {
+        // Malformed numeric arguments (e.g. "click a b") are ignored.
     }
 }
 
@@ -29,7 +62,7 @@ void run_command(const std::string& command, const Board& board) {
 
 int main() {
     std::string first_line;
-    if (!std::getline(std::cin, first_line) || first_line != "Board:") {
+    if (!std::getline(std::cin, first_line) || trim(first_line) != "Board:") {
         return 0;
     }
 
@@ -43,8 +76,10 @@ int main() {
         return 0;
     }
 
+    GameEngine engine(std::move(board));
+
     std::string command;
     while (std::getline(std::cin, command)) {
-        run_command(command, board);
+        run_command(tokenize(command), engine);
     }
 }
