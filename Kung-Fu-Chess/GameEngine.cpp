@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 
 #include "Parser.h"
+#include "Piece.h"
 
 GameEngine::GameEngine(Board board) : board_(std::move(board)) {}
 
@@ -32,11 +33,19 @@ void GameEngine::click(int pixel_x, int pixel_y) {
         if (selected_piece.has_value()) {
             if (clicked_piece.has_value() && clicked_piece->color == selected_piece->color) {
                 selected_ = cell;
-            } else {
-                board_.place_at(cell->x, cell->y, *selected_piece);
-                board_.clear_at(selected_->x, selected_->y);
-                selected_.reset();
+                return;
             }
+
+            const Piece* piece = PieceFactory::get_piece(selected_piece->type);
+            if (!piece || !piece->is_available_move(selected_->x, selected_->y, cell->x, cell->y, board_)) {
+                // The move doesn't match the piece's shape (or the path is
+                // blocked); ignore the click and keep the current selection.
+                return;
+            }
+
+            board_.place_at(cell->x, cell->y, *selected_piece);
+            board_.clear_at(selected_->x, selected_->y);
+            selected_.reset();
             return;
         }
         // The selected cell no longer holds a piece; drop the stale selection
