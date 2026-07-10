@@ -266,4 +266,89 @@ TEST_CASE("a blocked straight move is ignored") {
     CHECK(engine.selected()->y == 0);
 }
 
+// ---- colliding moves on a shared route --------------------------------------
+//relate to conflicts_with_pending_move commented function in GameEngine.cpp
+
+//TEST_CASE("when two pieces attempt to swap places along the same route, whichever moved first wins") {
+//    SUBCASE("white moves first") {
+//        GameEngine engine(Parser::parse_board({ "wR . . bR" }));
+//        engine.click(50, 50);   // select wR at (0,0)
+//        engine.click(350, 50);  // move wR across to (3,0), capturing bR; 3 cells of travel time
+//        engine.click(350, 50);  // select bR at (3,0); it hasn't moved yet
+//        engine.click(50, 50);   // attempt to move bR back to (0,0); collides with wR's route
+//
+//        engine.wait(3 * GameEngine::kDefaultMoveMsPerCell);
+//        CHECK(board_of(engine) == ". . . wR\n");
+//    }
+//
+//    SUBCASE("black moves first") {
+//        GameEngine engine(Parser::parse_board({ "wR . . bR" }));
+//        engine.click(350, 50);  // select bR at (3,0)
+//        engine.click(50, 50);   // move bR across to (0,0), capturing wR; 3 cells of travel time
+//        engine.click(50, 50);   // select wR at (0,0); it hasn't moved yet
+//        engine.click(350, 50);  // attempt to move wR back to (3,0); collides with bR's route
+//
+//        engine.wait(3 * GameEngine::kDefaultMoveMsPerCell);
+//        CHECK(board_of(engine) == "bR . . .\n");
+//    }
+//}
+
+//TEST_CASE("a move rejected for colliding with another move's route keeps the current selection") {
+//    GameEngine engine(Parser::parse_board({ "wR . . bR" }));
+//    engine.click(50, 50);  // select wR at (0,0)
+//    engine.click(350, 50); // move wR across to (3,0); still in flight
+//    engine.click(350, 50); // select bR at (3,0)
+//    engine.click(50, 50);  // attempt to move bR back to (0,0); collides, rejected
+//
+//    REQUIRE(engine.has_selection());
+//    CHECK(engine.selected()->x == 3);
+//    CHECK(engine.selected()->y == 0);
+//}
+//
+//TEST_CASE("a move onto another route's cell is rejected for its own illegality, not treated as a collision") {
+//    GameEngine engine(Parser::parse_board({
+//        ".  .  .  .",
+//        "wQ .  .  bK",
+//        ".  .  bP .",
+//        ".  .  .  .",
+//    }));
+//    engine.click(50, 150);  // select wQ at (0,1)
+//    engine.click(350, 150); // move wQ across to (3,1), capturing bK; 3 cells of travel time
+//    engine.wait(200);
+//
+//    engine.click(250, 250); // select bP at (2,2)
+//    engine.click(250, 150); // (2,1) is on wQ's route, but this move is illegal anyway: backward for black
+//
+//    engine.wait(3000);
+//    CHECK(board_of(engine) == ". . . .\n. . . wQ\n. . bP .\n. . . .\n");
+//}
+
+// ---- friendly-piece landing ---------------------------------------------------
+
+TEST_CASE("a knight cannot land on a friendly piece, even though the move shape is legal") {
+    GameEngine engine(Parser::parse_board({
+        ".  wP .",
+        ".  .  .",
+        "wN .  .",
+    }));
+    engine.click(50, 250); // select wN at (0,2)
+    engine.click(150, 50); // attempt an L-shaped move onto wP at (1,0); same color
+
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(engine) == ". wP .\n. . .\nwN . .\n");
+}
+
+// ---- premoves that never became legal ------------------------------------------
+
+TEST_CASE("a click on an unrelated empty cell after a failed redirect schedules nothing") {
+    GameEngine engine(Parser::parse_board({ "wR . ." }));
+    engine.click(50, 50);  // select wR at (0,0)
+    engine.click(150, 50); // move to (1,0); 1 cell of travel time
+    engine.click(50, 50);  // attempt to redirect; fails, nothing selected
+    engine.click(250, 50); // (2,0) is empty and nothing is selected; ignored
+
+    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(engine) == ". wR .\n");
+}
+
 }
