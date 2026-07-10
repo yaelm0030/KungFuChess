@@ -72,6 +72,27 @@ bool GameEngine::is_moving(int x, int y) const {
     return false;
 }
 
+// The airborne (mid-jump) piece at (x, y), or nullptr if none.
+const GameEngine::AirbornePiece* GameEngine::airborne_at(int x, int y) const {
+    for (const AirbornePiece& airborne : airborne_) {
+        if (airborne.cell.x == x && airborne.cell.y == y) {
+            return &airborne;
+        }
+    }
+    return nullptr;
+}
+
+// Drops any airborne record on (x, y), keeping airborne_ in sync with board_.
+void GameEngine::drop_airborne_at(int x, int y) {
+    std::vector<AirbornePiece> kept;
+    for (const AirbornePiece& airborne : airborne_) {
+        if (airborne.cell.x != x || airborne.cell.y != y) {
+            kept.push_back(airborne);
+        }
+    }
+    airborne_ = std::move(kept);
+}
+
 // True if a move between the two cells would share a cell with the route of
 // any move already in flight.
 bool GameEngine::conflicts_with_pending_move(int start_x, int start_y, int dest_x, int dest_y) const {
@@ -118,23 +139,53 @@ void GameEngine::settle_arrived_moves() {
     std::vector<PendingMove> still_pending;
 
     for (const PendingMove& move : pending_moves_) {
-        if (move.arrival_ms <= clock_ms_) {
-            if (captures_enemy_king(move)) {
-                game_over_ = true;
-            }
-            Cell piece = move.piece;
-            if (is_pawn_promotion(move)) {
-                piece.type = PieceType::Q;
-            }
-            board_.place_at(move.dest.x, move.dest.y, piece);
-            board_.clear_at(move.start.x, move.start.y);
-        }
-        else {
+        if (move.arrival_ms > clock_ms_) {
             still_pending.push_back(move);
+            continue;
         }
+
+        // If an enemy piece is jumping on the destination and is still airborne
+        // when this move arrives (arrival at or before its landing), the
+        // airborne piece captures the arriving enemy. This is resolved
+        // explicitly: the arriving enemy is removed (its origin cleared) and its
+        // move is consumed here; the jumper is deliberately left untouched on
+        // board_ (it never left its cell), so no placement is needed.
+        const AirbornePiece* guard = airborne_at(move.dest.x, move.dest.y);
+        if (guard != nullptr && guard->piece.color != move.piece.color
+            && move.arrival_ms <= guard->land_ms) {
+            board_.clear_at(move.start.x, move.start.y);
+            if (move.piece.type == PieceType::K) {
+                game_over_ = true; // the arriving enemy king was destroyed
+            }
+            continue;
+        }
+
+        if (captures_enemy_king(move)) {
+            game_over_ = true;
+        }
+        Cell piece = move.piece;
+        if (is_pawn_promotion(move)) {
+            piece.type = PieceType::Q;
+        }
+        // The destination piece (if any) is captured. If it had an airborne
+        // record whose window has already ended, drop it so airborne_ never
+        // keeps a stale entry for the piece we are about to overwrite.
+        drop_airborne_at(move.dest.x, move.dest.y);
+        board_.place_at(move.dest.x, move.dest.y, piece);
+        board_.clear_at(move.start.x, move.start.y);
     }
 
     pending_moves_ = std::move(still_pending);
+
+    // Land any jumps whose window has ended; the piece is already on the board,
+    // so landing is just dropping the airborne status.
+    std::vector<AirbornePiece> still_airborne;
+    for (const AirbornePiece& airborne : airborne_) {
+        if (airborne.land_ms > clock_ms_) {
+            still_airborne.push_back(airborne);
+        }
+    }
+    airborne_ = std::move(still_airborne);
 }
 
 // Reselects a friendly selectable piece on `cell`, otherwise attempts to
@@ -159,6 +210,12 @@ bool GameEngine::handle_click_with_selection(Position cell, std::optional<Cell> 
 // is legal for the piece and its route doesn't collide with a move already
 // in flight.
 void GameEngine::try_schedule_move(Position cell, Cell selected_piece) {
+    // An airborne piece is committed to its jump and stays on its cell; it
+    // cannot be moved until it lands.
+    if (is_airborne(selected_->x, selected_->y)) {
+        return;
+    }
+
     const Piece* piece = PieceFactory::get_piece(selected_piece.type);
     if (!piece || !piece->is_available_move(selected_->x, selected_->y, cell.x, cell.y, board_)) {
         return;
@@ -192,7 +249,9 @@ void GameEngine::click(int pixel_x, int pixel_y) {
     }
 
     std::optional<Cell> clicked_piece = board_.get_at(cell->x, cell->y);
-    bool clicked_cell_is_selectable = clicked_piece.has_value() && !is_moving(cell->x, cell->y);
+    bool clicked_cell_is_selectable = clicked_piece.has_value()
+        && !is_moving(cell->x, cell->y)
+        && !is_airborne(cell->x, cell->y);
 
     if (selected_.has_value() && handle_click_with_selection(*cell, clicked_piece, clicked_cell_is_selectable)) {
         return;
@@ -201,6 +260,31 @@ void GameEngine::click(int pixel_x, int pixel_y) {
     if (clicked_cell_is_selectable) {
         selected_ = cell;
     }
+}
+
+// Starts a jump for the piece at the given pixel, if one is eligible: it must
+// be present, not already moving, and not already airborne.
+void GameEngine::jump(int pixel_x, int pixel_y) {
+    if (game_over_) {
+        return;
+    }
+
+    std::optional<Position> cell = pixel_to_cell(pixel_x, pixel_y);
+    if (!cell.has_value()) {
+        return;
+    }
+
+    std::optional<Cell> piece = board_.get_at(cell->x, cell->y);
+    if (!piece.has_value() || is_moving(cell->x, cell->y) || is_airborne(cell->x, cell->y)) {
+        return;
+    }
+
+    // Drop a stale selection on the jumper so it can't later be moved mid-air.
+    if (selected_.has_value() && selected_->x == cell->x && selected_->y == cell->y) {
+        selected_.reset();
+    }
+
+    airborne_.push_back(AirbornePiece{ *cell, *piece, clock_ms_ + kJumpDurationMs });
 }
 
 // Advances the clock and settles any moves that have now arrived.

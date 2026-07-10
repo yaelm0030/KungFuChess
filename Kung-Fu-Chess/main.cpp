@@ -48,6 +48,8 @@ void run_command(const std::vector<std::string>& tokens, GameEngine& engine) {
     try {
         if (tokens[0] == "click" && tokens.size() == 3) {
             engine.click(std::stoi(tokens[1]), std::stoi(tokens[2]));
+        } else if (tokens[0] == "jump" && tokens.size() == 3) {
+            engine.jump(std::stoi(tokens[1]), std::stoi(tokens[2]));
         } else if (tokens[0] == "wait" && tokens.size() == 2) {
             engine.wait(std::stoi(tokens[1]));
         } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
