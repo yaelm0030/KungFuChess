@@ -149,12 +149,35 @@ bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     return !captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
-bool Pawn::has_blockers(int, int, int, int, const Board&) const {
-    return false; // a pawn only ever moves one cell; nothing can be "between"
+namespace {
+
+// A pawn's home row, from which it may open with a two-cell move: white's
+// own edge is the last row of the board, black's is the first.
+int pawn_start_row(Color color, const Board& board) {
+    return color == Color::w ? board.get_height() - 1 : 0;
 }
 
-// A pawn moves one cell straight ahead onto an empty cell, or captures one
-// cell diagonally ahead onto an enemy piece; direction depends on color.
+} // namespace
+
+// A pawn can only be blocked on its two-cell opening move, by a piece sitting
+// on the cell it must pass through; a one-cell move has nothing "between" it.
+bool Pawn::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
+    std::optional<Cell> start_cell = board.get_at(start_x, start_y);
+    if (!start_cell.has_value()) {
+        return false;
+    }
+
+    int forward = (start_cell->color == Color::w) ? -1 : 1;
+    if (dest_x != start_x || dest_y != start_y + 2 * forward || start_y != pawn_start_row(start_cell->color, board)) {
+        return false; // not a two-cell opening move; blocking is undefined
+    }
+
+    return board.get_at(start_x, start_y + forward).has_value();
+}
+
+// A pawn moves one cell straight ahead onto an empty cell, two cells straight
+// ahead from its home row (with a clear path), or captures one cell
+// diagonally ahead onto an enemy piece; direction depends on color.
 bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     std::optional<Cell> start_cell = board.get_at(start_x, start_y);
     if (!start_cell.has_value()) {
@@ -171,11 +194,15 @@ bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
         return !dest_cell.has_value(); // one cell forward, only onto an empty cell
     }
 
+    if (dx == 0 && dy == 2 * forward && start_y == pawn_start_row(start_cell->color, board)) {
+        return !dest_cell.has_value() && !has_blockers(start_x, start_y, dest_x, dest_y, board);
+    }
+
     if (std::abs(dx) == 1 && dy == forward) {
         return dest_cell.has_value() && dest_cell->color != start_cell->color; // diagonal capture only
     }
 
-    return false; // two-cell moves and forward captures are not allowed
+    return false; // any other offset is illegal
 }
 
 // Returns the shared instance implementing the movement rules for `type`,

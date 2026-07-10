@@ -102,6 +102,16 @@ bool GameEngine::captures_enemy_king(const PendingMove& move) const {
     return target.has_value() && target->type == PieceType::K && target->color != move.piece.color;
 }
 
+// True if `move`'s piece is a pawn landing on the farthest row from its own
+// side: row 0 for white (which moves up), the last row for black.
+bool GameEngine::is_pawn_promotion(const PendingMove& move) const {
+    if (move.piece.type != PieceType::P) {
+        return false;
+    }
+    int last_row = (move.piece.color == Color::w) ? 0 : board_.get_height() - 1;
+    return move.dest.y == last_row;
+}
+
 // Applies every pending move whose arrival time has passed, and keeps the
 // rest queued.
 void GameEngine::settle_arrived_moves() {
@@ -112,7 +122,11 @@ void GameEngine::settle_arrived_moves() {
             if (captures_enemy_king(move)) {
                 game_over_ = true;
             }
-            board_.place_at(move.dest.x, move.dest.y, move.piece);
+            Cell piece = move.piece;
+            if (is_pawn_promotion(move)) {
+                piece.type = PieceType::Q;
+            }
+            board_.place_at(move.dest.x, move.dest.y, piece);
             board_.clear_at(move.start.x, move.start.y);
         }
         else {

@@ -78,6 +78,10 @@ private:
     // move captures the king and ends the game.
     bool captures_enemy_king(const PendingMove& move) const;
 
+    // True if `move`'s piece is a pawn arriving at the farthest row from its
+    // own side, i.e. this move earns a promotion to queen.
+    bool is_pawn_promotion(const PendingMove& move) const;
+
     // Handles a click while a piece is already selected: reselects on a
     // click on another selectable friendly piece, otherwise attempts to
     // move the selection to `cell`. Returns false only when the selected
