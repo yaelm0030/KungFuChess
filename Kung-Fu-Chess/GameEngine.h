@@ -39,6 +39,7 @@ public:
     long long clock_ms() const { return clock_ms_; }
     bool has_selection() const { return selected_.has_value(); }
     std::optional<Position> selected() const { return selected_; }
+    bool game_over() const { return game_over_; }
 
 private:
     static constexpr int kCellSizePx = 100;
@@ -55,6 +56,7 @@ private:
     std::optional<Position> selected_;
     long long clock_ms_ = 0;
     std::vector<PendingMove> pending_moves_;
+    bool game_over_ = false;
 
     std::optional<Position> pixel_to_cell(int pixel_x, int pixel_y) const;
 
@@ -71,6 +73,10 @@ private:
 
     long long arrival_time_for(int start_x, int start_y, int dest_x, int dest_y) const;
     void settle_arrived_moves();
+
+    // True if `move` arrives on a cell occupied by an enemy king, i.e. this
+    // move captures the king and ends the game.
+    bool captures_enemy_king(const PendingMove& move) const;
 
     // Handles a click while a piece is already selected: reselects on a
     // click on another selectable friendly piece, otherwise attempts to

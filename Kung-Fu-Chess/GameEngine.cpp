@@ -96,6 +96,12 @@ long long GameEngine::arrival_time_for(int start_x, int start_y, int dest_x, int
     return clock_ms_ + static_cast<long long>(distance_cells) * move_ms_per_cell_;
 }
 
+// True if `move` lands on a cell occupied by an enemy king.
+bool GameEngine::captures_enemy_king(const PendingMove& move) const {
+    std::optional<Cell> target = board_.get_at(move.dest.x, move.dest.y);
+    return target.has_value() && target->type == PieceType::K && target->color != move.piece.color;
+}
+
 // Applies every pending move whose arrival time has passed, and keeps the
 // rest queued.
 void GameEngine::settle_arrived_moves() {
@@ -103,6 +109,9 @@ void GameEngine::settle_arrived_moves() {
 
     for (const PendingMove& move : pending_moves_) {
         if (move.arrival_ms <= clock_ms_) {
+            if (captures_enemy_king(move)) {
+                game_over_ = true;
+            }
             board_.place_at(move.dest.x, move.dest.y, move.piece);
             board_.clear_at(move.start.x, move.start.y);
         }
@@ -159,6 +168,10 @@ void GameEngine::try_schedule_move(Position cell, Cell selected_piece) {
 // Resolves a click to a board cell, then either updates the selection or
 // schedules a move, depending on what's currently selected and clicked.
 void GameEngine::click(int pixel_x, int pixel_y) {
+    if (game_over_) {
+        return;
+    }
+
     std::optional<Position> cell = pixel_to_cell(pixel_x, pixel_y);
     if (!cell.has_value()) {
         return;
