@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+// Splits a line into whitespace-separated tokens.
 std::vector<std::string> Parser::tokenize(const std::string& line) {
     std::vector<std::string> tokens;
     std::istringstream iss(line);
@@ -12,6 +13,7 @@ std::vector<std::string> Parser::tokenize(const std::string& line) {
     return tokens;
 }
 
+// Parses a two-character token, such as "wK", into a Cell.
 Cell Parser::parse_token(const std::string& token) {
     if (token.size() != 2) {
         throw ParseError("UNKNOWN_TOKEN");
@@ -38,6 +40,7 @@ Cell Parser::parse_token(const std::string& token) {
     return Cell{ color, type };
 }
 
+// Renders a cell back into its two-character token, or "." if empty.
 std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
     if (!cell.has_value()) {
         return ".";
@@ -58,6 +61,8 @@ std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
     return token;
 }
 
+// Parses board text into a Board: blank lines are skipped, and every
+// non-blank row must tokenize to the same width as the first one.
 Board Parser::parse_board(const std::vector<std::string>& lines) {
     std::vector<std::vector<std::string>> rows;
     size_t width = 0;
@@ -92,6 +97,7 @@ Board Parser::parse_board(const std::vector<std::string>& lines) {
     return board;
 }
 
+// Renders a board back into its space-separated, newline-delimited text form.
 std::string Parser::board_to_string(const Board& board) {
     std::ostringstream oss;
     for (int y = 0; y < board.get_height(); ++y) {

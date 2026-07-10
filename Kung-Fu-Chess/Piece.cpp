@@ -46,6 +46,7 @@ bool King::has_blockers(int, int, int, int, const Board&) const {
     return false; // a king only ever moves one cell; nothing can be "between"
 }
 
+// A king moves exactly one cell, in any direction.
 bool King::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -58,6 +59,7 @@ bool King::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return !captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
+// True if another piece sits between start and destination along the row or column.
 bool Rook::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -67,6 +69,7 @@ bool Rook::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const 
     return !is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
+// A rook moves any distance in a straight line (row or column), with a clear path.
 bool Rook::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -79,6 +82,7 @@ bool Rook::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return !captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
+// True if another piece sits between start and destination along the diagonal.
 bool Bishop::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -88,6 +92,7 @@ bool Bishop::has_blockers(int start_x, int start_y, int dest_x, int dest_y, cons
     return !is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
+// A bishop moves any distance diagonally, with a clear path.
 bool Bishop::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -100,6 +105,7 @@ bool Bishop::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     return !captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
+// True if another piece sits between start and destination along the row, column, or diagonal.
 bool Queen::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -111,6 +117,7 @@ bool Queen::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const
     return !is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
+// A queen moves any distance in a straight line or diagonally, with a clear path.
 bool Queen::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -129,6 +136,7 @@ bool Knight::has_blockers(int, int, int, int, const Board&) const {
     return false; // knights jump over any piece in between
 }
 
+// A knight moves in an L-shape: two cells along one axis, one cell along the other.
 bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -145,6 +153,8 @@ bool Pawn::has_blockers(int, int, int, int, const Board&) const {
     return false; // a pawn only ever moves one cell; nothing can be "between"
 }
 
+// A pawn moves one cell straight ahead onto an empty cell, or captures one
+// cell diagonally ahead onto an enemy piece; direction depends on color.
 bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     std::optional<Cell> start_cell = board.get_at(start_x, start_y);
     if (!start_cell.has_value()) {
@@ -168,6 +178,8 @@ bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return false; // two-cell moves and forward captures are not allowed
 }
 
+// Returns the shared instance implementing the movement rules for `type`,
+// or nullptr if no rule is implemented.
 const Piece* PieceFactory::get_piece(PieceType type) {
     static King king;
     static Queen queen;
