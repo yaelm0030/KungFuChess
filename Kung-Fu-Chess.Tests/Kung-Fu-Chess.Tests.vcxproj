@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Kung-Fu-Chess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Kung-Fu-Chess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Kung-Fu-Chess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,7 +123,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\Kung-Fu-Chess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,43 +131,43 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TestMain.cpp" />
-    <ClCompile Include="Parser\ParseBoardTests.cpp" />
-    <ClCompile Include="Parser\BoardToStringTests.cpp" />
-    <ClCompile Include="Parser\RoundTripTests.cpp" />
-    <ClCompile Include="GameEngine\ClickTests.cpp" />
-    <ClCompile Include="GameEngine\GameOverTests.cpp" />
-    <ClCompile Include="GameEngine\JumpTests.cpp" />
-    <ClCompile Include="GameEngine\PromotionTests.cpp" />
-    <ClCompile Include="GameEngine\WaitTests.cpp" />
-    <ClCompile Include="GameEngine\PrintTests.cpp" />
-    <ClCompile Include="Piece\KingTests.cpp" />
-    <ClCompile Include="Piece\QueenTests.cpp" />
-    <ClCompile Include="Piece\RookTests.cpp" />
-    <ClCompile Include="Piece\BishopTests.cpp" />
-    <ClCompile Include="Piece\KnightTests.cpp" />
-    <ClCompile Include="Piece\PawnTests.cpp" />
-    <ClCompile Include="Piece\PieceFactoryTests.cpp" />
-    <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
+    <ClCompile Include="src\TestMain.cpp" />
+    <ClCompile Include="src\Parser\ParseBoardTests.cpp" />
+    <ClCompile Include="src\Parser\BoardToStringTests.cpp" />
+    <ClCompile Include="src\Parser\RoundTripTests.cpp" />
+    <ClCompile Include="src\GameEngine\ClickTests.cpp" />
+    <ClCompile Include="src\GameEngine\GameOverTests.cpp" />
+    <ClCompile Include="src\GameEngine\JumpTests.cpp" />
+    <ClCompile Include="src\GameEngine\PromotionTests.cpp" />
+    <ClCompile Include="src\GameEngine\WaitTests.cpp" />
+    <ClCompile Include="src\GameEngine\PrintTests.cpp" />
+    <ClCompile Include="src\Piece\KingTests.cpp" />
+    <ClCompile Include="src\Piece\QueenTests.cpp" />
+    <ClCompile Include="src\Piece\RookTests.cpp" />
+    <ClCompile Include="src\Piece\BishopTests.cpp" />
+    <ClCompile Include="src\Piece\KnightTests.cpp" />
+    <ClCompile Include="src\Piece\PawnTests.cpp" />
+    <ClCompile Include="src\Piece\PieceFactoryTests.cpp" />
+    <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\Parser.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\Parser.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameEngine.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\Piece.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ThirdParty\doctest.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\Board.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\Types.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\Parser.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\Piece.h" />
+    <ClInclude Include="include\ThirdParty\doctest.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Types.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameEngine.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Piece.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

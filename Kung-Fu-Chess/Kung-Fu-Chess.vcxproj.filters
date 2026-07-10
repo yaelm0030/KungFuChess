@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Board.cpp">
+    <ClCompile Include="src\GameEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Parser.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine.cpp">
+    <ClCompile Include="src\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Piece.cpp">
+    <ClCompile Include="src\Piece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Board.h">
+    <ClInclude Include="include\Board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
+    <ClInclude Include="include\GameEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="include\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameEngine.h">
+    <ClInclude Include="include\Piece.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Piece.h">
+    <ClInclude Include="include\Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

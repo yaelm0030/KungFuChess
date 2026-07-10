@@ -21,85 +21,85 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TestMain.cpp" />
-    <ClCompile Include="Parser\ParseBoardTests.cpp">
+    <ClCompile Include="src\TestMain.cpp" />
+    <ClCompile Include="src\Parser\ParseBoardTests.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Parser\BoardToStringTests.cpp">
+    <ClCompile Include="src\Parser\BoardToStringTests.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
-    <ClCompile Include="Parser\RoundTripTests.cpp">
+    <ClCompile Include="src\Parser\RoundTripTests.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\ClickTests.cpp">
+    <ClCompile Include="src\GameEngine\ClickTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\WaitTests.cpp">
+    <ClCompile Include="src\GameEngine\WaitTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\PrintTests.cpp">
+    <ClCompile Include="src\GameEngine\PrintTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\KingTests.cpp">
+    <ClCompile Include="src\Piece\KingTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\QueenTests.cpp">
+    <ClCompile Include="src\Piece\QueenTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\RookTests.cpp">
+    <ClCompile Include="src\Piece\RookTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\BishopTests.cpp">
+    <ClCompile Include="src\Piece\BishopTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\KnightTests.cpp">
+    <ClCompile Include="src\Piece\KnightTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\PawnTests.cpp">
+    <ClCompile Include="src\Piece\PawnTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="Piece\PieceFactoryTests.cpp">
+    <ClCompile Include="src\Piece\PieceFactoryTests.cpp">
       <Filter>Piece</Filter>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\Parser.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\Parser.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameEngine.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\Piece.cpp">
+    <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\GameOverTests.cpp">
+    <ClCompile Include="src\GameEngine\GameOverTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\PromotionTests.cpp">
+    <ClCompile Include="src\GameEngine\PromotionTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngine\JumpTests.cpp">
+    <ClCompile Include="src\GameEngine\JumpTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ThirdParty\doctest.h">
+    <ClInclude Include="include\ThirdParty\doctest.h">
       <Filter>ThirdParty</Filter>
     </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\Board.h">
+    <ClInclude Include="..\Kung-Fu-Chess\include\Board.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\Types.h">
+    <ClInclude Include="..\Kung-Fu-Chess\include\Types.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\Parser.h">
+    <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h">
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameEngine.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\Piece.h">
+    <ClInclude Include="..\Kung-Fu-Chess\include\Piece.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
