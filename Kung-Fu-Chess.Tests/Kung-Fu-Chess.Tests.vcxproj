@@ -135,10 +135,16 @@
     <ClCompile Include="Parser\ParseBoardTests.cpp" />
     <ClCompile Include="Parser\BoardToStringTests.cpp" />
     <ClCompile Include="Parser\RoundTripTests.cpp" />
+    <ClCompile Include="GameEngine\ClickTests.cpp" />
+    <ClCompile Include="GameEngine\WaitTests.cpp" />
+    <ClCompile Include="GameEngine\PrintTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\Parser.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>
@@ -147,6 +153,7 @@
     <ClInclude Include="..\Kung-Fu-Chess\Board.h" />
     <ClInclude Include="..\Kung-Fu-Chess\Types.h" />
     <ClInclude Include="..\Kung-Fu-Chess\Parser.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

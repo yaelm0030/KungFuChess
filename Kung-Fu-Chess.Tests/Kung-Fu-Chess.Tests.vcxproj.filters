@@ -4,6 +4,9 @@
     <Filter Include="Parser">
       <UniqueIdentifier>{c1d0f8a1-3f3a-4b8a-9a1a-1f1a2b3c4d5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine">
+      <UniqueIdentifier>{d4a3b1c4-6c6d-4ebc-ad4d-4c4d5e6f7081}</UniqueIdentifier>
+    </Filter>
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{a2e1f9b2-4a4b-4c9b-8b2b-2a2b3c4d5e6f}</UniqueIdentifier>
     </Filter>
@@ -22,10 +25,22 @@
     <ClCompile Include="Parser\RoundTripTests.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\ClickTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\WaitTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine\PrintTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\Board.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\Parser.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\GameEngine.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -40,6 +55,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\Parser.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\GameEngine.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
