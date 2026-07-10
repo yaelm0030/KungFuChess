@@ -55,4 +55,30 @@ TEST_CASE("a knight-shaped move is illegal") {
     CHECK_FALSE(king.is_available_move(4, 4, 5, 6, board));
 }
 
+// ---- has_blockers -----------------------------------------------------------
+
+TEST_CASE("has_blockers is always false, since a king only moves one cell") {
+    King king;
+    Board board = make_empty_board();
+    CHECK_FALSE(king.has_blockers(4, 4, 5, 5, board));
+}
+
+// ---- capturing ---------------------------------------------------------------
+
+TEST_CASE("capturing an enemy piece at the destination is legal") {
+    King king;
+    Board board = make_empty_board();
+    board.place_at(4, 4, Cell{ Color::w, PieceType::K });
+    board.place_at(5, 5, Cell{ Color::b, PieceType::P });
+    CHECK(king.is_available_move(4, 4, 5, 5, board));
+}
+
+TEST_CASE("capturing a piece of the same color at the destination is illegal") {
+    King king;
+    Board board = make_empty_board();
+    board.place_at(4, 4, Cell{ Color::w, PieceType::K });
+    board.place_at(5, 5, Cell{ Color::w, PieceType::P });
+    CHECK_FALSE(king.is_available_move(4, 4, 5, 5, board));
+}
+
 }
