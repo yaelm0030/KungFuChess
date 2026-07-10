@@ -73,6 +73,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\Piece.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameEngine\GameOverTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\doctest.h">
