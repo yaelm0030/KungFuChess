@@ -126,47 +126,82 @@ TEST_CASE("re-clicking the same selected piece keeps it selected") {
     CHECK(engine.selected()->y == 0);
 }
 
-// ---- move requests (instant for now) ---------------------------------------
+// ---- move requests (settle after the travel time elapses) ------------------
 
-TEST_CASE("clicking an empty cell while a piece is selected moves it there") {
+TEST_CASE("clicking an empty cell while a piece is selected eventually moves it there") {
     GameEngine engine(make_board());
     engine.click(50, 50);  // select bR at (0,0)
     engine.click(50, 150); // (0,1) is empty; straight down is a legal rook move
 
     CHECK_FALSE(engine.has_selection());
+    engine.wait(GameEngine::kDefaultMoveMsPerCell); // 1 cell of travel time
     CHECK(board_of(engine) == ". bN .\nbR . .\nwR . wN\n");
 }
 
-TEST_CASE("clicking an enemy piece while a piece is selected captures it") {
+TEST_CASE("clicking an enemy piece while a piece is selected eventually captures it") {
     GameEngine engine(make_board());
     engine.click(50, 50);   // select bR at (0,0)
     engine.click(50, 250);  // wR at (0,2) is white; straight down the column
 
     CHECK_FALSE(engine.has_selection());
+    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell); // 2 cells of travel time
     CHECK(board_of(engine) == ". bN .\n. . .\nbR . wN\n");
 }
 
-TEST_CASE("the vacated source cell is empty after a move") {
+TEST_CASE("the vacated source cell is empty once the move has arrived") {
     GameEngine engine(make_board());
     engine.click(50, 50);  // select bR at (0,0)
     engine.click(50, 150); // move down to (0,1)
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
 
     engine.click(50, 50); // (0,0) is now empty; no selection to move
     CHECK_FALSE(engine.has_selection());
 }
 
-TEST_CASE("consecutive moves chain correctly") {
+TEST_CASE("a cell with a move in flight cannot be reselected") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // move down to (0,1); still in flight
+
+    engine.click(50, 50); // (0,0) still shows bR, but it's mid-move
+    CHECK_FALSE(engine.has_selection());
+}
+
+TEST_CASE("consecutive moves chain correctly once each one arrives") {
     GameEngine engine(make_board());
     engine.click(50, 50);  // select bR at (0,0)
     engine.click(50, 150); // move bR down to (0,1)
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+
     engine.click(50, 150); // re-select the piece that is now at (0,1)
     REQUIRE(engine.has_selection());
     CHECK(engine.selected()->x == 0);
     CHECK(engine.selected()->y == 1);
 
     engine.click(50, 250); // move down to (0,2), capturing wR
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
     CHECK_FALSE(engine.has_selection());
     CHECK(board_of(engine) == ". bN .\n. . .\nbR . wN\n");
+}
+
+// ---- movement over time -----------------------------------------------------
+
+TEST_CASE("the board still shows the piece at its original cell before arrival") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // 1 cell of travel time is needed to arrive
+
+    engine.wait(GameEngine::kDefaultMoveMsPerCell - 1); // one millisecond short
+    CHECK(board_of(engine) == Parser::board_to_string(make_board()) + "\n");
+}
+
+TEST_CASE("the piece appears at the destination once enough time has passed") {
+    GameEngine engine(make_board());
+    engine.click(50, 50);  // select bR at (0,0)
+    engine.click(50, 150); // 1 cell of travel time is needed to arrive
+
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(engine) == ". bN .\nbR . .\nwR . wN\n");
 }
 
 // ---- moves that don't match the piece's shape are ignored -------------------

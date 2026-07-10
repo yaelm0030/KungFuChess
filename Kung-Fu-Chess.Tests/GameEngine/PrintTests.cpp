@@ -5,6 +5,8 @@
 #include "GameEngine.h"
 #include "Parser.h"
 
+// no neccecary form. both the engine and the parser use the same function of print.
+
 namespace {
 
 std::string board_of(const GameEngine& engine) {
@@ -30,12 +32,21 @@ TEST_CASE("printing a 0x0 board produces just a trailing newline") {
     CHECK(board_of(engine) == "\n");
 }
 
-TEST_CASE("print reflects the settled state after a completed move") {
+TEST_CASE("print reflects the settled state once a move has arrived") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
     engine.click(50, 50);  // select wK at (0,0)
     engine.click(150, 50); // move to (1,0)
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
 
     CHECK(board_of(engine) == ". wK\n");
+}
+
+TEST_CASE("print still shows the original cell while a move is in flight") {
+    GameEngine engine(Parser::parse_board({ "wK ." }));
+    engine.click(50, 50);  // select wK at (0,0)
+    engine.click(150, 50); // move to (1,0); not yet arrived
+
+    CHECK(board_of(engine) == "wK .\n");
 }
 
 TEST_CASE("print is unaffected by an in-progress selection with no move yet") {

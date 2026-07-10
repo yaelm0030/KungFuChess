@@ -1,5 +1,7 @@
 #include "ThirdParty/doctest.h"
 
+#include <sstream>
+
 #include "GameEngine.h"
 #include "Parser.h"
 
@@ -38,13 +40,23 @@ TEST_CASE("a negative wait is ignored rather than rewinding the clock") {
     CHECK(engine.clock_ms() == 1000);
 }
 
-TEST_CASE("moves settle instantly regardless of the clock, for this iteration") {
+TEST_CASE("a move does not settle on the board until wait reaches its arrival time") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
-    engine.click(50, 50);   // select wK at (0,0)
-    engine.click(150, 50);  // move to (1,0), no wait needed to settle
+    engine.click(50, 50);  // select wK at (0,0)
+    engine.click(150, 50); // move to (1,0); one cell of travel time is needed
     CHECK_FALSE(engine.has_selection());
-    engine.wait(1000);
-    CHECK(engine.clock_ms() == 1000);
+
+    engine.wait(GameEngine::kDefaultMoveMsPerCell - 1);
+    CHECK(engine.clock_ms() == GameEngine::kDefaultMoveMsPerCell - 1);
+
+    std::ostringstream still_at_start;
+    engine.print(still_at_start);
+    CHECK(still_at_start.str() == "wK .\n");
+
+    engine.wait(1);
+    std::ostringstream arrived;
+    engine.print(arrived);
+    CHECK(arrived.str() == ". wK\n");
 }
 
 }
