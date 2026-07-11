@@ -42,9 +42,7 @@ TEST_CASE("a negative wait is ignored rather than rewinding the clock") {
 
 TEST_CASE("a move does not settle on the board until wait reaches its arrival time") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
-    engine.click(50, 50);  // select wK at (0,0)
-    engine.click(150, 50); // move to (1,0); one cell of travel time is needed
-    CHECK_FALSE(engine.has_selection());
+    CHECK(engine.request_move(Position{ 0, 0 }, Position{ 1, 0 })); // one cell of travel time is needed
 
     engine.wait(GameEngine::kDefaultMoveMsPerCell - 1);
     CHECK(engine.clock_ms() == GameEngine::kDefaultMoveMsPerCell - 1);

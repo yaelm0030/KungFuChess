@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Board.h"
+#include "Controller.h"
 #include "GameEngine.h"
 #include "Parser.h"
 
@@ -40,16 +41,16 @@ std::vector<std::string> tokenize(const std::string& line) {
     return tokens;
 }
 
-void run_command(const std::vector<std::string>& tokens, GameEngine& engine) {
+void run_command(const std::vector<std::string>& tokens, GameEngine& engine, Controller& controller) {
     if (tokens.empty()) {
         return;
     }
 
     try {
         if (tokens[0] == "click" && tokens.size() == 3) {
-            engine.click(std::stoi(tokens[1]), std::stoi(tokens[2]));
+            controller.click(std::stoi(tokens[1]), std::stoi(tokens[2]));
         } else if (tokens[0] == "jump" && tokens.size() == 3) {
-            engine.jump(std::stoi(tokens[1]), std::stoi(tokens[2]));
+            controller.jump(std::stoi(tokens[1]), std::stoi(tokens[2]));
         } else if (tokens[0] == "wait" && tokens.size() == 2) {
             engine.wait(std::stoi(tokens[1]));
         } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
@@ -79,9 +80,10 @@ int main() {
     }
 
     GameEngine engine(std::move(board));
+    Controller controller(engine);
 
     std::string command;
     while (std::getline(std::cin, command)) {
-        run_command(tokenize(command), engine);
+        run_command(tokenize(command), engine, controller);
     }
 }

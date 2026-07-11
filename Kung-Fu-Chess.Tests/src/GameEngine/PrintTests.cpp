@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "Controller.h"
 #include "GameEngine.h"
 #include "Parser.h"
 
@@ -34,8 +35,7 @@ TEST_CASE("printing a 0x0 board produces just a trailing newline") {
 
 TEST_CASE("print reflects the settled state once a move has arrived") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
-    engine.click(50, 50);  // select wK at (0,0)
-    engine.click(150, 50); // move to (1,0)
+    engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }); // move to (1,0)
     engine.wait(GameEngine::kDefaultMoveMsPerCell);
 
     CHECK(board_of(engine) == ". wK\n");
@@ -43,17 +43,17 @@ TEST_CASE("print reflects the settled state once a move has arrived") {
 
 TEST_CASE("print still shows the original cell while a move is in flight") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
-    engine.click(50, 50);  // select wK at (0,0)
-    engine.click(150, 50); // move to (1,0); not yet arrived
+    engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }); // move to (1,0); not yet arrived
 
     CHECK(board_of(engine) == "wK .\n");
 }
 
-TEST_CASE("print is unaffected by an in-progress selection with no move yet") {
+TEST_CASE("print is unaffected by an in-progress Controller selection with no move yet") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
+    Controller controller(engine);
     std::string before = board_of(engine);
 
-    engine.click(50, 50); // select wK, no move requested
+    controller.click(50, 50); // select wK, no move requested
 
     CHECK(board_of(engine) == before);
 }

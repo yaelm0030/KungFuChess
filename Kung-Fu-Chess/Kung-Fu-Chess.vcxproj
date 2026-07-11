@@ -136,13 +136,23 @@
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\Piece.cpp" />
+    <ClCompile Include="src\RuleEngine.cpp" />
+    <ClCompile Include="src\RealTimeArbiter.cpp" />
+    <ClCompile Include="src\BoardMapper.cpp" />
+    <ClCompile Include="src\Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
+    <ClInclude Include="include\Constants.h" />
     <ClInclude Include="include\Types.h" />
     <ClInclude Include="include\Parser.h" />
     <ClInclude Include="include\GameEngine.h" />
     <ClInclude Include="include\Piece.h" />
+    <ClInclude Include="include\RuleEngine.h" />
+    <ClInclude Include="include\RealTimeArbiter.h" />
+    <ClInclude Include="include\Position.h" />
+    <ClInclude Include="include\BoardMapper.h" />
+    <ClInclude Include="include\Controller.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

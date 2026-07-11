@@ -135,7 +135,6 @@
     <ClCompile Include="src\Parser\ParseBoardTests.cpp" />
     <ClCompile Include="src\Parser\BoardToStringTests.cpp" />
     <ClCompile Include="src\Parser\RoundTripTests.cpp" />
-    <ClCompile Include="src\GameEngine\ClickTests.cpp" />
     <ClCompile Include="src\GameEngine\GameOverTests.cpp" />
     <ClCompile Include="src\GameEngine\JumpTests.cpp" />
     <ClCompile Include="src\GameEngine\PromotionTests.cpp" />
@@ -148,6 +147,8 @@
     <ClCompile Include="src\Piece\KnightTests.cpp" />
     <ClCompile Include="src\Piece\PawnTests.cpp" />
     <ClCompile Include="src\Piece\PieceFactoryTests.cpp" />
+    <ClCompile Include="src\RuleEngine\RuleEngineTests.cpp" />
+    <ClCompile Include="src\Controller\ControllerTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -160,14 +161,32 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RuleEngine.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RealTimeArbiter.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\BoardMapper.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Types.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameEngine.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Piece.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\RuleEngine.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\RealTimeArbiter.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Position.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\BoardMapper.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
