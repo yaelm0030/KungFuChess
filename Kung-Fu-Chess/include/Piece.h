@@ -14,6 +14,11 @@ public:
 
     // True if another piece blocks the path between start and dest.
     virtual bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const = 0;
+
+protected:
+    // Shared tail once a subclass has confirmed the move fits its shape:
+    // rejects a blocked path, then rejects capturing one's own color.
+    bool legal_if_shape_matches(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const;
 };
 
 class King : public Piece {

@@ -12,6 +12,13 @@ int abs_diff(int a, int b) {
 
 } // namespace
 
+bool Piece::legal_if_shape_matches(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
+    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
+        return false;
+    }
+    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+}
+
 bool King::has_blockers(int, int, int, int, const Board&) const {
     return false; // a king only ever moves one cell; nothing can be "between"
 }
@@ -23,10 +30,7 @@ bool King::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     if (!((dx != 0 || dy != 0) && dx <= 1 && dy <= 1)) {
         return false;
     }
-    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
-        return false;
-    }
-    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+    return legal_if_shape_matches(start_x, start_y, dest_x, dest_y, board);
 }
 
 bool Rook::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
@@ -45,10 +49,7 @@ bool Rook::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     if ((dx == 0) == (dy == 0)) {
         return false; // no movement, or not aligned on a single axis
     }
-    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
-        return false;
-    }
-    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+    return legal_if_shape_matches(start_x, start_y, dest_x, dest_y, board);
 }
 
 bool Bishop::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
@@ -67,10 +68,7 @@ bool Bishop::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     if (dx == 0 || dx != dy) {
         return false;
     }
-    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
-        return false;
-    }
-    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+    return legal_if_shape_matches(start_x, start_y, dest_x, dest_y, board);
 }
 
 bool Queen::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
@@ -93,10 +91,7 @@ bool Queen::is_available_move(int start_x, int start_y, int dest_x, int dest_y, 
     if (!straight && !diagonal) {
         return false;
     }
-    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
-        return false;
-    }
-    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+    return legal_if_shape_matches(start_x, start_y, dest_x, dest_y, board);
 }
 
 bool Knight::has_blockers(int, int, int, int, const Board&) const {
@@ -110,10 +105,7 @@ bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     if (!((dx == 1 && dy == 2) || (dx == 2 && dy == 1))) {
         return false;
     }
-    if (has_blockers(start_x, start_y, dest_x, dest_y, board)) {
-        return false;
-    }
-    return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
+    return legal_if_shape_matches(start_x, start_y, dest_x, dest_y, board);
 }
 
 namespace {

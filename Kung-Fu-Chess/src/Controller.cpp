@@ -49,7 +49,7 @@ void Controller::jump(int pixel_x, int pixel_y) {
     }
 
     if (engine_.request_jump(*cell)) {
-        if (selected_.has_value() && selected_->x == cell->x && selected_->y == cell->y) {
+        if (selected_.has_value() && *selected_ == *cell) {
             selected_.reset();
         }
     }

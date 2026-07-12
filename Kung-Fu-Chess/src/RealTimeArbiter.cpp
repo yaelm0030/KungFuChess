@@ -42,7 +42,7 @@ RealTimeArbiter::RealTimeArbiter(Board& board, long long move_ms_per_cell)
 
 bool RealTimeArbiter::is_moving(int x, int y) const {
     for (const PendingMove& move : pending_moves_) {
-        if (move.start.x == x && move.start.y == y) {
+        if (move.start == Position{ x, y }) {
             return true;
         }
     }
@@ -51,7 +51,7 @@ bool RealTimeArbiter::is_moving(int x, int y) const {
 
 const RealTimeArbiter::AirbornePiece* RealTimeArbiter::airborne_at(int x, int y) const {
     for (const AirbornePiece& airborne : airborne_) {
-        if (airborne.cell.x == x && airborne.cell.y == y) {
+        if (airborne.cell == Position{ x, y }) {
             return &airborne;
         }
     }
@@ -74,7 +74,7 @@ bool RealTimeArbiter::conflicts_with_pending_move(int start_x, int start_y, int 
         std::vector<Position> existing_path = path_cells(move.start.x, move.start.y, move.dest.x, move.dest.y);
         for (const Position& a : new_path) {
             for (const Position& b : existing_path) {
-                if (a.x == b.x && a.y == b.y) {
+                if (a == b) {
                     return true;
                 }
             }
@@ -105,6 +105,25 @@ bool RealTimeArbiter::is_pawn_promotion(const PendingMove& move) const {
 }
 
 bool RealTimeArbiter::settle_arrived_moves() {
+    // Fast path: nothing to settle this tick, so skip rebuilding either vector.
+    bool any_move_arrived = false;
+    for (const PendingMove& move : pending_moves_) {
+        if (move.arrival_ms <= clock_ms_) {
+            any_move_arrived = true;
+            break;
+        }
+    }
+    bool any_jump_landed = false;
+    for (const AirbornePiece& airborne : airborne_) {
+        if (airborne.land_ms <= clock_ms_) {
+            any_jump_landed = true;
+            break;
+        }
+    }
+    if (!any_move_arrived && !any_jump_landed) {
+        return false;
+    }
+
     bool king_captured = false;
     std::vector<PendingMove> still_pending;
 

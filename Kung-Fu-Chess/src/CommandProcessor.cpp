@@ -1,28 +1,14 @@
 #include "CommandProcessor.h"
 
-#include <sstream>
 #include <vector>
 
 #include "Controller.h"
-
-namespace {
-
-std::vector<std::string> tokenize(const std::string& line) {
-    std::vector<std::string> tokens;
-    std::istringstream iss(line);
-    std::string token;
-    while (iss >> token) {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
-
-} // namespace
+#include "Parser.h"
 
 CommandProcessor::CommandProcessor(Controller& controller) : controller_(controller) {}
 
 void CommandProcessor::run_line(const std::string& line) {
-    std::vector<std::string> tokens = tokenize(line);
+    std::vector<std::string> tokens = Parser::tokenize(line);
     if (tokens.empty()) {
         return;
     }

@@ -6,8 +6,6 @@
 #include "GameEngine.h"
 #include "Parser.h"
 
-// no neccecary form. both the engine and the parser use the same function of print.
-
 namespace {
 
 std::string board_of(const GameEngine& engine) {

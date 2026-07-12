@@ -19,11 +19,15 @@ public:
     // Validates the move against the piece's own rule and against any move
     // already in flight on its route, then queues it via RealTimeArbiter.
     // False (board unchanged) if illegal, the game is over, there's no
-    // piece at `start`, or it's airborne.
+    // piece at `start`, or it's already moving or airborne. An out-of-range
+    // `start`/`dest` propagates Board's std::out_of_range, provided the game
+    // isn't already over.
     bool request_move(Position start, Position dest);
 
     // Starts a jump in place at `cell` for kJumpDurationMs. False if the
     // game is over, there's no piece there, or it's already moving/airborne.
+    // An out-of-range `cell` propagates Board's std::out_of_range, provided
+    // the game isn't already over.
     bool request_jump(Position cell);
 
     // Advances the game clock and settles any pending moves whose arrival

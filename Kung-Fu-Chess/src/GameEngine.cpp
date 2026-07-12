@@ -33,6 +33,13 @@ bool GameEngine::request_move(Position start, Position dest) {
         return false;
     }
 
+    // Already moving: reject a redirect rather than rescheduling mid-flight.
+    // Explicit, even though conflicts_with_pending_move currently also rejects
+    // this via the shared start cell in its path - don't rely on that being permanent.
+    if (arbiter_.is_moving(start.x, start.y)) {
+        return false;
+    }
+
     // An airborne piece is committed to its jump; it cannot move until it lands.
     if (arbiter_.is_airborne(start.x, start.y)) {
         return false;
