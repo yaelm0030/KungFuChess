@@ -39,8 +39,8 @@ public:
     int width() const { return board_.get_width(); }
     int height() const { return board_.get_height(); }
 
-    // True if `cell` holds a piece that can be selected: present, and
-    // neither mid-move nor mid-jump.
+    // True if `cell` holds a piece that can be selected: present, neither
+    // mid-move nor mid-jump, and the game is not already over.
     bool is_selectable(Position cell) const;
 
     std::optional<Color> color_at(Position cell) const;

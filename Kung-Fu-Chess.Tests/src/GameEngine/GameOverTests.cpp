@@ -50,6 +50,17 @@ TEST_CASE("once the game is over, further move requests are ignored") {
     CHECK(board_of(engine) == ". . wR\nwN . .\n");
 }
 
+TEST_CASE("once the game is over, a piece that would otherwise be selectable is no longer selectable") {
+    GameEngine engine(Parser::parse_board({ "wR . bK", "wN . ." }));
+    CHECK(engine.is_selectable(Position{ 0, 1 })); // wN is selectable before the game ends
+
+    engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bK
+    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    REQUIRE(engine.game_over());
+
+    CHECK_FALSE(engine.is_selectable(Position{ 0, 1 })); // wN is no longer selectable
+}
+
 TEST_CASE("a move already in flight when the game ends still settles on the board") {
     GameEngine engine(Parser::parse_board({
         "wR .  bK .",

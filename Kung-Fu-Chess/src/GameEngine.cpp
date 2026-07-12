@@ -8,6 +8,9 @@ GameEngine::GameEngine(Board board, long long move_ms_per_cell)
 }
 
 bool GameEngine::is_selectable(Position cell) const {
+    if (game_over_) {
+        return false;
+    }
     std::optional<Cell> piece = board_.get_at(cell.x, cell.y);
     return piece.has_value() && !arbiter_.is_moving(cell.x, cell.y) && !arbiter_.is_airborne(cell.x, cell.y);
 }

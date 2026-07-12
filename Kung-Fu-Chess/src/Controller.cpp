@@ -24,10 +24,6 @@ bool Controller::handle_click_with_selection(Position cell, std::optional<Color>
 }
 
 void Controller::click(int pixel_x, int pixel_y) {
-    if (engine_.game_over()) {
-        return;
-    }
-
     std::optional<Position> cell = BoardMapper::pixel_to_cell(pixel_x, pixel_y, engine_.width(), engine_.height());
     if (!cell.has_value()) {
         selected_.reset(); // clicking outside the board cancels the selection instantly
@@ -47,10 +43,6 @@ void Controller::click(int pixel_x, int pixel_y) {
 }
 
 void Controller::jump(int pixel_x, int pixel_y) {
-    if (engine_.game_over()) {
-        return;
-    }
-
     std::optional<Position> cell = BoardMapper::pixel_to_cell(pixel_x, pixel_y, engine_.width(), engine_.height());
     if (!cell.has_value()) {
         return;

@@ -389,4 +389,16 @@ TEST_CASE("once the game is over, further clicks are ignored") {
     CHECK(board_of(controller) == ". . wR\nwN . .\n");
 }
 
+TEST_CASE("once the game is over, a click outside the board still clears any stale selection") {
+    Controller controller(Parser::parse_board({ "wR . bK", "wN . ." }));
+    controller.click(50, 50);   // select wR at (0,0)
+    controller.click(250, 50);  // move across to (2,0), capturing bK
+    controller.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    REQUIRE(controller.game_over());
+
+    controller.click(50, 150); // attempt to select wN; ignored, no selection created
+    controller.click(-50, 50); // outside the board
+    CHECK_FALSE(controller.has_selection());
+}
+
 }
