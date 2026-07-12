@@ -140,6 +140,7 @@
     <ClCompile Include="src\RealTimeArbiter.cpp" />
     <ClCompile Include="src\BoardMapper.cpp" />
     <ClCompile Include="src\Controller.cpp" />
+    <ClCompile Include="src\CommandProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="include\Position.h" />
     <ClInclude Include="include\BoardMapper.h" />
     <ClInclude Include="include\Controller.h" />
+    <ClInclude Include="include\CommandProcessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

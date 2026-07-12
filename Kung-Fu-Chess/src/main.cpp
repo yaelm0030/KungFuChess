@@ -1,9 +1,9 @@
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 
 #include "Board.h"
+#include "CommandProcessor.h"
 #include "Controller.h"
 #include "Parser.h"
 
@@ -30,36 +30,6 @@ std::vector<std::string> read_lines_until(std::istream& in, const std::string& s
     return lines;
 }
 
-std::vector<std::string> tokenize(const std::string& line) {
-    std::vector<std::string> tokens;
-    std::istringstream iss(line);
-    std::string token;
-    while (iss >> token) {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
-
-void run_command(const std::vector<std::string>& tokens, Controller& controller) {
-    if (tokens.empty()) {
-        return;
-    }
-
-    try {
-        if (tokens[0] == "click" && tokens.size() == 3) {
-            controller.click(std::stoi(tokens[1]), std::stoi(tokens[2]));
-        } else if (tokens[0] == "jump" && tokens.size() == 3) {
-            controller.jump(std::stoi(tokens[1]), std::stoi(tokens[2]));
-        } else if (tokens[0] == "wait" && tokens.size() == 2) {
-            controller.wait(std::stoi(tokens[1]));
-        } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
-            controller.print();
-        }
-    } catch (const std::exception&) {
-        // Malformed numeric arguments (e.g. "click a b") are ignored.
-    }
-}
-
 } // namespace
 
 int main() {
@@ -79,9 +49,10 @@ int main() {
     }
 
     Controller controller(std::move(board));
+    CommandProcessor processor(controller);
 
     std::string command;
     while (std::getline(std::cin, command)) {
-        run_command(tokenize(command), controller);
+        processor.run_line(command);
     }
 }
