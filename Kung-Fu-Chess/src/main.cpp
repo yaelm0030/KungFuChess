@@ -5,7 +5,6 @@
 
 #include "Board.h"
 #include "Controller.h"
-#include "GameEngine.h"
 #include "Parser.h"
 
 namespace {
@@ -41,7 +40,7 @@ std::vector<std::string> tokenize(const std::string& line) {
     return tokens;
 }
 
-void run_command(const std::vector<std::string>& tokens, GameEngine& engine, Controller& controller) {
+void run_command(const std::vector<std::string>& tokens, Controller& controller) {
     if (tokens.empty()) {
         return;
     }
@@ -52,9 +51,9 @@ void run_command(const std::vector<std::string>& tokens, GameEngine& engine, Con
         } else if (tokens[0] == "jump" && tokens.size() == 3) {
             controller.jump(std::stoi(tokens[1]), std::stoi(tokens[2]));
         } else if (tokens[0] == "wait" && tokens.size() == 2) {
-            engine.wait(std::stoi(tokens[1]));
+            controller.wait(std::stoi(tokens[1]));
         } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
-            engine.print();
+            controller.print();
         }
     } catch (const std::exception&) {
         // Malformed numeric arguments (e.g. "click a b") are ignored.
@@ -79,11 +78,10 @@ int main() {
         return 0;
     }
 
-    GameEngine engine(std::move(board));
-    Controller controller(engine);
+    Controller controller(std::move(board));
 
     std::string command;
     while (std::getline(std::cin, command)) {
-        run_command(tokenize(command), engine, controller);
+        run_command(tokenize(command), controller);
     }
 }

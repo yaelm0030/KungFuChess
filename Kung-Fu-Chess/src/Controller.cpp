@@ -2,11 +2,9 @@
 
 #include "BoardMapper.h"
 
-Controller::Controller(GameEngine& engine) : engine_(engine) {
+Controller::Controller(Board board, long long move_ms_per_cell) : engine_(std::move(board), move_ms_per_cell) {
 }
 
-// Reselects a friendly selectable piece on `cell`, otherwise attempts to
-// move the current selection onto it.
 bool Controller::handle_click_with_selection(Position cell, std::optional<Color> clicked_color, bool clicked_cell_is_selectable) {
     std::optional<Color> selected_color = engine_.color_at(*selected_);
     if (!selected_color.has_value()) {
@@ -25,8 +23,6 @@ bool Controller::handle_click_with_selection(Position cell, std::optional<Color>
     return true;
 }
 
-// Resolves a click to a board cell, then either updates the selection or
-// requests a move, depending on what's currently selected and clicked.
 void Controller::click(int pixel_x, int pixel_y) {
     if (engine_.game_over()) {
         return;
@@ -50,8 +46,6 @@ void Controller::click(int pixel_x, int pixel_y) {
     }
 }
 
-// Starts a jump for the piece at the given pixel, if one is eligible; drops
-// the selection if the jumped piece was the current selection.
 void Controller::jump(int pixel_x, int pixel_y) {
     if (engine_.game_over()) {
         return;
@@ -67,4 +61,12 @@ void Controller::jump(int pixel_x, int pixel_y) {
             selected_.reset();
         }
     }
+}
+
+void Controller::wait(int milliseconds) {
+    engine_.wait(milliseconds);
+}
+
+void Controller::print(std::ostream& out) const {
+    engine_.print(out);
 }

@@ -29,7 +29,6 @@ bool King::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
-// True if another piece sits between start and destination along the row or column.
 bool Rook::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -52,7 +51,6 @@ bool Rook::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
-// True if another piece sits between start and destination along the diagonal.
 bool Bishop::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -75,7 +73,6 @@ bool Bishop::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
     return !RuleEngine::captures_own_color(start_x, start_y, dest_x, dest_y, board);
 }
 
-// True if another piece sits between start and destination along the row, column, or diagonal.
 bool Queen::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -129,8 +126,8 @@ int pawn_start_row(Color color, const Board& board) {
 
 } // namespace
 
-// A pawn can only be blocked on its two-cell opening move, by a piece sitting
-// on the cell it must pass through; a one-cell move has nothing "between" it.
+// A pawn can only be blocked on its two-cell opening move, by a piece on the
+// cell it must pass through; a one-cell move has nothing "between" it.
 bool Pawn::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     std::optional<Cell> start_cell = board.get_at(start_x, start_y);
     if (!start_cell.has_value()) {
@@ -139,7 +136,7 @@ bool Pawn::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const 
 
     int forward = (start_cell->color == Color::w) ? -1 : 1;
     if (dest_x != start_x || dest_y != start_y + 2 * forward || start_y != pawn_start_row(start_cell->color, board)) {
-        return false; // not a two-cell opening move; blocking is undefined
+        return false;
     }
 
     return board.get_at(start_x, start_y + forward).has_value();
@@ -161,7 +158,7 @@ bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     std::optional<Cell> dest_cell = board.get_at(dest_x, dest_y);
 
     if (dx == 0 && dy == forward) {
-        return !dest_cell.has_value(); // one cell forward, only onto an empty cell
+        return !dest_cell.has_value();
     }
 
     if (dx == 0 && dy == 2 * forward && start_y == pawn_start_row(start_cell->color, board)) {
@@ -169,14 +166,12 @@ bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     }
 
     if (std::abs(dx) == 1 && dy == forward) {
-        return dest_cell.has_value() && dest_cell->color != start_cell->color; // diagonal capture only
+        return dest_cell.has_value() && dest_cell->color != start_cell->color;
     }
 
-    return false; // any other offset is illegal
+    return false;
 }
 
-// Returns the shared instance implementing the movement rules for `type`,
-// or nullptr if no rule is implemented.
 const Piece* PieceFactory::get_piece(PieceType type) {
     static King king;
     static Queen queen;

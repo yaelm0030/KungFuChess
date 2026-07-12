@@ -49,13 +49,16 @@ TEST_CASE("print still shows the original cell while a move is in flight") {
 }
 
 TEST_CASE("print is unaffected by an in-progress Controller selection with no move yet") {
-    GameEngine engine(Parser::parse_board({ "wK ." }));
-    Controller controller(engine);
-    std::string before = board_of(engine);
+    Controller controller(Parser::parse_board({ "wK ." }));
+    std::ostringstream before_stream;
+    controller.print(before_stream);
+    std::string before = before_stream.str();
 
     controller.click(50, 50); // select wK, no move requested
 
-    CHECK(board_of(engine) == before);
+    std::ostringstream after_stream;
+    controller.print(after_stream);
+    CHECK(after_stream.str() == before);
 }
 
 TEST_CASE("print does not add extra blank lines for boards with empty rows removed during parsing") {

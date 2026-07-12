@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-// Splits a line into whitespace-separated tokens.
 std::vector<std::string> Parser::tokenize(const std::string& line) {
     std::vector<std::string> tokens;
     std::istringstream iss(line);
@@ -40,7 +39,6 @@ Cell Parser::parse_token(const std::string& token) {
     return Cell{ color, type };
 }
 
-// Renders a cell back into its two-character token, or "." if empty.
 std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
     if (!cell.has_value()) {
         return ".";
@@ -97,7 +95,6 @@ Board Parser::parse_board(const std::vector<std::string>& lines) {
     return board;
 }
 
-// Renders a board back into its space-separated, newline-delimited text form.
 std::string Parser::board_to_string(const Board& board) {
     std::ostringstream oss;
     for (int y = 0; y < board.get_height(); ++y) {

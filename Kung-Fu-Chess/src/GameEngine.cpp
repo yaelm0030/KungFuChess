@@ -20,9 +20,6 @@ std::optional<Color> GameEngine::color_at(Position cell) const {
     return piece->color;
 }
 
-// Validates and queues a move of the piece at `start` onto `dest`, if the
-// move is legal for that piece and doesn't collide with a move already in
-// flight.
 bool GameEngine::request_move(Position start, Position dest) {
     if (game_over_) {
         return false;
@@ -33,8 +30,7 @@ bool GameEngine::request_move(Position start, Position dest) {
         return false;
     }
 
-    // An airborne piece is committed to its jump and stays on its cell; it
-    // cannot be moved until it lands.
+    // An airborne piece is committed to its jump; it cannot move until it lands.
     if (arbiter_.is_airborne(start.x, start.y)) {
         return false;
     }
@@ -44,8 +40,6 @@ bool GameEngine::request_move(Position start, Position dest) {
         return false;
     }
 
-    // Reject a move whose route overlaps a move already in flight, to avoid
-    // scheduling overlapping real-time commands on the same cells.
     if (arbiter_.conflicts_with_pending_move(start.x, start.y, dest.x, dest.y)) {
         return false;
     }
@@ -54,8 +48,6 @@ bool GameEngine::request_move(Position start, Position dest) {
     return true;
 }
 
-// Starts a jump for the piece at `cell`, if one is eligible: it must be
-// present, not already moving, and not already airborne.
 bool GameEngine::request_jump(Position cell) {
     if (game_over_) {
         return false;
@@ -70,8 +62,7 @@ bool GameEngine::request_jump(Position cell) {
     return true;
 }
 
-// Advances the clock and settles any moves that have now arrived; ends the
-// game if an enemy king was captured while settling.
+// Ends the game if an enemy king was captured while settling.
 void GameEngine::wait(int milliseconds) {
     if (milliseconds > 0 && arbiter_.advance(milliseconds)) {
         game_over_ = true;

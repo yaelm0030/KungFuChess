@@ -6,54 +6,37 @@
 #include "Board.h"
 #include "Position.h"
 
-// Owns everything about real-time movement over a bound Board: pieces
-// currently in flight (pending moves) or airborne (mid-jump), and the
-// simulated clock that advances and settles them. Applies settled moves
-// directly to the bound board. Reports back whether an enemy king was
-// captured while settling, rather than tracking a game-over flag itself —
-// that decision belongs to the caller.
+// SRP: owns real-time move/jump scheduling and the simulated clock over a
+// bound Board, separate from GameEngine's move-legality concerns. Reports
+// king captures back to the caller rather than deciding game-over itself.
 class RealTimeArbiter {
 public:
     RealTimeArbiter(Board& board, long long move_ms_per_cell);
 
-    // True if the piece at (x, y) is currently mid-route to a destination
-    // (i.e. has a pending move that hasn't arrived yet). A moving piece
-    // cannot be selected, so it cannot be redirected.
+    // True if the piece at (x, y) has a pending move that hasn't arrived yet.
     bool is_moving(int x, int y) const;
 
-    // True if the piece at (x, y) is currently mid-jump. An airborne piece
-    // can neither be selected nor redirected until it lands.
     bool is_airborne(int x, int y) const { return airborne_at(x, y) != nullptr; }
 
-    // Removes any airborne record on (x, y). Called whenever the piece on
-    // that cell is replaced, so airborne state never outlives the piece it
-    // describes.
+    // Called whenever the piece on (x, y) is replaced, so airborne state
+    // never outlives the piece it describes.
     void drop_airborne_at(int x, int y);
 
-    // Queues a move of `piece` from `start` to `dest`; it lands once the
-    // clock reaches its arrival time.
     void schedule_move(Position start, Position dest, Cell piece);
 
-    // Starts a jump for `piece` on `cell`, guarding that cell for
-    // `jump_duration_ms`: if an enemy moving piece arrives there while the
-    // jump is still active, the jumper captures the arriving enemy instead
-    // of being captured.
+    // Guards `cell` for jump_duration_ms: an enemy move that arrives there
+    // during the window is captured by the jumper instead of capturing it.
     void start_jump(Position cell, Cell piece, long long jump_duration_ms);
 
-    // Advances the simulated clock by `milliseconds` (a no-op if not
-    // positive) and settles any pending moves/jumps whose time has now
-    // passed, applying them directly to the bound board. Returns true if an
-    // enemy king was captured while settling (whether by normal arrival or
-    // by an airborne guard).
+    // Advances the clock and settles arrived moves/jumps. Returns true if
+    // an enemy king was captured while settling.
     bool advance(int milliseconds);
 
     long long clock_ms() const { return clock_ms_; }
 
-    // True if a move from (start_x, start_y) to (dest_x, dest_y) would pass
-    // through any cell already on the route of a pending move. Whichever
-    // move was scheduled first keeps its claim on the route; a later,
-    // colliding move is rejected outright. Called by GameEngine before
-    // scheduling a new move, to avoid overlapping real-time commands.
+    // True if the given move's route would share a cell with a pending
+    // move's route. Whichever move was scheduled first keeps its claim; a
+    // later, colliding move is rejected outright.
     bool conflicts_with_pending_move(int start_x, int start_y, int dest_x, int dest_y) const;
 
 private:
@@ -64,18 +47,10 @@ private:
         long long arrival_ms;
     };
 
-    // A piece that is mid-jump. Invariants:
-    //  - The jumper REMAINS on `cell` on the bound board for the whole jump,
-    //    exactly as an in-flight piece stays on its `start` cell, so the
-    //    board shows it in place with no special handling.
-    //  - `airborne_` is therefore a pure time-windowed status overlay, not a
-    //    separate copy of the piece; it is kept in sync with the board (an
-    //    entry is dropped the moment its cell is replaced or the window
-    //    ends), so it can never outlive the piece it describes.
-    //  - It carries only timing (`land_ms`), not any animation/visual state.
-    //  - While airborne, the piece cannot be selected, moved, or captured;
-    //    it instead captures any enemy that arrives on its cell during the
-    //    window.
+    // A piece mid-jump. It stays on `cell` on the board for the whole jump
+    // (no special handling needed elsewhere); this is just a time-windowed
+    // status overlay carrying `land_ms`, kept in sync so it never outlives
+    // the piece it describes.
     struct AirbornePiece {
         Position cell;
         Cell piece;
@@ -92,15 +67,10 @@ private:
 
     long long arrival_time_for(int start_x, int start_y, int dest_x, int dest_y) const;
 
-    // True if `move` arrives on a cell occupied by an enemy king, i.e. this
-    // move captures the king.
     bool captures_enemy_king(const PendingMove& move) const;
 
-    // True if `move`'s piece is a pawn arriving at the farthest row from its
-    // own side, i.e. this move earns a promotion to queen.
+    // True if `move`'s piece is a pawn reaching the farthest row (promotion).
     bool is_pawn_promotion(const PendingMove& move) const;
 
-    // Applies every pending move whose arrival time has passed, and keeps
-    // the rest queued. Returns true if an enemy king was captured.
     bool settle_arrived_moves();
 };
