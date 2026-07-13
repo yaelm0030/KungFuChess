@@ -152,6 +152,7 @@
     <ClCompile Include="src\RuleEngine\RuleEngineTests.cpp" />
     <ClCompile Include="src\Controller\ControllerTests.cpp" />
     <ClCompile Include="src\CommandProcessor\CommandProcessorTests.cpp" />
+    <ClCompile Include="src\ProtocolIO\ProtocolIOTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -179,6 +180,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\CommandProcessor.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\ProtocolIO.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -194,6 +198,7 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\BoardMapper.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\CommandProcessor.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\ProtocolIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
