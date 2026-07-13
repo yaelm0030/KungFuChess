@@ -4,6 +4,9 @@
     <Filter Include="Parser">
       <UniqueIdentifier>{c1d0f8a1-3f3a-4b8a-9a1a-1f1a2b3c4d5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Types">
+      <UniqueIdentifier>{f6c5d3e6-8e8f-4fce-cf6f-6e6f708192a3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="GameEngine">
       <UniqueIdentifier>{d4a3b1c4-6c6d-4ebc-ad4d-4c4d5e6f7081}</UniqueIdentifier>
     </Filter>
@@ -22,6 +25,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\TestMain.cpp" />
+    <ClCompile Include="src\Types\CellTests.cpp">
+      <Filter>Types</Filter>
+    </ClCompile>
     <ClCompile Include="src\Parser\ParseBoardTests.cpp">
       <Filter>Parser</Filter>
     </ClCompile>

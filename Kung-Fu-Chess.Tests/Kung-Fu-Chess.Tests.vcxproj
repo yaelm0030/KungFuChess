@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\TestMain.cpp" />
+    <ClCompile Include="src\Types\CellTests.cpp" />
     <ClCompile Include="src\Board\BoardTests.cpp" />
     <ClCompile Include="src\BoardMapper\BoardMapperTests.cpp" />
     <ClCompile Include="src\Parser\ParseBoardTests.cpp" />
