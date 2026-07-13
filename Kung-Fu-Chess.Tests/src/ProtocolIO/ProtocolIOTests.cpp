@@ -89,7 +89,7 @@ TEST_CASE("a click line for a real piece selects it") {
     std::istringstream in("click 50 50\n"); // -> cell (0,0), bR
     std::ostringstream out;
     ProtocolIO io(in, out);
-    CommandProcessor processor(controller);
+    CommandProcessor processor(controller, io.out());
 
     io.run_commands(processor);
     CHECK(controller.has_selection());
@@ -101,7 +101,7 @@ TEST_CASE("an empty stream leaves the selection untouched") {
     std::istringstream in("");
     std::ostringstream out;
     ProtocolIO io(in, out);
-    CommandProcessor processor(controller);
+    CommandProcessor processor(controller, io.out());
 
     io.run_commands(processor);
     CHECK_FALSE(controller.has_selection());
@@ -113,10 +113,22 @@ TEST_CASE("a blank line and an unknown command do not block a later valid click"
     std::istringstream in("\nfoo bar\nclick 50 50\n");
     std::ostringstream out;
     ProtocolIO io(in, out);
-    CommandProcessor processor(controller);
+    CommandProcessor processor(controller, io.out());
 
     io.run_commands(processor);
     CHECK(controller.has_selection());
+}
+
+TEST_CASE("a print board line dispatches through CommandProcessor into ProtocolIO's own out stream") {
+    Controller controller(make_board());
+
+    std::istringstream in("print board\n");
+    std::ostringstream out;
+    ProtocolIO io(in, out);
+    CommandProcessor processor(controller, io.out());
+
+    io.run_commands(processor);
+    CHECK(out.str() == Parser::board_to_string(make_board()) + "\n");
 }
 
 }

@@ -35,7 +35,7 @@ public:
     void wait(int milliseconds);
 
     // Prints the settled board; pieces mid-move still show at their origin.
-    void print(std::ostream& out = std::cout) const;
+    void print(std::ostream& out) const;
 
     long long clock_ms() const { return arbiter_.clock_ms(); }
     bool game_over() const { return game_over_; }

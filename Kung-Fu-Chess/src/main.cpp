@@ -14,6 +14,6 @@ int main() {
     }
 
     Controller controller(std::move(*board));
-    CommandProcessor processor(controller);
+    CommandProcessor processor(controller, io.out());
     io.run_commands(processor);
 }

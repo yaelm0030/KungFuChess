@@ -29,7 +29,7 @@ public:
     void wait(int milliseconds);
 
     // Prints the settled board; pieces mid-move still show at their origin.
-    void print(std::ostream& out = std::cout) const;
+    void print(std::ostream& out) const;
 
     bool has_selection() const { return selected_.has_value(); }
     std::optional<Position> selected() const { return selected_; }

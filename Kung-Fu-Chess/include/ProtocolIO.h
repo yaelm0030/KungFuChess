@@ -24,6 +24,10 @@ public:
     // until EOF.
     void run_commands(CommandProcessor& processor);
 
+    // The stream this ProtocolIO writes to, so callers (main, tests) can
+    // construct a CommandProcessor that shares the exact same stream.
+    std::ostream& out() const { return out_; }
+
 private:
     std::istream& in_;
     std::ostream& out_;

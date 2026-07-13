@@ -5,7 +5,7 @@
 #include "Controller.h"
 #include "Parser.h"
 
-CommandProcessor::CommandProcessor(Controller& controller) : controller_(controller) {}
+CommandProcessor::CommandProcessor(Controller& controller, std::ostream& out) : controller_(controller), out_(out) {}
 
 void CommandProcessor::run_line(const std::string& line) {
     std::vector<std::string> tokens = Parser::tokenize(line);
@@ -21,7 +21,7 @@ void CommandProcessor::run_line(const std::string& line) {
         } else if (tokens[0] == "wait" && tokens.size() == 2) {
             controller_.wait(std::stoi(tokens[1]));
         } else if (tokens[0] == "print" && tokens.size() == 2 && tokens[1] == "board") {
-            controller_.print();
+            controller_.print(out_);
         }
     } catch (const std::exception&) {
         // Malformed numeric arguments (e.g. "click a b") are ignored.
