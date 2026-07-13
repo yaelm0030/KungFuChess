@@ -182,6 +182,7 @@ TEST_CASE("consecutive moves chain correctly once each one arrives") {
     controller.click(50, 50);  // select bR at (0,0)
     controller.click(50, 150); // move bR down to (0,1)
     controller.wait(GameEngine::kDefaultMoveMsPerCell);
+    controller.wait(GameEngine::kCooldownMs); // let the just-arrived piece's cooldown elapse
 
     controller.click(50, 150); // re-select the piece that is now at (0,1)
     REQUIRE(controller.has_selection());
@@ -214,7 +215,7 @@ TEST_CASE("the piece appears at the destination once enough time has passed") {
     CHECK(board_of(controller) == ". bN .\nbR . .\nwR . wN\n");
 }
 
-// ---- a moving piece cannot be redirected; no cooldown once it arrives ------
+// ---- a moving piece cannot be redirected; cooldown applies once it arrives ---
 
 TEST_CASE("a piece already moving cannot be redirected to a new destination") {
     Controller controller(make_board());
@@ -232,13 +233,14 @@ TEST_CASE("a piece already moving cannot be redirected to a new destination") {
     CHECK(board_of(controller) == ". bN .\nbR . .\nwR . wN\n");
 }
 
-TEST_CASE("a piece can be selected and moved again immediately after arriving, with no cooldown") {
+TEST_CASE("a piece can be selected and moved again once its post-move cooldown elapses") {
     Controller controller(make_board());
     controller.click(50, 50);  // select bR at (0,0)
     controller.click(50, 150); // move down to (0,1)
-    controller.wait(GameEngine::kDefaultMoveMsPerCell); // arrives; no extra wait afterward
+    controller.wait(GameEngine::kDefaultMoveMsPerCell); // arrives; cooldown starts now
+    controller.wait(GameEngine::kCooldownMs);            // cooldown elapses
 
-    controller.click(50, 150); // select the just-arrived piece right away
+    controller.click(50, 150); // select the piece now that its cooldown has elapsed
     REQUIRE(controller.has_selection());
     CHECK(controller.selected()->x == 0);
     CHECK(controller.selected()->y == 1);

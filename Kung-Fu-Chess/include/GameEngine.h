@@ -11,6 +11,7 @@
 // rules behind one simple move/jump/wait/print interface.
 class GameEngine {
 public:
+    static constexpr long long kCooldownMs = constants::kCooldownMs;
     static constexpr long long kDefaultMoveMsPerCell = constants::kDefaultMoveMsPerCell;
     static constexpr long long kJumpDurationMs = constants::kJumpDurationMs;
 

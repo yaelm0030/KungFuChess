@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "Constants.h"
+
 namespace {
 
     int abs_diff(int a, int b) {
@@ -153,6 +155,8 @@ bool RealTimeArbiter::settle_arrived_moves() {
         if (is_pawn_promotion(move)) {
             piece.type = PieceType::Q;
         }
+        // A regular move that lands puts the piece on cooldown; jumps don't.
+        piece.cooldown_end_ms = clock_ms_ + constants::kCooldownMs;
         // Drop any stale airborne record for the destination piece we're
         // about to overwrite.
         drop_airborne_at(move.dest.x, move.dest.y);
