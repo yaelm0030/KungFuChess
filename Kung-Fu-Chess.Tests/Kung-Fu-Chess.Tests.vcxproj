@@ -156,6 +156,7 @@
     <ClCompile Include="src\Controller\ControllerTests.cpp" />
     <ClCompile Include="src\CommandProcessor\CommandProcessorTests.cpp" />
     <ClCompile Include="src\ProtocolIO\ProtocolIOTests.cpp" />
+    <ClCompile Include="src\RealTimeArbiter\RealTimeArbiterTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>

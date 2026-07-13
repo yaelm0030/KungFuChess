@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <optional>
 #include <vector>
 
@@ -28,8 +29,10 @@ public:
     // during the window is captured by the jumper instead of capturing it.
     void start_jump(Position cell, Cell piece, long long jump_duration_ms);
 
-    // Advances the clock and settles arrived moves/jumps. Returns true if
-    // an enemy king was captured while settling.
+    // Advances the clock, resolves any due mid-movement collisions, and
+    // settles arrived moves/jumps. Returns true if an enemy king was
+    // captured - either directly while settling, or because a collision
+    // removed a King on the losing side.
     bool advance(int milliseconds);
 
     long long clock_ms() const { return clock_ms_; }
@@ -45,6 +48,8 @@ private:
         Position dest;
         Cell piece;
         long long arrival_ms;
+        long long scheduled_ms; // clock_ms_ at the moment this move was scheduled
+        long long sequence;     // schedule order; the tiebreaker for "who moved first"
     };
 
     // A piece mid-jump. It stays on `cell` on the board for the whole jump
@@ -60,6 +65,7 @@ private:
     Board& board_;
     long long move_ms_per_cell_;
     long long clock_ms_ = 0;
+    long long next_sequence_ = 0;
     std::vector<PendingMove> pending_moves_;
     std::vector<AirbornePiece> airborne_;
 
@@ -73,4 +79,27 @@ private:
     bool is_pawn_promotion(const PendingMove& move) const;
 
     bool settle_arrived_moves();
+
+    // The cell where `a` and `b` first collide, if any: the earliest cell
+    // (in the winning mover's own path order) that both would already be
+    // occupying at the same instant, that instant having arrived. Neither
+    // move collides with anything if either piece can_pass_through_units().
+    std::optional<Position> due_collision_cell(const PendingMove& a, const PendingMove& b) const;
+
+    // Truncates the winner's dest/arrival_ms to `collision_cell` and drops
+    // the loser: cleared from the board and removed from pending_moves_.
+    void apply_collision(std::size_t winner_index, std::size_t loser_index, Position collision_cell);
+
+    // Finds one currently-due collision among pending_moves_ and resolves
+    // it, setting king_captured to true if the removed loser was a King (a
+    // King lost this way ends the game just like a normal capture). Returns
+    // true if one was resolved (pending_moves_ shrank by one), so the
+    // caller can rescan for further collisions exposed by it.
+    bool resolve_next_collision(bool& king_captured);
+
+    // Repeatedly resolves collisions until none remain due this tick, before
+    // arrivals are settled. Runs ahead of settle_arrived_moves() so a
+    // truncated winner still settles normally through that unmodified path.
+    // Returns true if any collision's loser was a King.
+    bool resolve_collisions();
 };

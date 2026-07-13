@@ -19,6 +19,9 @@
     <Filter Include="Piece">
       <UniqueIdentifier>{e5b4c2d5-7d7e-4fbd-be5e-5d5e6f708192}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RealTimeArbiter">
+      <UniqueIdentifier>{a7d6e4f7-9f9f-4fdf-df7f-7f7f8091a2b3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -93,6 +96,9 @@
     </ClCompile>
     <ClCompile Include="src\GameEngine\CooldownTests.cpp">
       <Filter>GameEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RealTimeArbiter\RealTimeArbiterTests.cpp">
+      <Filter>RealTimeArbiter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
