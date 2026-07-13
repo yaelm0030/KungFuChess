@@ -98,6 +98,10 @@ bool Knight::has_blockers(int, int, int, int, const Board&) const {
     return false; // knights jump over any piece in between
 }
 
+bool Knight::can_pass_through_units() const {
+    return true; // a knight's L-shaped hop passes over any unit in between
+}
+
 // A knight moves in an L-shape: two cells along one axis, one cell along the other.
 bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);

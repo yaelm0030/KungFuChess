@@ -15,6 +15,11 @@ public:
     // True if another piece blocks the path between start and dest.
     virtual bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const = 0;
 
+    // True if this piece can move through cells occupied by other units
+    // mid-move rather than colliding with them. False for every piece except
+    // the knight, which jumps over anything in its path.
+    virtual bool can_pass_through_units() const { return false; }
+
 protected:
     // Shared tail once a subclass has confirmed the move fits its shape:
     // rejects a blocked path, then rejects capturing one's own color.
@@ -49,6 +54,7 @@ class Knight : public Piece {
 public:
     bool is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
     bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
+    bool can_pass_through_units() const override;
 };
 
 class Pawn : public Piece {

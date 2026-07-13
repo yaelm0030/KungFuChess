@@ -151,6 +151,7 @@
     <ClCompile Include="src\Piece\KnightTests.cpp" />
     <ClCompile Include="src\Piece\PawnTests.cpp" />
     <ClCompile Include="src\Piece\PieceFactoryTests.cpp" />
+    <ClCompile Include="src\Piece\CanPassThroughUnitsTests.cpp" />
     <ClCompile Include="src\RuleEngine\RuleEngineTests.cpp" />
     <ClCompile Include="src\Controller\ControllerTests.cpp" />
     <ClCompile Include="src\CommandProcessor\CommandProcessorTests.cpp" />
