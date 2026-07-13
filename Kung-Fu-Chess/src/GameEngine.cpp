@@ -12,7 +12,8 @@ bool GameEngine::is_selectable(Position cell) const {
         return false;
     }
     std::optional<Cell> piece = board_.get_at(cell.x, cell.y);
-    return piece.has_value() && !arbiter_.is_moving(cell.x, cell.y) && !arbiter_.is_airborne(cell.x, cell.y);
+    return piece.has_value() && !arbiter_.is_moving(cell.x, cell.y) && !arbiter_.is_airborne(cell.x, cell.y) &&
+           !piece->is_on_cooldown(arbiter_.clock_ms());
 }
 
 std::optional<Color> GameEngine::color_at(Position cell) const {
@@ -45,6 +46,11 @@ bool GameEngine::request_move(Position start, Position dest) {
         return false;
     }
 
+    // A piece on cooldown from its last move cannot move again yet.
+    if (piece_at_start->is_on_cooldown(arbiter_.clock_ms())) {
+        return false;
+    }
+
     const Piece* piece = PieceFactory::get_piece(piece_at_start->type);
     if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) {
         return false;
@@ -65,6 +71,11 @@ bool GameEngine::request_jump(Position cell) {
 
     std::optional<Cell> piece = board_.get_at(cell.x, cell.y);
     if (!piece.has_value() || arbiter_.is_moving(cell.x, cell.y) || arbiter_.is_airborne(cell.x, cell.y)) {
+        return false;
+    }
+
+    // A piece on cooldown from its last move cannot jump either.
+    if (piece->is_on_cooldown(arbiter_.clock_ms())) {
         return false;
     }
 

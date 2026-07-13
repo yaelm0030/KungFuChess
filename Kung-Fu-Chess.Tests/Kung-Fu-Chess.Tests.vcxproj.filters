@@ -88,6 +88,9 @@
     <ClCompile Include="src\GameEngine\JumpTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameEngine\CooldownTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h">
