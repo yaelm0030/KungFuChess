@@ -37,11 +37,6 @@ public:
 
     long long clock_ms() const { return clock_ms_; }
 
-    // True if the given move's route would share a cell with a pending
-    // move's route. Whichever move was scheduled first keeps its claim; a
-    // later, colliding move is rejected outright.
-    bool conflicts_with_pending_move(int start_x, int start_y, int dest_x, int dest_y) const;
-
 private:
     struct PendingMove {
         Position start;

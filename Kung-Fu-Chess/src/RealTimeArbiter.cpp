@@ -104,21 +104,6 @@ void RealTimeArbiter::drop_airborne_at(int x, int y) {
     airborne_ = std::move(kept);
 }
 
-bool RealTimeArbiter::conflicts_with_pending_move(int start_x, int start_y, int dest_x, int dest_y) const {
-    std::vector<Position> new_path = path_cells(start_x, start_y, dest_x, dest_y);
-    for (const PendingMove& move : pending_moves_) {
-        std::vector<Position> existing_path = path_cells(move.start.x, move.start.y, move.dest.x, move.dest.y);
-        for (const Position& a : new_path) {
-            for (const Position& b : existing_path) {
-                if (a == b) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
 // Travel time is proportional to Chebyshev distance (diagonals cost the
 // same as straight moves).
 long long RealTimeArbiter::arrival_time_for(int start_x, int start_y, int dest_x, int dest_y) const {

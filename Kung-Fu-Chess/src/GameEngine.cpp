@@ -35,8 +35,6 @@ bool GameEngine::request_move(Position start, Position dest) {
     }
 
     // Already moving: reject a redirect rather than rescheduling mid-flight.
-    // Explicit, even though conflicts_with_pending_move currently also rejects
-    // this via the shared start cell in its path - don't rely on that being permanent.
     if (arbiter_.is_moving(start.x, start.y)) {
         return false;
     }
@@ -53,10 +51,6 @@ bool GameEngine::request_move(Position start, Position dest) {
 
     const Piece* piece = PieceFactory::get_piece(piece_at_start->type);
     if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) {
-        return false;
-    }
-
-    if (arbiter_.conflicts_with_pending_move(start.x, start.y, dest.x, dest.y)) {
         return false;
     }
 

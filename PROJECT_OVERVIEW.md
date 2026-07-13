@@ -54,9 +54,9 @@ immediately. This one adds a live clock:
 - Every move takes `distance_in_cells × move_ms_per_cell` milliseconds
   to arrive (default 1000ms per cell).
 - While a move is in flight, that piece can't be reselected or redirected.
-- A new move is rejected if its path overlaps a move that's already
-  travelling (`RealTimeArbiter::conflicts_with_pending_move`) — so two
-  pieces can't be scheduled through the same cells at once.
+- Two moves whose paths cross mid-flight can collide: whichever was
+  scheduled first wins and is truncated to stop at the shared cell,
+  while the other move's piece is removed from the board entirely.
 - A piece can `jump` in place for a fixed window (1000ms). While
   airborne it can't be captured or moved — but if an enemy piece's move
   arrives on that cell during the jump, the jumper captures *it* instead.
@@ -107,17 +107,17 @@ The clock and scheduler. Owns two lists:
 
 Key members: `clock_ms_` (current simulated time), `move_ms_per_cell_`
 (travel speed). Key methods: `schedule_move`, `start_jump`,
-`advance(ms)` (ticks the clock and settles anything that has arrived),
-`conflicts_with_pending_move` (collision check described above).
-`settle_arrived_moves()` is the private method that actually mutates
-the `Board` when a move lands — including pawn promotion and the
-airborne-capture special case.
+`advance(ms)` (ticks the clock, resolves any due mid-movement
+collisions between pending moves, and settles anything that has
+arrived). `settle_arrived_moves()` is the private method that actually
+mutates the `Board` when a move lands — including pawn promotion and
+the airborne-capture special case.
 
 ### `GameEngine` (`GameEngine.h/.cpp`)
 The referee. Owns the `Board` and the `RealTimeArbiter`. Public API:
 - `request_move(start, dest)` — validates against the piece's own rule
-  (via `PieceFactory`/`RuleEngine`) and against in-flight collisions,
-  then hands off to the arbiter.
+  (via `PieceFactory`/`RuleEngine`), then hands off to the arbiter,
+  which schedules it even if its route crosses another in-flight move.
 - `request_jump(cell)` — starts a jump if the piece is present and free.
 - `wait(ms)` — advances time; sets `game_over_` if a king was captured.
 - `is_selectable(cell)`, `color_at(cell)` — read-only queries the

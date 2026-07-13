@@ -284,36 +284,46 @@ TEST_CASE("when two pieces attempt to swap places along the same route, whicheve
     SUBCASE("white moves first") {
         Controller controller(Parser::parse_board({ "wR . . bR" }));
         controller.click(50, 50);   // select wR at (0,0)
-        controller.click(350, 50);  // move wR across to (3,0), capturing bR; 3 cells of travel time
+        controller.click(350, 50);  // move wR across to (3,0); 3 cells of travel time
         controller.click(350, 50);  // select bR at (3,0); it hasn't moved yet
         controller.click(50, 50);   // attempt to move bR back to (0,0); collides with wR's route
 
+        // wR was scheduled first, so it wins: truncated to stop at the shared
+        // cell (1,0); bR (the collision loser) is removed from the board.
         controller.wait(3 * GameEngine::kDefaultMoveMsPerCell);
-        CHECK(board_of(controller) == ". . . wR\n");
+        CHECK(board_of(controller) == ". wR . .\n");
     }
 
     SUBCASE("black moves first") {
         Controller controller(Parser::parse_board({ "wR . . bR" }));
         controller.click(350, 50);  // select bR at (3,0)
-        controller.click(50, 50);   // move bR across to (0,0), capturing wR; 3 cells of travel time
+        controller.click(50, 50);   // move bR across to (0,0); 3 cells of travel time
         controller.click(50, 50);   // select wR at (0,0); it hasn't moved yet
         controller.click(350, 50);  // attempt to move wR back to (3,0); collides with bR's route
 
+        // bR was scheduled first, so it wins: truncated to stop at the shared
+        // cell (2,0); wR (the collision loser) is removed from the board.
         controller.wait(3 * GameEngine::kDefaultMoveMsPerCell);
-        CHECK(board_of(controller) == "bR . . .\n");
+        CHECK(board_of(controller) == ". . bR .\n");
     }
 }
 
-TEST_CASE("a move rejected for colliding with another move's route keeps the current selection") {
+TEST_CASE("a move that collides with another in-flight move's route is still scheduled, clearing the selection") {
     Controller controller(Parser::parse_board({ "wR . . bR" }));
     controller.click(50, 50);  // select wR at (0,0)
     controller.click(350, 50); // move wR across to (3,0); still in flight
     controller.click(350, 50); // select bR at (3,0)
-    controller.click(50, 50);  // attempt to move bR back to (0,0); collides, rejected
+    controller.click(50, 50);  // move bR back to (0,0); collides with wR's route, but is still scheduled
 
-    REQUIRE(controller.has_selection());
-    CHECK(controller.selected()->x == 3);
-    CHECK(controller.selected()->y == 0);
+    // Scheduling a colliding move clears the selection immediately; nothing
+    // settles until wait() reaches the collision instant.
+    CHECK_FALSE(controller.has_selection());
+    CHECK(board_of(controller) == "wR . . bR\n");
+
+    // wR was scheduled first, so it wins: truncated to stop at the shared
+    // cell (1,0); bR (the collision loser) is removed from the board.
+    controller.wait(3 * GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(controller) == ". wR . .\n");
 }
 
 TEST_CASE("a move onto another route's cell is rejected for its own illegality, not treated as a collision") {
