@@ -1,40 +1,34 @@
 #include "UIManager.h"
 
 #include <cmath>
-#include <stdexcept>
+#include <unordered_map>
 
 namespace {
 
-char piece_type_letter(PieceType type) {
-    switch (type) {
-        case PieceType::K: return 'K';
-        case PieceType::Q: return 'Q';
-        case PieceType::R: return 'R';
-        case PieceType::B: return 'B';
-        case PieceType::N: return 'N';
-        case PieceType::P: return 'P';
-    }
-    throw std::invalid_argument("Unknown PieceType");
-}
+const std::unordered_map<PieceType, char> kPieceTypeLetters{
+    { PieceType::K, 'K' },
+    { PieceType::Q, 'Q' },
+    { PieceType::R, 'R' },
+    { PieceType::B, 'B' },
+    { PieceType::N, 'N' },
+    { PieceType::P, 'P' },
+};
+
+const std::unordered_map<PieceState, std::string> kStateFolders{
+    { PieceState::idle, "idle" },
+    { PieceState::move, "move" },
+    { PieceState::jump, "jump" },
+    { PieceState::short_rest, "short_rest" },
+    { PieceState::long_rest, "long_rest" },
+};
 
 char color_letter(Color color) {
     return color == Color::w ? 'W' : 'B';
 }
 
-std::string state_folder(PieceState state) {
-    switch (state) {
-        case PieceState::idle: return "idle";
-        case PieceState::move: return "move";
-        case PieceState::jump: return "jump";
-        case PieceState::short_rest: return "short_rest";
-        case PieceState::long_rest: return "long_rest";
-    }
-    throw std::invalid_argument("Unknown PieceState");
-}
-
 std::string sprite_path(const PieceSnapshot& piece) {
-    std::string folder = std::string(1, piece_type_letter(piece.type)) + color_letter(piece.color);
-    return "assets/images/pieces/" + folder + "/states/" + state_folder(piece.state) + "/sprites/1.png";
+    std::string folder = std::string(1, kPieceTypeLetters.at(piece.type)) + color_letter(piece.color);
+    return "assets/images/pieces/" + folder + "/states/" + kStateFolders.at(piece.state) + "/sprites/1.png";
 }
 
 } // namespace
