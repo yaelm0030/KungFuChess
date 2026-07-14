@@ -133,64 +133,64 @@ bool RealTimeArbiter::is_pawn_promotion(const PendingMove& move) const {
     return move.dest.y == last_row;
 }
 
-bool RealTimeArbiter::settle_arrived_moves() {
-    // Fast path: nothing to settle this tick, so skip rebuilding either vector.
-    bool any_move_arrived = false;
+bool RealTimeArbiter::has_arrivals_to_settle() const {
     for (const PendingMove& move : pending_moves_) {
         if (move.arrival_ms <= clock_ms_) {
-            any_move_arrived = true;
-            break;
+            return true;
         }
     }
-    bool any_jump_landed = false;
     for (const AirbornePiece& airborne : airborne_) {
         if (airborne.land_ms <= clock_ms_) {
-            any_jump_landed = true;
-            break;
+            return true;
         }
     }
-    if (!any_move_arrived && !any_jump_landed) {
+    return false;
+}
+
+void RealTimeArbiter::settle_one_arrived_move(const PendingMove& move, bool& king_captured) {
+    // An airborne enemy on the destination captures the arriving piece
+    // instead of being captured: clear the mover's origin and skip
+    // placing it; the jumper stays untouched since it never left its cell.
+    const AirbornePiece* guard = airborne_at(move.dest.x, move.dest.y);
+    if (guard != nullptr && guard->piece.color != move.piece.color && move.arrival_ms <= guard->land_ms) {
+        board_.clear_at(move.start.x, move.start.y);
+        if (move.piece.type == PieceType::K) {
+            king_captured = true;
+        }
+        return;
+    }
+
+    if (captures_enemy_king(move)) {
+        king_captured = true;
+    }
+    Cell piece = move.piece;
+    if (is_pawn_promotion(move)) {
+        piece.type = PieceType::Q;
+    }
+    // A regular move that lands puts the piece on cooldown; jumps don't.
+    piece.cooldown_end_ms = clock_ms_ + constants::kCooldownMs;
+    // Drop any stale airborne record for the destination piece we're about
+    // to overwrite.
+    drop_airborne_at(move.dest.x, move.dest.y);
+    board_.place_at(move.dest.x, move.dest.y, piece);
+    board_.clear_at(move.start.x, move.start.y);
+}
+
+bool RealTimeArbiter::settle_arrived_moves() {
+    // Fast path: nothing to settle this tick, so skip rebuilding either vector.
+    if (!has_arrivals_to_settle()) {
         return false;
     }
 
     bool king_captured = false;
     std::vector<PendingMove> still_pending;
-
     for (const PendingMove& move : pending_moves_) {
         if (move.arrival_ms > clock_ms_) {
             still_pending.push_back(move);
             continue;
         }
-
-        // An airborne enemy on the destination captures the arriving piece
-        // instead of being captured: clear the mover's origin and skip
-        // placing it; the jumper stays untouched since it never left its cell.
-        const AirbornePiece* guard = airborne_at(move.dest.x, move.dest.y);
-        if (guard != nullptr && guard->piece.color != move.piece.color
-            && move.arrival_ms <= guard->land_ms) {
-            board_.clear_at(move.start.x, move.start.y);
-            if (move.piece.type == PieceType::K) {
-                king_captured = true;
-            }
-            continue;
-        }
-
-        if (captures_enemy_king(move)) {
-            king_captured = true;
-        }
-        Cell piece = move.piece;
-        if (is_pawn_promotion(move)) {
-            piece.type = PieceType::Q;
-        }
-        // A regular move that lands puts the piece on cooldown; jumps don't.
-        piece.cooldown_end_ms = clock_ms_ + constants::kCooldownMs;
-        // Drop any stale airborne record for the destination piece we're
-        // about to overwrite.
-        drop_airborne_at(move.dest.x, move.dest.y);
-        board_.place_at(move.dest.x, move.dest.y, piece);
-        board_.clear_at(move.start.x, move.start.y);
+        settle_one_arrived_move(move, king_captured);
     }
-
     pending_moves_ = std::move(still_pending);
 
     std::vector<AirbornePiece> still_airborne;

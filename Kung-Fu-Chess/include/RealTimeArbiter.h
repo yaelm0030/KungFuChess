@@ -89,6 +89,19 @@ private:
     // True if `move`'s piece is a pawn reaching the farthest row (promotion).
     bool is_pawn_promotion(const PendingMove& move) const;
 
+    // True if any pending move's arrival or airborne piece's landing is
+    // already due at clock_ms_ - the fast-path check settle_arrived_moves
+    // uses to skip rebuilding pending_moves_/airborne_ on a quiet tick.
+    bool has_arrivals_to_settle() const;
+
+    // Settles one arrived move: an airborne enemy guarding move.dest
+    // captures it instead of being captured (mover's origin cleared, guard
+    // left untouched); otherwise checks for king capture and pawn
+    // promotion, stamps cooldown, and places the piece on the board.
+    // Either way the move itself is never re-added to pending_moves_, so
+    // there's nothing to report back except king_captured.
+    void settle_one_arrived_move(const PendingMove& move, bool& king_captured);
+
     bool settle_arrived_moves();
 
     // True if `move`'s traversal of its path index `index` (out of
