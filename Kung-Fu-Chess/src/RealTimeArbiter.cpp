@@ -240,7 +240,7 @@ bool RealTimeArbiter::passes_through_at(const PendingMove& move, std::size_t pat
 }
 
 bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverWindow& second,
-                                           bool same_color) const {
+                                           CollisionKind kind) const {
     bool is_due = std::max(first.enter_ms, second.enter_ms) <= clock_ms_;
     if (!windows_overlap(CellWindow{ first.enter_ms, first.exit_ms }, CellWindow{ second.enter_ms, second.exit_ms })
         || !is_due) {
@@ -248,9 +248,9 @@ bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverW
     }
     // A knight may pass over a friendly unit anywhere but its own
     // destination; a hostile pair never reaches this (already exempted
-    // wholesale in due_collision_cell before same_color pairs get here).
-    if (same_color && (passes_through_at(first.move, first.path_length, first.index)
-                        || passes_through_at(second.move, second.path_length, second.index))) {
+    // wholesale in due_collision_cell before Friendly pairs get here).
+    if (kind == CollisionKind::Friendly && (passes_through_at(first.move, first.path_length, first.index)
+                                             || passes_through_at(second.move, second.path_length, second.index))) {
         return false;
     }
     return true;
@@ -258,7 +258,7 @@ bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverW
 
 std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove& scan_first,
                                                                  const PendingMove& scan_second,
-                                                                 bool same_color) const {
+                                                                 CollisionKind kind) const {
     std::vector<Position> first_path = path_cells(scan_first.start.x, scan_first.start.y, scan_first.dest.x,
                                                     scan_first.dest.y);
     std::vector<Position> second_path = path_cells(scan_second.start.x, scan_second.start.y, scan_second.dest.x,
@@ -277,7 +277,7 @@ std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove
                                 first_path.size() };
             MoverWindow second{ scan_second, second_windows[si].enter_ms, second_windows[si].exit_ms, si,
                                  second_path.size() };
-            if (is_due_collision_at(first, second, same_color)) {
+            if (is_due_collision_at(first, second, kind)) {
                 return first_path[fi];
             }
         }
@@ -294,8 +294,8 @@ bool RealTimeArbiter::has_priority(const PendingMove& a, const PendingMove& b) c
 // Otherwise scans the winning (lower-sequence) mover's own path in order
 // for the first due, colliding cell (see first_due_shared_cell).
 std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a, const PendingMove& b) const {
-    bool same_color = a.piece.color == b.piece.color;
-    if (!same_color) {
+    CollisionKind kind = (a.piece.color == b.piece.color) ? CollisionKind::Friendly : CollisionKind::Hostile;
+    if (kind == CollisionKind::Hostile) {
         const Piece* piece_a = PieceFactory::get_piece(a.piece.type);
         const Piece* piece_b = PieceFactory::get_piece(b.piece.type);
         if ((piece_a != nullptr && piece_a->can_pass_through_units())
@@ -307,7 +307,7 @@ std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a
     bool a_has_priority = has_priority(a, b);
     const PendingMove& winner = a_has_priority ? a : b;
     const PendingMove& other = a_has_priority ? b : a;
-    return first_due_shared_cell(winner, other, same_color);
+    return first_due_shared_cell(winner, other, kind);
 }
 
 void RealTimeArbiter::apply_collision(std::size_t winner_index, std::size_t loser_index, Position collision_cell) {
@@ -326,7 +326,7 @@ void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, std::size_
 
     // Guaranteed to find a cell: the caller already confirmed this pair has
     // a due same-color collision, and existence doesn't depend on scan order.
-    std::optional<Position> collision_cell = first_due_shared_cell(yielder, other, /*same_color=*/true);
+    std::optional<Position> collision_cell = first_due_shared_cell(yielder, other, CollisionKind::Friendly);
     if (!collision_cell.has_value()) {
         return; // defensive: should be unreachable given the caller's contract above
     }

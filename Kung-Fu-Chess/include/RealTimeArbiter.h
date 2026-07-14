@@ -57,6 +57,11 @@ private:
         long long land_ms;
     };
 
+    // Whether a colliding pair shares a color: changes both the exemption
+    // rule in is_due_collision_at and which resolution resolve_next_collision
+    // applies (apply_collision vs. apply_friendly_yield).
+    enum class CollisionKind { Hostile, Friendly };
+
     // One mover's occupancy window at a single shared cell, bundled so
     // is_due_collision_at takes one argument per side instead of five
     // same-typed positional params (a transposition-bug risk).
@@ -95,20 +100,20 @@ private:
 
     // True if `first` and `second`'s occupancy windows at a shared cell -
     // each mover's own [enter_ms, exit_ms) and its path index/length -
-    // overlap, are already due at clock_ms_, and (for a same-color pair)
+    // overlap, are already due at clock_ms_, and (for a Friendly pair)
     // aren't exempt because one of them merely passes through that cell per
     // passes_through_at - a knight can pass over a friendly unit anywhere but
     // its own destination.
-    bool is_due_collision_at(const MoverWindow& first, const MoverWindow& second, bool same_color) const;
+    bool is_due_collision_at(const MoverWindow& first, const MoverWindow& second, CollisionKind kind) const;
 
     // The first cell (in scan_first's own path order) shared with
     // scan_second's path where both occupancy windows overlap and are
-    // already due. For a same-color pair, a cell is skipped (not a
+    // already due. For a Friendly pair, a cell is skipped (not a
     // collision) if either mover merely passes through it per
     // passes_through_at - a knight can pass over a friendly unit anywhere
     // but its own destination.
     std::optional<Position> first_due_shared_cell(const PendingMove& scan_first, const PendingMove& scan_second,
-                                                   bool same_color) const;
+                                                   CollisionKind kind) const;
 
     // True if `a` was scheduled before `b` (lower sequence) - the tiebreaker
     // for which of two colliding movers is the "winner".
