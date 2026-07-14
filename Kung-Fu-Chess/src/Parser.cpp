@@ -1,6 +1,21 @@
 #include "Parser.h"
 
 #include <sstream>
+#include <unordered_map>
+
+namespace {
+
+const std::unordered_map<char, PieceType> kPieceTypesByLetter{
+    { 'K', PieceType::K }, { 'Q', PieceType::Q }, { 'R', PieceType::R },
+    { 'B', PieceType::B }, { 'N', PieceType::N }, { 'P', PieceType::P },
+};
+
+const std::unordered_map<PieceType, char> kPieceTypeLetters{
+    { PieceType::K, 'K' }, { PieceType::Q, 'Q' }, { PieceType::R, 'R' },
+    { PieceType::B, 'B' }, { PieceType::N, 'N' }, { PieceType::P, 'P' },
+};
+
+} // namespace
 
 std::vector<std::string> Parser::tokenize(const std::string& line) {
     std::vector<std::string> tokens;
@@ -25,18 +40,12 @@ Cell Parser::parse_token(const std::string& token) {
         default: throw ParseError("UNKNOWN_TOKEN");
     }
 
-    PieceType type;
-    switch (token[1]) {
-        case 'K': type = PieceType::K; break;
-        case 'Q': type = PieceType::Q; break;
-        case 'R': type = PieceType::R; break;
-        case 'B': type = PieceType::B; break;
-        case 'N': type = PieceType::N; break;
-        case 'P': type = PieceType::P; break;
-        default: throw ParseError("UNKNOWN_TOKEN");
+    auto it = kPieceTypesByLetter.find(token[1]);
+    if (it == kPieceTypesByLetter.end()) {
+        throw ParseError("UNKNOWN_TOKEN");
     }
 
-    return Cell{ color, type };
+    return Cell{ color, it->second };
 }
 
 std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
@@ -46,15 +55,7 @@ std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
 
     std::string token;
     token += (cell->color == Color::w) ? 'w' : 'b';
-
-    switch (cell->type) {
-        case PieceType::K: token += 'K'; break;
-        case PieceType::Q: token += 'Q'; break;
-        case PieceType::R: token += 'R'; break;
-        case PieceType::B: token += 'B'; break;
-        case PieceType::N: token += 'N'; break;
-        case PieceType::P: token += 'P'; break;
-    }
+    token += kPieceTypeLetters.at(cell->type);
 
     return token;
 }
