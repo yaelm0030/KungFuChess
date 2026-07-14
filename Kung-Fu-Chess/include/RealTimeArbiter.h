@@ -142,14 +142,26 @@ private:
     // change and no cooldown stamp, since it never actually moved.
     void apply_friendly_yield(std::size_t yielder_index, Position collision_cell);
 
-    // Finds one currently-due collision among pending_moves_ and resolves
-    // it - hostile pairs via apply_collision, same-color pairs via
-    // apply_friendly_yield - setting king_captured to true if a hostile
-    // loser was a King (a King lost this way ends the game just like a
-    // normal capture; a friendly yield never removes a piece from the
-    // board, so it can't trigger this). Returns true if one was resolved
-    // (pending_moves_ changed), so the caller can rescan for further
-    // collisions exposed by it.
+    // One currently-due collision between two pending moves: the winning
+    // and losing move's indices into pending_moves_, and the cell it occurs
+    // at.
+    struct DueCollision {
+        std::size_t winner_index;
+        std::size_t loser_index;
+        Position collision_cell;
+    };
+
+    // Scans pending_moves_ for the first currently-due collision, if any,
+    // via due_collision_cell.
+    std::optional<DueCollision> find_due_collision() const;
+
+    // Resolves the next currently-due collision, if any - hostile pairs via
+    // apply_collision, same-color pairs via apply_friendly_yield - setting
+    // king_captured to true if a hostile loser was a King (a King lost this
+    // way ends the game just like a normal capture; a friendly yield never
+    // removes a piece from the board, so it can't trigger this). Returns
+    // true if one was resolved (pending_moves_ changed), so the caller can
+    // rescan for further collisions exposed by it.
     bool resolve_next_collision(bool& king_captured);
 
     // Repeatedly resolves collisions until none remain due this tick, before

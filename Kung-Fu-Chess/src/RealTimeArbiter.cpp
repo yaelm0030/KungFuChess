@@ -351,7 +351,7 @@ void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, Position c
     yielder.arrival_ms = yielder.scheduled_ms + distance_cells * move_ms_per_cell_;
 }
 
-bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
+std::optional<RealTimeArbiter::DueCollision> RealTimeArbiter::find_due_collision() const {
     for (std::size_t i = 0; i < pending_moves_.size(); ++i) {
         for (std::size_t j = i + 1; j < pending_moves_.size(); ++j) {
             std::optional<Position> collision_cell = due_collision_cell(pending_moves_[i], pending_moves_[j]);
@@ -359,23 +359,29 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
                 continue;
             }
             bool i_has_priority = has_priority(pending_moves_[i], pending_moves_[j]);
-            std::size_t winner_index = i_has_priority ? i : j;
-            std::size_t loser_index = i_has_priority ? j : i;
-
-            if (pending_moves_[i].piece.color == pending_moves_[j].piece.color) {
-                apply_friendly_yield(loser_index, *collision_cell);
-            } else {
-                // A King lost as a collision loser ends the game, same as a
-                // normal capture; check before apply_collision erases it.
-                if (pending_moves_[loser_index].piece.type == PieceType::K) {
-                    king_captured = true;
-                }
-                apply_collision(winner_index, loser_index, *collision_cell);
-            }
-            return true;
+            return DueCollision{ i_has_priority ? i : j, i_has_priority ? j : i, *collision_cell };
         }
     }
-    return false;
+    return std::nullopt;
+}
+
+bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
+    std::optional<DueCollision> due = find_due_collision();
+    if (!due.has_value()) {
+        return false;
+    }
+
+    if (pending_moves_[due->winner_index].piece.color == pending_moves_[due->loser_index].piece.color) {
+        apply_friendly_yield(due->loser_index, due->collision_cell);
+    } else {
+        // A King lost as a collision loser ends the game, same as a normal
+        // capture; check before apply_collision erases it.
+        if (pending_moves_[due->loser_index].piece.type == PieceType::K) {
+            king_captured = true;
+        }
+        apply_collision(due->winner_index, due->loser_index, due->collision_cell);
+    }
+    return true;
 }
 
 bool RealTimeArbiter::resolve_collisions() {
