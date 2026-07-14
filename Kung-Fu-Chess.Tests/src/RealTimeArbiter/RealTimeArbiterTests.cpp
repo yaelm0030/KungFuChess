@@ -159,4 +159,154 @@ TEST_CASE("a King removed as a collision loser reports a king capture, same as a
     CHECK(Parser::board_to_string(board) == ". wR . .");
 }
 
+// ---- friendly collisions: the later-scheduled mover yields, neither is removed ---
+
+TEST_CASE("a later-scheduled friendly rook truncates one cell short of an earlier friendly rook's landing") {
+    Board board(6, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A
+    board.place_at(5, 0, Cell{ Color::w, PieceType::R }); // B; same color as A
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 0 }, *board.get_at(0, 0)); // A; sequence 0
+    arbiter.schedule_move(Position{ 5, 0 }, Position{ 2, 0 }, *board.get_at(5, 0)); // B; sequence 1
+
+    // A (scheduled first) is untouched and lands normally at (2,0); B (scheduled
+    // later) must yield, stopping one cell short of A's landing cell at (3,0).
+    // Neither is removed - unlike a hostile collision, both stay on the board.
+    CHECK_FALSE(arbiter.advance(3 * constants::kDefaultMoveMsPerCell));
+    CHECK(Parser::board_to_string(board) == ". . wR wR . .");
+}
+
+TEST_CASE("crossing diagonal paths, same color: the higher-sequence bishop stops one cell short") {
+    // wB (0,0)->(4,4) and wB (4,0)->(0,4): the same X shape as the hostile
+    // crossing test, but same color this time.
+    Board board(5, 5);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::B }); // A; sequence 0
+    board.place_at(4, 0, Cell{ Color::w, PieceType::B }); // B; sequence 1
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 4, 4 }, *board.get_at(0, 0));
+    arbiter.schedule_move(Position{ 4, 0 }, Position{ 0, 4 }, *board.get_at(4, 0));
+
+    // Both reach the shared cell (2,2) at t=2000. B (higher sequence) yields,
+    // truncated - along its own path - to the cell just before it, (3,1).
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+    CHECK(board.get_at(3, 1)->type == PieceType::B);
+    CHECK_FALSE(board.get_at(4, 0).has_value());
+    CHECK(board.get_at(0, 0).has_value()); // A hasn't arrived yet; untouched by the yield
+
+    // A (untouched) continues to its own original destination normally.
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+    CHECK(board.get_at(4, 4)->type == PieceType::B);
+    CHECK_FALSE(board.get_at(0, 0).has_value());
+}
+
+TEST_CASE("a friendly collision is untouched until the collision instant is actually due") {
+    Board board(5, 5);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::B });
+    board.place_at(4, 0, Cell{ Color::w, PieceType::B });
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 4, 4 }, *board.get_at(0, 0));
+    arbiter.schedule_move(Position{ 4, 0 }, Position{ 0, 4 }, *board.get_at(4, 0));
+
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell - 1); // one millisecond short
+    CHECK(arbiter.is_moving(0, 0));
+    CHECK(arbiter.is_moving(4, 0));
+    CHECK(Parser::board_to_string(board) ==
+          "wB . . . wB\n. . . . .\n. . . . .\n. . . . .\n. . . . .");
+}
+
+TEST_CASE("two friendly pending moves whose paths share no cell settle normally") {
+    Board board = Parser::parse_board({
+        ".  . .",
+        ".  . .",
+        "wR . wR",
+    });
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 2 }, Position{ 0, 0 }, *board.get_at(0, 2)); // wR straight up
+    arbiter.schedule_move(Position{ 2, 2 }, Position{ 2, 0 }, *board.get_at(2, 2)); // wR straight up
+
+    CHECK_FALSE(arbiter.advance(2 * constants::kDefaultMoveMsPerCell));
+    CHECK(Parser::board_to_string(board) == "wR . wR\n. . .\n. . .");
+}
+
+// ---- a knight loses its universal exemption only for its own destination -------
+
+TEST_CASE("a friendly knight still passes through a shared cell that isn't its own destination") {
+    // wN (2,0)->(0,1): an L-shape whose only non-destination path cell is its
+    // own start, (2,0). wR (1,0)->(3,0) passes through that same cell as an
+    // intermediate step (not the rook's destination either). Since (2,0) is
+    // not the knight's destination, it stays fully exempt, same color or not.
+    Board board(4, 2);
+    board.place_at(2, 0, Cell{ Color::w, PieceType::N });
+    board.place_at(1, 0, Cell{ Color::w, PieceType::R });
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 2, 0 }, Position{ 0, 1 }, *board.get_at(2, 0));
+    arbiter.schedule_move(Position{ 1, 0 }, Position{ 3, 0 }, *board.get_at(1, 0));
+
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+    CHECK(board.get_at(0, 1)->type == PieceType::N);
+    CHECK(board.get_at(3, 0)->type == PieceType::R);
+    CHECK_FALSE(board.get_at(2, 0).has_value());
+    CHECK_FALSE(board.get_at(1, 0).has_value());
+}
+
+TEST_CASE("a friendly piece yields rather than let a knight land on top of it, and vice versa") {
+    // wN (0,0)->(2,1) (sequence 0) and wR (2,4)->(2,1) (sequence 1) both
+    // target (2,1) - the knight's own destination. Unlike the hostile/
+    // different-arrival-time case, the knight is not exempt here: it wins on
+    // sequence and lands normally, so the rook must yield instead of
+    // silently overwriting it via an ordinary capture-on-arrival.
+    Board board(3, 5);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::N });
+    board.place_at(2, 4, Cell{ Color::w, PieceType::R });
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 1 }, *board.get_at(0, 0)); // wN; sequence 0
+    arbiter.schedule_move(Position{ 2, 4 }, Position{ 2, 1 }, *board.get_at(2, 4)); // wR; sequence 1
+
+    arbiter.advance(3 * constants::kDefaultMoveMsPerCell);
+    CHECK(board.get_at(2, 1)->type == PieceType::N); // the knight lands as normal
+    CHECK(board.get_at(2, 2)->type == PieceType::R); // the rook stops one cell short instead
+    CHECK_FALSE(board.get_at(0, 0).has_value());
+    CHECK_FALSE(board.get_at(2, 4).has_value());
+}
+
+// ---- zero-length yield: already adjacent when the collision becomes due -------
+
+TEST_CASE("a friendly piece already adjacent to the shared cell yields as a no-op, not a truncated landing") {
+    Board board(4, 2);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A; sequence 0
+    board.place_at(2, 1, Cell{ Color::w, PieceType::R }); // B; sequence 1
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 3, 0 }, *board.get_at(0, 0)); // A
+    arbiter.schedule_move(Position{ 2, 1 }, Position{ 2, 0 }, *board.get_at(2, 1)); // B; one cell from (2,0)
+
+    // The shared cell (2,0) is due at t=2000, which is already B's very next
+    // (and only) step - so "one cell short" is B's own start: a no-op.
+    CHECK_FALSE(arbiter.advance(2 * constants::kDefaultMoveMsPerCell));
+    CHECK_FALSE(arbiter.is_moving(2, 1));               // B's move was dropped, not delayed
+    CHECK(board.get_at(2, 1)->cooldown_end_ms == 0);    // never landed, so never cooldown-stamped
+    CHECK_FALSE(board.get_at(2, 0).has_value());        // B never actually got there
+    CHECK(arbiter.is_moving(0, 0));                     // A is untouched, still travelling normally
+}
+
+TEST_CASE("a normal (non-zero-length) friendly yield still gets cooldown-stamped on landing") {
+    Board board(6, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A; sequence 0
+    board.place_at(5, 0, Cell{ Color::w, PieceType::R }); // B; sequence 1
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 0 }, *board.get_at(0, 0));
+    arbiter.schedule_move(Position{ 5, 0 }, Position{ 2, 0 }, *board.get_at(5, 0));
+
+    arbiter.advance(3 * constants::kDefaultMoveMsPerCell);
+    // B yielded and stopped at (3,0); its landing there is cooldown-stamped
+    // exactly like any other settled move.
+    CHECK(board.get_at(3, 0)->cooldown_end_ms == arbiter.clock_ms() + constants::kCooldownMs);
+}
+
 }

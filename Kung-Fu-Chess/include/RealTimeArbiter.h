@@ -75,21 +75,51 @@ private:
 
     bool settle_arrived_moves();
 
-    // The cell where `a` and `b` first collide, if any: the earliest cell
-    // (in the winning mover's own path order) that both would already be
-    // occupying at the same instant, that instant having arrived. Neither
-    // move collides with anything if either piece can_pass_through_units().
+    // True if `move`'s traversal of its path index `index` (out of
+    // `path_length` cells) is a harmless pass-through: the piece can pass
+    // through units (only a knight, today) and this isn't its own
+    // destination. A pass-through piece can still never land ON a unit, so
+    // this is always false at its final path index.
+    bool passes_through_at(const PendingMove& move, std::size_t path_length, std::size_t index) const;
+
+    // The first cell (in scan_first's own path order) shared with
+    // scan_second's path where both occupancy windows overlap and are
+    // already due. For a same-color pair, a cell is skipped (not a
+    // collision) if either mover merely passes through it per
+    // passes_through_at - a knight can pass over a friendly unit anywhere
+    // but its own destination.
+    std::optional<Position> first_due_shared_cell(const PendingMove& scan_first, const PendingMove& scan_second,
+                                                   bool same_color) const;
+
+    // The cell where `a` and `b` first collide, if any (scanned in the
+    // winning - lower-sequence - mover's own path order). A hostile
+    // (different-color) pair is entirely exempt if either piece
+    // can_pass_through_units(); a same-color pair instead exempts only a
+    // pass-through piece's non-destination cells (see passes_through_at).
     std::optional<Position> due_collision_cell(const PendingMove& a, const PendingMove& b) const;
 
     // Truncates the winner's dest/arrival_ms to `collision_cell` and drops
     // the loser: cleared from the board and removed from pending_moves_.
     void apply_collision(std::size_t winner_index, std::size_t loser_index, Position collision_cell);
 
+    // Friendly (same-color) resolution: the higher-sequence mover at
+    // `yielder_index` yields to `other_index`, which is left untouched.
+    // Truncates the yielder's dest/arrival_ms to the path cell immediately
+    // before their shared collision cell (scanned along the yielder's own
+    // path). If that collision cell was already the yielder's very next
+    // cell (or its own start), yielding is a no-op: its PendingMove is
+    // dropped with no board change and no cooldown stamp, since it never
+    // actually moved.
+    void apply_friendly_yield(std::size_t yielder_index, std::size_t other_index);
+
     // Finds one currently-due collision among pending_moves_ and resolves
-    // it, setting king_captured to true if the removed loser was a King (a
-    // King lost this way ends the game just like a normal capture). Returns
-    // true if one was resolved (pending_moves_ shrank by one), so the
-    // caller can rescan for further collisions exposed by it.
+    // it - hostile pairs via apply_collision, same-color pairs via
+    // apply_friendly_yield - setting king_captured to true if a hostile
+    // loser was a King (a King lost this way ends the game just like a
+    // normal capture; a friendly yield never removes a piece from the
+    // board, so it can't trigger this). Returns true if one was resolved
+    // (pending_moves_ changed), so the caller can rescan for further
+    // collisions exposed by it.
     bool resolve_next_collision(bool& king_captured);
 
     // Repeatedly resolves collisions until none remain due this tick, before

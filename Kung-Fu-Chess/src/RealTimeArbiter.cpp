@@ -12,6 +12,12 @@ namespace {
         return a > b ? a - b : b - a;
     }
 
+    // Travel time is proportional to Chebyshev distance (diagonals cost the
+    // same as straight moves).
+    long long chebyshev_distance(int x1, int y1, int x2, int y2) {
+        return std::max(abs_diff(x1, x2), abs_diff(y1, y2));
+    }
+
     // Every cell a piece passes through from start to dest, inclusive. For a
     // non-straight, non-diagonal offset (e.g. a knight's L-shape), nothing
     // lies in between, so the path is just the two endpoints.
@@ -51,13 +57,18 @@ namespace {
 
     // One occupancy window per cell of `path`, in path order; `scheduled_ms`
     // is the clock time the move was scheduled (the "enter" instant for the
-    // start cell, index 0).
+    // start cell). Each cell's enter instant is timed by its actual
+    // Chebyshev distance from the path's start, not its list index: for a
+    // straight/diagonal path these always coincide (path_cells steps one
+    // cell per unit of distance), but a knight's path is just its two
+    // endpoints, so its destination is 2+ cells of distance at index 1.
     std::vector<CellWindow> occupancy_windows(const std::vector<Position>& path, long long scheduled_ms,
                                                long long move_ms_per_cell) {
         std::vector<CellWindow> windows;
         windows.reserve(path.size());
         for (std::size_t i = 0; i < path.size(); ++i) {
-            long long enter_ms = scheduled_ms + static_cast<long long>(i) * move_ms_per_cell;
+            long long dist = chebyshev_distance(path[i].x, path[i].y, path.front().x, path.front().y);
+            long long enter_ms = scheduled_ms + dist * move_ms_per_cell;
             bool is_destination = (i + 1 == path.size());
             windows.push_back(CellWindow{ enter_ms, is_destination ? kNoExit : enter_ms + move_ms_per_cell });
         }
@@ -104,11 +115,8 @@ void RealTimeArbiter::drop_airborne_at(int x, int y) {
     airborne_ = std::move(kept);
 }
 
-// Travel time is proportional to Chebyshev distance (diagonals cost the
-// same as straight moves).
 long long RealTimeArbiter::arrival_time_for(int start_x, int start_y, int dest_x, int dest_y) const {
-    int distance_cells = std::max(abs_diff(start_x, dest_x), abs_diff(start_y, dest_y));
-    return clock_ms_ + static_cast<long long>(distance_cells) * move_ms_per_cell_;
+    return clock_ms_ + chebyshev_distance(start_x, start_y, dest_x, dest_y) * move_ms_per_cell_;
 }
 
 bool RealTimeArbiter::captures_enemy_king(const PendingMove& move) const {
@@ -223,51 +231,109 @@ bool RealTimeArbiter::advance(int milliseconds) {
     return king_lost_to_collision || king_captured_while_settling;
 }
 
-// Neither move collides with anything if either piece can pass through
-// units (only the knight, today). Otherwise, scans the winning mover's own
-// path in order and returns the first cell it shares with the other
-// mover's path whose occupancy windows overlap and are already due.
-std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a, const PendingMove& b) const {
-    const Piece* piece_a = PieceFactory::get_piece(a.piece.type);
-    const Piece* piece_b = PieceFactory::get_piece(b.piece.type);
-    if ((piece_a != nullptr && piece_a->can_pass_through_units())
-        || (piece_b != nullptr && piece_b->can_pass_through_units())) {
-        return std::nullopt;
+bool RealTimeArbiter::passes_through_at(const PendingMove& move, std::size_t path_length, std::size_t index) const {
+    if (index + 1 == path_length) {
+        return false; // its own destination: it must land there, never just "pass through"
     }
+    const Piece* piece = PieceFactory::get_piece(move.piece.type);
+    return piece != nullptr && piece->can_pass_through_units();
+}
 
-    const PendingMove& winner = (a.sequence < b.sequence) ? a : b;
-    const PendingMove& other = (a.sequence < b.sequence) ? b : a;
+std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove& scan_first,
+                                                                 const PendingMove& scan_second,
+                                                                 bool same_color) const {
+    std::vector<Position> first_path = path_cells(scan_first.start.x, scan_first.start.y, scan_first.dest.x,
+                                                    scan_first.dest.y);
+    std::vector<Position> second_path = path_cells(scan_second.start.x, scan_second.start.y, scan_second.dest.x,
+                                                     scan_second.dest.y);
+    std::vector<CellWindow> first_windows =
+        occupancy_windows(first_path, scan_first.scheduled_ms, move_ms_per_cell_);
+    std::vector<CellWindow> second_windows =
+        occupancy_windows(second_path, scan_second.scheduled_ms, move_ms_per_cell_);
 
-    std::vector<Position> winner_path = path_cells(winner.start.x, winner.start.y, winner.dest.x, winner.dest.y);
-    std::vector<Position> other_path = path_cells(other.start.x, other.start.y, other.dest.x, other.dest.y);
-    std::vector<CellWindow> winner_windows =
-        occupancy_windows(winner_path, winner.scheduled_ms, move_ms_per_cell_);
-    std::vector<CellWindow> other_windows =
-        occupancy_windows(other_path, other.scheduled_ms, move_ms_per_cell_);
-
-    for (std::size_t wi = 0; wi < winner_path.size(); ++wi) {
-        for (std::size_t oi = 0; oi < other_path.size(); ++oi) {
-            if (!(winner_path[wi] == other_path[oi])) {
+    for (std::size_t fi = 0; fi < first_path.size(); ++fi) {
+        for (std::size_t si = 0; si < second_path.size(); ++si) {
+            if (!(first_path[fi] == second_path[si])) {
                 continue;
             }
-            bool is_due = std::max(winner_windows[wi].enter_ms, other_windows[oi].enter_ms) <= clock_ms_;
-            if (windows_overlap(winner_windows[wi], other_windows[oi]) && is_due) {
-                return winner_path[wi];
+            bool is_due = std::max(first_windows[fi].enter_ms, second_windows[si].enter_ms) <= clock_ms_;
+            if (!windows_overlap(first_windows[fi], second_windows[si]) || !is_due) {
+                continue;
             }
+            // A knight may pass over a friendly unit anywhere but its own
+            // destination; a hostile pair never reaches this (already
+            // exempted wholesale in due_collision_cell before same_color
+            // pairs get here).
+            if (same_color && (passes_through_at(scan_first, first_path.size(), fi)
+                                || passes_through_at(scan_second, second_path.size(), si))) {
+                continue;
+            }
+            return first_path[fi];
         }
     }
     return std::nullopt;
 }
 
+// A hostile (different-color) pair is entirely exempt if either piece
+// can_pass_through_units() - a knight always ignores an enemy's route.
+// Otherwise scans the winning (lower-sequence) mover's own path in order
+// for the first due, colliding cell (see first_due_shared_cell).
+std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a, const PendingMove& b) const {
+    bool same_color = a.piece.color == b.piece.color;
+    if (!same_color) {
+        const Piece* piece_a = PieceFactory::get_piece(a.piece.type);
+        const Piece* piece_b = PieceFactory::get_piece(b.piece.type);
+        if ((piece_a != nullptr && piece_a->can_pass_through_units())
+            || (piece_b != nullptr && piece_b->can_pass_through_units())) {
+            return std::nullopt;
+        }
+    }
+
+    const PendingMove& winner = (a.sequence < b.sequence) ? a : b;
+    const PendingMove& other = (a.sequence < b.sequence) ? b : a;
+    return first_due_shared_cell(winner, other, same_color);
+}
+
 void RealTimeArbiter::apply_collision(std::size_t winner_index, std::size_t loser_index, Position collision_cell) {
     PendingMove& winner = pending_moves_[winner_index];
-    int distance_cells =
-        std::max(abs_diff(winner.start.x, collision_cell.x), abs_diff(winner.start.y, collision_cell.y));
+    long long distance_cells = chebyshev_distance(winner.start.x, winner.start.y, collision_cell.x, collision_cell.y);
     winner.dest = collision_cell;
-    winner.arrival_ms = winner.scheduled_ms + static_cast<long long>(distance_cells) * move_ms_per_cell_;
+    winner.arrival_ms = winner.scheduled_ms + distance_cells * move_ms_per_cell_;
 
     board_.clear_at(pending_moves_[loser_index].start.x, pending_moves_[loser_index].start.y);
     pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(loser_index));
+}
+
+void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, std::size_t other_index) {
+    PendingMove& yielder = pending_moves_[yielder_index];
+    const PendingMove& other = pending_moves_[other_index];
+
+    // Guaranteed to find a cell: the caller already confirmed this pair has
+    // a due same-color collision, and existence doesn't depend on scan order.
+    std::optional<Position> collision_cell = first_due_shared_cell(yielder, other, /*same_color=*/true);
+    if (!collision_cell.has_value()) {
+        return; // defensive: should be unreachable given the caller's contract above
+    }
+
+    std::vector<Position> yielder_path = path_cells(yielder.start.x, yielder.start.y, yielder.dest.x, yielder.dest.y);
+    std::size_t collision_index = 0;
+    while (collision_index < yielder_path.size() && !(yielder_path[collision_index] == *collision_cell)) {
+        ++collision_index;
+    }
+
+    if (collision_index <= 1) {
+        // The shared cell was already the yielder's very next step (or its
+        // own start): stopping "one cell short" is its own start, i.e. it
+        // never actually moves. Drop the move outright - no board change,
+        // no cooldown, since it never left.
+        pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(yielder_index));
+        return;
+    }
+
+    Position stop_cell = yielder_path[collision_index - 1];
+    long long distance_cells = chebyshev_distance(yielder.start.x, yielder.start.y, stop_cell.x, stop_cell.y);
+    yielder.dest = stop_cell;
+    yielder.arrival_ms = yielder.scheduled_ms + distance_cells * move_ms_per_cell_;
 }
 
 bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
@@ -279,12 +345,17 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
             }
             std::size_t winner_index = (pending_moves_[i].sequence < pending_moves_[j].sequence) ? i : j;
             std::size_t loser_index = (winner_index == i) ? j : i;
-            // A King lost as a collision loser ends the game, same as a
-            // normal capture; check before apply_collision erases it.
-            if (pending_moves_[loser_index].piece.type == PieceType::K) {
-                king_captured = true;
+
+            if (pending_moves_[i].piece.color == pending_moves_[j].piece.color) {
+                apply_friendly_yield(loser_index, winner_index);
+            } else {
+                // A King lost as a collision loser ends the game, same as a
+                // normal capture; check before apply_collision erases it.
+                if (pending_moves_[loser_index].piece.type == PieceType::K) {
+                    king_captured = true;
+                }
+                apply_collision(winner_index, loser_index, *collision_cell);
             }
-            apply_collision(winner_index, loser_index, *collision_cell);
             return true;
         }
     }
