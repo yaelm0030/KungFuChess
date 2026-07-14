@@ -119,11 +119,14 @@ private:
     // for which of two colliding movers is the "winner".
     bool has_priority(const PendingMove& a, const PendingMove& b) const;
 
-    // The cell where `a` and `b` first collide, if any (scanned in the
-    // winning - lower-sequence - mover's own path order). A hostile
+    // The cell where `a` and `b` first collide, if any. A hostile
     // (different-color) pair is entirely exempt if either piece
     // can_pass_through_units(); a same-color pair instead exempts only a
     // pass-through piece's non-destination cells (see passes_through_at).
+    // Scanned in the winning - lower-sequence - mover's own path order for a
+    // hostile pair, but in the losing - higher-sequence, yielding - mover's
+    // own path order for a friendly pair, since that's whose path
+    // apply_friendly_yield will truncate.
     std::optional<Position> due_collision_cell(const PendingMove& a, const PendingMove& b) const;
 
     // Truncates the winner's dest/arrival_ms to `collision_cell` and drops
@@ -131,14 +134,13 @@ private:
     void apply_collision(std::size_t winner_index, std::size_t loser_index, Position collision_cell);
 
     // Friendly (same-color) resolution: the higher-sequence mover at
-    // `yielder_index` yields to `other_index`, which is left untouched.
-    // Truncates the yielder's dest/arrival_ms to the path cell immediately
-    // before their shared collision cell (scanned along the yielder's own
-    // path). If that collision cell was already the yielder's very next
-    // cell (or its own start), yielding is a no-op: its PendingMove is
-    // dropped with no board change and no cooldown stamp, since it never
-    // actually moved.
-    void apply_friendly_yield(std::size_t yielder_index, std::size_t other_index);
+    // `yielder_index` yields; the other mover is left untouched. Truncates
+    // the yielder's dest/arrival_ms to the path cell immediately before
+    // `collision_cell` (scanned along the yielder's own path). If that
+    // collision cell was already the yielder's very next cell (or its own
+    // start), yielding is a no-op: its PendingMove is dropped with no board
+    // change and no cooldown stamp, since it never actually moved.
+    void apply_friendly_yield(std::size_t yielder_index, Position collision_cell);
 
     // Finds one currently-due collision among pending_moves_ and resolves
     // it - hostile pairs via apply_collision, same-color pairs via

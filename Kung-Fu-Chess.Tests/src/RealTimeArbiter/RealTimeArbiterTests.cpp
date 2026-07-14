@@ -294,6 +294,36 @@ TEST_CASE("a friendly piece already adjacent to the shared cell yields as a no-o
     CHECK(arbiter.is_moving(0, 0));                     // A is untouched, still travelling normally
 }
 
+TEST_CASE("a friendly head-on overlap with two simultaneously-due shared cells still resolves deterministically") {
+    // A (0,0)->(3,0), sequence 0, and B (3,0)->(0,0), sequence 1: the same
+    // full head-on swap geometry as the hostile test above, but same color.
+    // Both shared cells (1,0) and (2,0) become due at the exact same instant
+    // (t=2*cellms), a tie that must be broken by scanning B's own path first
+    // (B is the higher-sequence mover that ends up yielding): B's earliest
+    // due cell on its own path is (2,0), its very first step, so the yield
+    // is a no-op - B never actually leaves (3,0).
+    // Note: for this collinear full-swap geometry, resolve_collisions()'s
+    // fixpoint re-scan converges to this same result even without the
+    // scan-order fix in due_collision_cell, so this test documents the
+    // tie-break contract rather than regression-guarding that fix - the
+    // fix's correctness rests on the index-identity argument in its own
+    // comment, not on this test failing without it.
+    Board board(4, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A
+    board.place_at(3, 0, Cell{ Color::w, PieceType::R }); // B; same color as A
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 3, 0 }, *board.get_at(0, 0)); // A; sequence 0
+    arbiter.schedule_move(Position{ 3, 0 }, Position{ 0, 0 }, *board.get_at(3, 0)); // B; sequence 1
+
+    CHECK_FALSE(arbiter.advance(3 * constants::kDefaultMoveMsPerCell));
+    CHECK_FALSE(arbiter.is_moving(3, 0)); // B's move was dropped, not delayed
+    // B never left (3,0); A's own path is untouched and lands there normally
+    // afterward, so the final board shows a single, cooldown-stamped rook.
+    CHECK(board.get_at(3, 0)->cooldown_end_ms == arbiter.clock_ms() + constants::kCooldownMs);
+    CHECK(Parser::board_to_string(board) == ". . . wR");
+}
+
 TEST_CASE("a normal (non-zero-length) friendly yield still gets cooldown-stamped on landing") {
     Board board(6, 1);
     board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A; sequence 0

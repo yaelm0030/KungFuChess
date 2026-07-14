@@ -307,6 +307,13 @@ std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a
     bool a_has_priority = has_priority(a, b);
     const PendingMove& winner = a_has_priority ? a : b;
     const PendingMove& other = a_has_priority ? b : a;
+    // Hostile scans the winner's path first (unchanged); Friendly must scan
+    // `other` first since it's the mover that ends up yielding (see
+    // resolve_next_collision), matching pre-refactor tie-breaking on the
+    // yielder's own path when two shared cells become due simultaneously.
+    if (kind == CollisionKind::Friendly) {
+        return first_due_shared_cell(other, winner, kind);
+    }
     return first_due_shared_cell(winner, other, kind);
 }
 
@@ -320,20 +327,12 @@ void RealTimeArbiter::apply_collision(std::size_t winner_index, std::size_t lose
     pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(loser_index));
 }
 
-void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, std::size_t other_index) {
+void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, Position collision_cell) {
     PendingMove& yielder = pending_moves_[yielder_index];
-    const PendingMove& other = pending_moves_[other_index];
-
-    // Guaranteed to find a cell: the caller already confirmed this pair has
-    // a due same-color collision, and existence doesn't depend on scan order.
-    std::optional<Position> collision_cell = first_due_shared_cell(yielder, other, CollisionKind::Friendly);
-    if (!collision_cell.has_value()) {
-        return; // defensive: should be unreachable given the caller's contract above
-    }
 
     std::vector<Position> yielder_path = path_cells(yielder.start.x, yielder.start.y, yielder.dest.x, yielder.dest.y);
     std::size_t collision_index = 0;
-    while (collision_index < yielder_path.size() && !(yielder_path[collision_index] == *collision_cell)) {
+    while (collision_index < yielder_path.size() && !(yielder_path[collision_index] == collision_cell)) {
         ++collision_index;
     }
 
@@ -364,7 +363,7 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
             std::size_t loser_index = i_has_priority ? j : i;
 
             if (pending_moves_[i].piece.color == pending_moves_[j].piece.color) {
-                apply_friendly_yield(loser_index, winner_index);
+                apply_friendly_yield(loser_index, *collision_cell);
             } else {
                 // A King lost as a collision loser ends the game, same as a
                 // normal capture; check before apply_collision erases it.
