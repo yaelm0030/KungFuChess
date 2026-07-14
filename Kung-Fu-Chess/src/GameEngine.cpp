@@ -25,53 +25,27 @@ std::optional<Color> GameEngine::color_at(Position cell) const {
 }
 
 bool GameEngine::request_move(Position start, Position dest) {
-    if (game_over_) {
-        return false;
-    }
+    if (game_over_) return false;
 
     std::optional<Cell> piece_at_start = board_.get_at(start.x, start.y);
-    if (!piece_at_start.has_value()) {
-        return false;
-    }
-
-    // Already moving: reject a redirect rather than rescheduling mid-flight.
-    if (arbiter_.is_moving(start.x, start.y)) {
-        return false;
-    }
-
-    // An airborne piece is committed to its jump; it cannot move until it lands.
-    if (arbiter_.is_airborne(start.x, start.y)) {
-        return false;
-    }
-
-    // A piece on cooldown from its last move cannot move again yet.
-    if (piece_at_start->is_on_cooldown(arbiter_.clock_ms())) {
-        return false;
-    }
+    if (!piece_at_start.has_value()) return false;
+    if (arbiter_.is_moving(start.x, start.y)) return false;
+    if (arbiter_.is_airborne(start.x, start.y)) return false;
+    if (piece_at_start->is_on_cooldown(arbiter_.clock_ms())) return false;
 
     const Piece* piece = PieceFactory::get_piece(piece_at_start->type);
-    if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) {
-        return false;
-    }
+    if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) return false;
 
     arbiter_.schedule_move(start, dest, *piece_at_start);
     return true;
 }
 
 bool GameEngine::request_jump(Position cell) {
-    if (game_over_) {
-        return false;
-    }
+    if (game_over_) return false;
 
     std::optional<Cell> piece = board_.get_at(cell.x, cell.y);
-    if (!piece.has_value() || arbiter_.is_moving(cell.x, cell.y) || arbiter_.is_airborne(cell.x, cell.y)) {
-        return false;
-    }
-
-    // A piece on cooldown from its last move cannot jump either.
-    if (piece->is_on_cooldown(arbiter_.clock_ms())) {
-        return false;
-    }
+    if (!piece.has_value() || arbiter_.is_moving(cell.x, cell.y) || arbiter_.is_airborne(cell.x, cell.y)) return false;
+    if (piece->is_on_cooldown(arbiter_.clock_ms())) return false;
 
     arbiter_.start_jump(cell, *piece, kJumpDurationMs);
     return true;
