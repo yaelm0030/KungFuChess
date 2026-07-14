@@ -10,10 +10,15 @@ const std::unordered_map<char, PieceType> kPieceTypesByLetter{
     { 'B', PieceType::B }, { 'N', PieceType::N }, { 'P', PieceType::P },
 };
 
-const std::unordered_map<PieceType, char> kPieceTypeLetters{
-    { PieceType::K, 'K' }, { PieceType::Q, 'Q' }, { PieceType::R, 'R' },
-    { PieceType::B, 'B' }, { PieceType::N, 'N' }, { PieceType::P, 'P' },
-};
+std::unordered_map<PieceType, char> invert_piece_letters() {
+    std::unordered_map<PieceType, char> letters;
+    for (const auto& [letter, type] : kPieceTypesByLetter) {
+        letters[type] = letter;
+    }
+    return letters;
+}
+
+const std::unordered_map<PieceType, char> kPieceTypeLetters = invert_piece_letters();
 
 } // namespace
 

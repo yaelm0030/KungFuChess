@@ -1,7 +1,7 @@
 #include "Piece.h"
 
 #include <cstdlib>
-#include <stdexcept>
+#include <unordered_map>
 
 #include "RuleEngine.h"
 
@@ -167,13 +167,10 @@ const Piece& PieceFactory::get_piece(PieceType type) {
     static Knight knight;
     static Pawn pawn;
 
-    switch (type) {
-        case PieceType::K: return king;
-        case PieceType::Q: return queen;
-        case PieceType::R: return rook;
-        case PieceType::B: return bishop;
-        case PieceType::N: return knight;
-        case PieceType::P: return pawn;
-    }
-    throw std::invalid_argument("Unknown PieceType");
+    static const std::unordered_map<PieceType, const Piece*> kPieces{
+        { PieceType::K, &king }, { PieceType::Q, &queen }, { PieceType::R, &rook },
+        { PieceType::B, &bishop }, { PieceType::N, &knight }, { PieceType::P, &pawn },
+    };
+
+    return *kPieces.at(type);
 }
