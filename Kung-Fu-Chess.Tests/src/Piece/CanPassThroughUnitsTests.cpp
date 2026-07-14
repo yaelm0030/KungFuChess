@@ -35,7 +35,7 @@ TEST_CASE("a pawn cannot pass through units") {
 }
 
 TEST_CASE("the flyweight knight instance served by the factory can pass through units") {
-    CHECK(PieceFactory::get_piece(PieceType::N)->can_pass_through_units());
+    CHECK(PieceFactory::get_piece(PieceType::N).can_pass_through_units());
 }
 
 }

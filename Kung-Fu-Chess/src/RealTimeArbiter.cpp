@@ -224,8 +224,7 @@ bool RealTimeArbiter::passes_through_at(const PendingMove& move, std::size_t pat
     if (index + 1 == path_length) {
         return false; // its own destination: it must land there, never just "pass through"
     }
-    const Piece* piece = PieceFactory::get_piece(move.piece.type);
-    return piece != nullptr && piece->can_pass_through_units();
+    return PieceFactory::get_piece(move.piece.type).can_pass_through_units();
 }
 
 bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverWindow& second,
@@ -280,10 +279,8 @@ bool RealTimeArbiter::has_priority(const PendingMove& a, const PendingMove& b) c
 std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a, const PendingMove& b) const {
     CollisionKind kind = (a.piece.color == b.piece.color) ? CollisionKind::Friendly : CollisionKind::Hostile;
     if (kind == CollisionKind::Hostile) {
-        const Piece* piece_a = PieceFactory::get_piece(a.piece.type);
-        const Piece* piece_b = PieceFactory::get_piece(b.piece.type);
-        if ((piece_a != nullptr && piece_a->can_pass_through_units())
-            || (piece_b != nullptr && piece_b->can_pass_through_units())) {
+        if (PieceFactory::get_piece(a.piece.type).can_pass_through_units()
+            || PieceFactory::get_piece(b.piece.type).can_pass_through_units()) {
             return std::nullopt;
         }
     }

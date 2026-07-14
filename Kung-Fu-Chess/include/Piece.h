@@ -53,5 +53,5 @@ public:
 
 class PieceFactory {
 public:
-    static const Piece* get_piece(PieceType type);
+    static const Piece& get_piece(PieceType type);
 };

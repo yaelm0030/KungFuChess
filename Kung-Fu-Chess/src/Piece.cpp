@@ -1,6 +1,7 @@
 #include "Piece.h"
 
 #include <cstdlib>
+#include <stdexcept>
 
 #include "RuleEngine.h"
 
@@ -158,7 +159,7 @@ bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, c
     return false;
 }
 
-const Piece* PieceFactory::get_piece(PieceType type) {
+const Piece& PieceFactory::get_piece(PieceType type) {
     static King king;
     static Queen queen;
     static Rook rook;
@@ -167,12 +168,12 @@ const Piece* PieceFactory::get_piece(PieceType type) {
     static Pawn pawn;
 
     switch (type) {
-        case PieceType::K: return &king;
-        case PieceType::Q: return &queen;
-        case PieceType::R: return &rook;
-        case PieceType::B: return &bishop;
-        case PieceType::N: return &knight;
-        case PieceType::P: return &pawn;
-        default: return nullptr;
+        case PieceType::K: return king;
+        case PieceType::Q: return queen;
+        case PieceType::R: return rook;
+        case PieceType::B: return bishop;
+        case PieceType::N: return knight;
+        case PieceType::P: return pawn;
     }
+    throw std::invalid_argument("Unknown PieceType");
 }

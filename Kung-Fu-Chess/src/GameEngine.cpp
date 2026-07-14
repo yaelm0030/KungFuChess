@@ -28,8 +28,8 @@ bool GameEngine::request_move(Position start, Position dest) {
     if (!is_selectable(start)) return false;
 
     std::optional<Cell> piece_at_start = board_.get_at(start.x, start.y);
-    const Piece* piece = PieceFactory::get_piece(piece_at_start->type);
-    if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) return false;
+    const Piece& piece = PieceFactory::get_piece(piece_at_start->type);
+    if (!piece.is_available_move(start.x, start.y, dest.x, dest.y, board_)) return false;
 
     arbiter_.schedule_move(start, dest, *piece_at_start);
     return true;
