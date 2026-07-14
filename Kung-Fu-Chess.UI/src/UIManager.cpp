@@ -38,7 +38,7 @@ UIManager::UIManager(ImageCache& images, std::string board_image_path)
     : images_(images), board_image_path_(std::move(board_image_path)) {
 }
 
-Img UIManager::render(const GameSnapshot& snapshot) {
+Img UIManager::render(const GameSnapshot& snapshot, std::optional<Position> selected_cell) {
     const int board_px_w = snapshot.board_width * constants::kCellSizePx;
     const int board_px_h = snapshot.board_height * constants::kCellSizePx;
 
@@ -49,6 +49,11 @@ Img UIManager::render(const GameSnapshot& snapshot) {
         Img sprite = images_.get(sprite_path(piece)).clone();
         sprite.resize(constants::kCellSizePx, constants::kCellSizePx);
         sprite.draw_on(frame, piece.pixels_location.x, piece.pixels_location.y);
+    }
+
+    if (selected_cell.has_value()) {
+        frame.draw_rectangle(selected_cell->x * constants::kCellSizePx, selected_cell->y * constants::kCellSizePx,
+                              constants::kCellSizePx, constants::kCellSizePx, cv::Scalar(0, 255, 255, 255), 3);
     }
 
     if (snapshot.is_game_over) {

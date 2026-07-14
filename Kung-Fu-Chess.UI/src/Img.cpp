@@ -98,6 +98,14 @@ void Img::put_text(const std::string& txt, int x, int y, double font_size,
                 color, thickness, cv::LINE_AA);
 }
 
+void Img::draw_rectangle(int x, int y, int width, int height, const cv::Scalar& color, int thickness) {
+    if (img_.empty()) {
+        throw std::runtime_error("Image not loaded.");
+    }
+
+    cv::rectangle(img_, cv::Rect(x, y, width, height), color, thickness);
+}
+
 void Img::resize(int width, int height, int interpolation) {
     if (img_.empty()) {
         throw std::runtime_error("Image not loaded.");

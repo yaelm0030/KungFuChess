@@ -19,6 +19,10 @@ public:
                   const cv::Scalar& color = cv::Scalar(255, 255, 255, 255),
                   int thickness = 1);
 
+    void draw_rectangle(int x, int y, int width, int height,
+                         const cv::Scalar& color = cv::Scalar(255, 255, 255, 255),
+                         int thickness = 1);
+
     void show();
 
     void resize(int width, int height, int interpolation = cv::INTER_LINEAR);

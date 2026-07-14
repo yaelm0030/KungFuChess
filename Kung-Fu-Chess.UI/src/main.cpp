@@ -50,6 +50,8 @@ int main() {
             } else {
                 std::cout << "selection cleared\n";
             }
+            frame = ui.render(controller.snapshot(), last_selected);
+            cv::imshow(window_name, frame.get_mat());
         }
         if (controller.game_over()) {
             std::cout << "game over\n";
