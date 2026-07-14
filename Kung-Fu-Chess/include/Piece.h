@@ -2,27 +2,15 @@
 
 #include "Board.h"
 
-// Strategy pattern: each piece type implements its own movement rule behind
-// this common interface, so callers never branch on piece type.
 class Piece {
 public:
     virtual ~Piece() = default;
 
-    // True if this piece can legally move from start to dest: shape, path,
-    // and same-color capture are all satisfied.
     virtual bool is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const = 0;
-
-    // True if another piece blocks the path between start and dest.
     virtual bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const = 0;
-
-    // True if this piece can move through cells occupied by other units
-    // mid-move rather than colliding with them. False for every piece except
-    // the knight, which jumps over anything in its path.
     virtual bool can_pass_through_units() const { return false; }
 
 protected:
-    // Shared tail once a subclass has confirmed the move fits its shape:
-    // rejects a blocked path, then rejects capturing one's own color.
     bool legal_if_shape_matches(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const;
 };
 
@@ -63,7 +51,6 @@ public:
     bool has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const override;
 };
 
-// Factory + Flyweight: hands out one shared instance per piece type.
 class PieceFactory {
 public:
     static const Piece* get_piece(PieceType type);

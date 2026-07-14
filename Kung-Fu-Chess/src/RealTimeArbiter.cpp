@@ -44,10 +44,8 @@ namespace {
         return cells;
     }
 
-    // A mover occupies a path cell from enter_ms; it vacates at exit_ms,
-    // except at its destination (the final cell), which it holds
-    // indefinitely once arrived - modeled as kNoExit so a still-pending
-    // destination cell keeps colliding with anything that reaches it later.
+    // A destination cell holds indefinitely once arrived (kNoExit), so a
+    // still-pending destination keeps colliding with anything that reaches it later.
     struct CellWindow {
         long long enter_ms;
         long long exit_ms;
@@ -55,12 +53,8 @@ namespace {
 
     constexpr long long kNoExit = std::numeric_limits<long long>::max();
 
-    // One occupancy window per cell of `path`, in path order; `scheduled_ms`
-    // is the clock time the move was scheduled (the "enter" instant for the
-    // start cell). Each cell's enter instant is timed by its actual
-    // Chebyshev distance from the path's start, not its list index: for a
-    // straight/diagonal path these always coincide (path_cells steps one
-    // cell per unit of distance), but a knight's path is just its two
+    // Each cell's enter instant is timed by its actual Chebyshev distance from
+    // the path's start, not its list index: a knight's path is just its two
     // endpoints, so its destination is 2+ cells of distance at index 1.
     std::vector<CellWindow> occupancy_windows(const std::vector<Position>& path, long long scheduled_ms,
                                                long long move_ms_per_cell) {
@@ -148,9 +142,8 @@ bool RealTimeArbiter::has_arrivals_to_settle() const {
 }
 
 void RealTimeArbiter::settle_one_arrived_move(const PendingMove& move, bool& king_captured) {
-    // An airborne enemy on the destination captures the arriving piece
-    // instead of being captured: clear the mover's origin and skip
-    // placing it; the jumper stays untouched since it never left its cell.
+    // An airborne enemy guarding the destination captures the arriver instead
+    // of being captured by it; the jumper itself stays untouched.
     const AirbornePiece* guard = airborne_at(move.dest.x, move.dest.y);
     if (guard != nullptr && guard->piece.color != move.piece.color && move.arrival_ms <= guard->land_ms) {
         board_.clear_at(move.start.x, move.start.y);
@@ -167,17 +160,13 @@ void RealTimeArbiter::settle_one_arrived_move(const PendingMove& move, bool& kin
     if (is_pawn_promotion(move)) {
         piece.type = PieceType::Q;
     }
-    // A regular move that lands puts the piece on cooldown; jumps don't.
     piece.cooldown_end_ms = clock_ms_ + constants::kCooldownMs;
-    // Drop any stale airborne record for the destination piece we're about
-    // to overwrite.
     drop_airborne_at(move.dest.x, move.dest.y);
     board_.place_at(move.dest.x, move.dest.y, piece);
     board_.clear_at(move.start.x, move.start.y);
 }
 
 bool RealTimeArbiter::settle_arrived_moves() {
-    // Fast path: nothing to settle this tick, so skip rebuilding either vector.
     if (!has_arrivals_to_settle()) {
         return false;
     }
@@ -246,9 +235,7 @@ bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverW
         || !is_due) {
         return false;
     }
-    // A knight may pass over a friendly unit anywhere but its own
-    // destination; a hostile pair never reaches this (already exempted
-    // wholesale in due_collision_cell before Friendly pairs get here).
+    // Hostile pairs are already exempted wholesale in due_collision_cell.
     if (kind == CollisionKind::Friendly && (passes_through_at(first.move, first.path_length, first.index)
                                              || passes_through_at(second.move, second.path_length, second.index))) {
         return false;
@@ -289,10 +276,7 @@ bool RealTimeArbiter::has_priority(const PendingMove& a, const PendingMove& b) c
     return a.sequence < b.sequence;
 }
 
-// A hostile (different-color) pair is entirely exempt if either piece
-// can_pass_through_units() - a knight always ignores an enemy's route.
-// Otherwise scans the winning (lower-sequence) mover's own path in order
-// for the first due, colliding cell (see first_due_shared_cell).
+// A hostile pair is entirely exempt if either piece can_pass_through_units().
 std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a, const PendingMove& b) const {
     CollisionKind kind = (a.piece.color == b.piece.color) ? CollisionKind::Friendly : CollisionKind::Hostile;
     if (kind == CollisionKind::Hostile) {
@@ -307,10 +291,8 @@ std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a
     bool a_has_priority = has_priority(a, b);
     const PendingMove& winner = a_has_priority ? a : b;
     const PendingMove& other = a_has_priority ? b : a;
-    // Hostile scans the winner's path first (unchanged); Friendly must scan
-    // `other` first since it's the mover that ends up yielding (see
-    // resolve_next_collision), matching pre-refactor tie-breaking on the
-    // yielder's own path when two shared cells become due simultaneously.
+    // Friendly scans the yielding mover's own path first, since that's whose
+    // path apply_friendly_yield will truncate.
     if (kind == CollisionKind::Friendly) {
         return first_due_shared_cell(other, winner, kind);
     }
@@ -337,10 +319,7 @@ void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_index, Position c
     }
 
     if (collision_index <= 1) {
-        // The shared cell was already the yielder's very next step (or its
-        // own start): stopping "one cell short" is its own start, i.e. it
-        // never actually moves. Drop the move outright - no board change,
-        // no cooldown, since it never left.
+        // Stopping one cell short is its own start, i.e. it never actually moved.
         pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(yielder_index));
         return;
     }
@@ -374,8 +353,7 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
     if (pending_moves_[due->winner_index].piece.color == pending_moves_[due->loser_index].piece.color) {
         apply_friendly_yield(due->loser_index, due->collision_cell);
     } else {
-        // A King lost as a collision loser ends the game, same as a normal
-        // capture; check before apply_collision erases it.
+        // Check before apply_collision erases the loser.
         if (pending_moves_[due->loser_index].piece.type == PieceType::K) {
             king_captured = true;
         }
@@ -385,8 +363,7 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
 }
 
 bool RealTimeArbiter::resolve_collisions() {
-    // Removing a loser can expose another due collision (e.g. a third piece
-    // sharing the loser's path), so keep scanning until none remain.
+    // Removing a loser can expose another due collision, so keep scanning until none remain.
     bool king_captured = false;
     while (resolve_next_collision(king_captured)) {
     }

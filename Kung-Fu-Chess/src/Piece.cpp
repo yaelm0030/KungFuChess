@@ -23,7 +23,6 @@ bool King::has_blockers(int, int, int, int, const Board&) const {
     return false; // a king only ever moves one cell; nothing can be "between"
 }
 
-// A king moves exactly one cell, in any direction.
 bool King::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -42,7 +41,6 @@ bool Rook::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const 
     return !RuleEngine::is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
-// A rook moves any distance in a straight line (row or column), with a clear path.
 bool Rook::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -61,7 +59,6 @@ bool Bishop::has_blockers(int start_x, int start_y, int dest_x, int dest_y, cons
     return !RuleEngine::is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
-// A bishop moves any distance diagonally, with a clear path.
 bool Bishop::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -82,7 +79,6 @@ bool Queen::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const
     return !RuleEngine::is_path_clear(start_x, start_y, dest_x, dest_y, board);
 }
 
-// A queen moves any distance in a straight line or diagonally, with a clear path.
 bool Queen::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -99,10 +95,9 @@ bool Knight::has_blockers(int, int, int, int, const Board&) const {
 }
 
 bool Knight::can_pass_through_units() const {
-    return true; // a knight's L-shaped hop passes over any unit in between
+    return true;
 }
 
-// A knight moves in an L-shape: two cells along one axis, one cell along the other.
 bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     int dx = abs_diff(start_x, dest_x);
     int dy = abs_diff(start_y, dest_y);
@@ -122,8 +117,6 @@ int pawn_start_row(Color color, const Board& board) {
 
 } // namespace
 
-// A pawn can only be blocked on its two-cell opening move, by a piece on the
-// cell it must pass through; a one-cell move has nothing "between" it.
 bool Pawn::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     std::optional<Cell> start_cell = board.get_at(start_x, start_y);
     if (!start_cell.has_value()) {
@@ -138,9 +131,6 @@ bool Pawn::has_blockers(int start_x, int start_y, int dest_x, int dest_y, const 
     return board.get_at(start_x, start_y + forward).has_value();
 }
 
-// A pawn moves one cell straight ahead onto an empty cell, two cells straight
-// ahead from its home row (with a clear path), or captures one cell
-// diagonally ahead onto an enemy piece; direction depends on color.
 bool Pawn::is_available_move(int start_x, int start_y, int dest_x, int dest_y, const Board& board) const {
     std::optional<Cell> start_cell = board.get_at(start_x, start_y);
     if (!start_cell.has_value()) {

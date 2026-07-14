@@ -7,8 +7,6 @@
 #include "Constants.h"
 #include "RealTimeArbiter.h"
 
-// Facade: coordinates Board, RealTimeArbiter, and the Piece/RuleEngine move
-// rules behind one simple move/jump/wait/print interface.
 class GameEngine {
 public:
     static constexpr long long kCooldownMs = constants::kCooldownMs;
@@ -17,25 +15,13 @@ public:
 
     explicit GameEngine(Board board, long long move_ms_per_cell = kDefaultMoveMsPerCell);
 
-    // Validates the move against the piece's own rule and against any move
-    // already in flight on its route, then queues it via RealTimeArbiter.
-    // False (board unchanged) if illegal, the game is over, there's no
-    // piece at `start`, or it's already moving, airborne, or on cooldown.
-    // An out-of-range `start`/`dest` propagates Board's std::out_of_range,
-    // provided the game isn't already over.
+    // An out-of-range start/dest propagates Board's std::out_of_range, unless the game is already over.
     bool request_move(Position start, Position dest);
-
-    // Starts a jump in place at `cell` for kJumpDurationMs. False if the
-    // game is over, there's no piece there, or it's already moving, airborne,
-    // or on cooldown. An out-of-range `cell` propagates Board's
-    // std::out_of_range, provided the game isn't already over.
     bool request_jump(Position cell);
 
-    // Advances the game clock and settles any pending moves whose arrival
-    // time has now passed.
     void wait(int milliseconds);
 
-    // Prints the settled board; pieces mid-move still show at their origin.
+    // Pieces mid-move still show at their origin.
     void print(std::ostream& out) const;
 
     long long clock_ms() const { return arbiter_.clock_ms(); }
@@ -44,8 +30,6 @@ public:
     int width() const { return board_.get_width(); }
     int height() const { return board_.get_height(); }
 
-    // True if `cell` holds a piece that can be selected: present, neither
-    // mid-move nor mid-jump, not on cooldown, and the game is not already over.
     bool is_selectable(Position cell) const;
 
     std::optional<Color> color_at(Position cell) const;
