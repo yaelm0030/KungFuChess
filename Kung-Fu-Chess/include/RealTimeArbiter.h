@@ -57,6 +57,17 @@ private:
         long long land_ms;
     };
 
+    // One mover's occupancy window at a single shared cell, bundled so
+    // is_due_collision_at takes one argument per side instead of five
+    // same-typed positional params (a transposition-bug risk).
+    struct MoverWindow {
+        const PendingMove& move;
+        long long enter_ms;
+        long long exit_ms;
+        std::size_t index;
+        std::size_t path_length;
+    };
+
     Board& board_;
     long long move_ms_per_cell_;
     long long clock_ms_ = 0;
@@ -81,6 +92,14 @@ private:
     // destination. A pass-through piece can still never land ON a unit, so
     // this is always false at its final path index.
     bool passes_through_at(const PendingMove& move, std::size_t path_length, std::size_t index) const;
+
+    // True if `first` and `second`'s occupancy windows at a shared cell -
+    // each mover's own [enter_ms, exit_ms) and its path index/length -
+    // overlap, are already due at clock_ms_, and (for a same-color pair)
+    // aren't exempt because one of them merely passes through that cell per
+    // passes_through_at - a knight can pass over a friendly unit anywhere but
+    // its own destination.
+    bool is_due_collision_at(const MoverWindow& first, const MoverWindow& second, bool same_color) const;
 
     // The first cell (in scan_first's own path order) shared with
     // scan_second's path where both occupancy windows overlap and are

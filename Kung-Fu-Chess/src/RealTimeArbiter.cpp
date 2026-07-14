@@ -239,6 +239,23 @@ bool RealTimeArbiter::passes_through_at(const PendingMove& move, std::size_t pat
     return piece != nullptr && piece->can_pass_through_units();
 }
 
+bool RealTimeArbiter::is_due_collision_at(const MoverWindow& first, const MoverWindow& second,
+                                           bool same_color) const {
+    bool is_due = std::max(first.enter_ms, second.enter_ms) <= clock_ms_;
+    if (!windows_overlap(CellWindow{ first.enter_ms, first.exit_ms }, CellWindow{ second.enter_ms, second.exit_ms })
+        || !is_due) {
+        return false;
+    }
+    // A knight may pass over a friendly unit anywhere but its own
+    // destination; a hostile pair never reaches this (already exempted
+    // wholesale in due_collision_cell before same_color pairs get here).
+    if (same_color && (passes_through_at(first.move, first.path_length, first.index)
+                        || passes_through_at(second.move, second.path_length, second.index))) {
+        return false;
+    }
+    return true;
+}
+
 std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove& scan_first,
                                                                  const PendingMove& scan_second,
                                                                  bool same_color) const {
@@ -256,19 +273,13 @@ std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove
             if (!(first_path[fi] == second_path[si])) {
                 continue;
             }
-            bool is_due = std::max(first_windows[fi].enter_ms, second_windows[si].enter_ms) <= clock_ms_;
-            if (!windows_overlap(first_windows[fi], second_windows[si]) || !is_due) {
-                continue;
+            MoverWindow first{ scan_first, first_windows[fi].enter_ms, first_windows[fi].exit_ms, fi,
+                                first_path.size() };
+            MoverWindow second{ scan_second, second_windows[si].enter_ms, second_windows[si].exit_ms, si,
+                                 second_path.size() };
+            if (is_due_collision_at(first, second, same_color)) {
+                return first_path[fi];
             }
-            // A knight may pass over a friendly unit anywhere but its own
-            // destination; a hostile pair never reaches this (already
-            // exempted wholesale in due_collision_cell before same_color
-            // pairs get here).
-            if (same_color && (passes_through_at(scan_first, first_path.size(), fi)
-                                || passes_through_at(scan_second, second_path.size(), si))) {
-                continue;
-            }
-            return first_path[fi];
         }
     }
     return std::nullopt;
