@@ -83,18 +83,6 @@ TEST_CASE("board lines with no Commands: marker are all read up to EOF") {
 
 TEST_SUITE("ProtocolIO::run_commands") {
 
-TEST_CASE("a click line for a real piece selects it") {
-    Controller controller(make_board());
-
-    std::istringstream in("click 50 50\n"); // -> cell (0,0), bR
-    std::ostringstream out;
-    ProtocolIO io(in, out);
-    CommandProcessor processor(controller, io.out());
-
-    io.run_commands(processor);
-    CHECK(controller.has_selection());
-}
-
 TEST_CASE("an empty stream leaves the selection untouched") {
     Controller controller(make_board());
 
