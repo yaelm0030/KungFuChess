@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "Constants.h"
 #include "Controller.h"
 #include "GameSnapshot.h"
 #include "ImageCache.h"
@@ -13,10 +12,6 @@
 #include <opencv2/opencv.hpp>
 
 namespace {
-
-PixelPosition cell_pixel(int col, int row) {
-    return { col * constants::kCellSizePx, row * constants::kCellSizePx };
-}
 
 Board starting_board() {
     return Parser::parse_board({
@@ -37,20 +32,10 @@ int main() {
     ImageCache images;
     UIManager ui(images, "assets/images/board.png");
 
-    GameSnapshot snapshot;
-    snapshot.board_width = 8;
-    snapshot.board_height = 8;
-    snapshot.is_game_over = false;
-    snapshot.pieces = {
-        { PieceType::P, Color::w, cell_pixel(0, 6), PieceState::idle },
-        { PieceType::K, Color::b, cell_pixel(4, 0), PieceState::idle },
-        { PieceType::N, Color::w, cell_pixel(1, 3), PieceState::move },
-    };
-
     Controller controller(starting_board());
 
     const std::string window_name = "Kung Fu Chess";
-    Img frame = ui.render(snapshot);
+    Img frame = ui.render(controller.snapshot());
     cv::namedWindow(window_name);
     cv::imshow(window_name, frame.get_mat());
 

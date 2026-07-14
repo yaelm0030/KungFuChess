@@ -4,7 +4,6 @@
 
 #include <vector>
 
-// Pixel coords, not board cell (see Position).
 struct PixelPosition {
     int x;
     int y;
@@ -25,7 +24,6 @@ struct PieceSnapshot {
     PieceState state;
 };
 
-// Placeholder until the backend provides the real GameSnapshot.
 struct GameSnapshot {
     int board_width;
     int board_height;

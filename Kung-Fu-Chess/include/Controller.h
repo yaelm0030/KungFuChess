@@ -34,6 +34,7 @@ public:
     bool has_selection() const { return selected_.has_value(); }
     std::optional<Position> selected() const { return selected_; }
     bool game_over() const { return engine_.game_over(); }
+    GameSnapshot snapshot() const { return engine_.snapshot(); }
 
 private:
     GameEngine engine_;

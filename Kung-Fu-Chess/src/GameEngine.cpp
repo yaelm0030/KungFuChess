@@ -87,3 +87,34 @@ void GameEngine::wait(int milliseconds) {
 void GameEngine::print(std::ostream& out) const {
     out << Parser::board_to_string(board_) << "\n";
 }
+
+GameSnapshot GameEngine::snapshot() const {
+    GameSnapshot snap{ board_.get_width(), board_.get_height(), {}, game_over_ };
+
+    for (int y = 0; y < board_.get_height(); ++y) {
+        for (int x = 0; x < board_.get_width(); ++x) {
+            std::optional<Cell> cell = board_.get_at(x, y);
+            if (!cell.has_value()) {
+                continue;
+            }
+
+            PieceState state = PieceState::idle;
+            if (arbiter_.is_airborne(x, y)) {
+                state = PieceState::jump;
+            } else if (arbiter_.is_moving(x, y)) {
+                state = PieceState::move;
+            } else if (cell->is_on_cooldown(arbiter_.clock_ms())) {
+                state = PieceState::short_rest;
+            }
+
+            snap.pieces.push_back(PieceSnapshot{
+                cell->type,
+                cell->color,
+                PixelPosition{ x * constants::kCellSizePx, y * constants::kCellSizePx },
+                state,
+            });
+        }
+    }
+
+    return snap;
+}

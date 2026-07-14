@@ -121,13 +121,13 @@
   <ItemGroup>
     <ClInclude Include="include\Img.h" />
     <ClInclude Include="include\ImageCache.h" />
-    <ClInclude Include="include\GameSnapshot.h" />
     <ClInclude Include="include\GraphicsComponent.h" />
     <ClInclude Include="include\UIManager.h" />
     <ClInclude Include="include\InputHandler.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Position.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Types.h" />

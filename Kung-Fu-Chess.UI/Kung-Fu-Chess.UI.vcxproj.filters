@@ -71,9 +71,6 @@
     <ClInclude Include="include\ImageCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\GameSnapshot.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\GraphicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +87,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h">
