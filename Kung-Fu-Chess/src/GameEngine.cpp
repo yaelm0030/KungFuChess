@@ -25,14 +25,9 @@ std::optional<Color> GameEngine::color_at(Position cell) const {
 }
 
 bool GameEngine::request_move(Position start, Position dest) {
-    if (game_over_) return false;
+    if (!is_selectable(start)) return false;
 
     std::optional<Cell> piece_at_start = board_.get_at(start.x, start.y);
-    if (!piece_at_start.has_value()) return false;
-    if (arbiter_.is_moving(start.x, start.y)) return false;
-    if (arbiter_.is_airborne(start.x, start.y)) return false;
-    if (piece_at_start->is_on_cooldown(arbiter_.clock_ms())) return false;
-
     const Piece* piece = PieceFactory::get_piece(piece_at_start->type);
     if (!piece || !piece->is_available_move(start.x, start.y, dest.x, dest.y, board_)) return false;
 
@@ -41,12 +36,9 @@ bool GameEngine::request_move(Position start, Position dest) {
 }
 
 bool GameEngine::request_jump(Position cell) {
-    if (game_over_) return false;
+    if (!is_selectable(cell)) return false;
 
     std::optional<Cell> piece = board_.get_at(cell.x, cell.y);
-    if (!piece.has_value() || arbiter_.is_moving(cell.x, cell.y) || arbiter_.is_airborne(cell.x, cell.y)) return false;
-    if (piece->is_on_cooldown(arbiter_.clock_ms())) return false;
-
     arbiter_.start_jump(cell, *piece, kJumpDurationMs);
     return true;
 }
