@@ -92,6 +92,31 @@
     <ClCompile Include="src\ImageCache.cpp" />
     <ClCompile Include="src\GraphicsComponent.cpp" />
     <ClCompile Include="src\UIManager.cpp" />
+    <ClCompile Include="src\InputHandler.cpp" />
+    <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\Parser.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameEngine.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RuleEngine.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RealTimeArbiter.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\BoardMapper.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Img.h" />
@@ -99,6 +124,7 @@
     <ClInclude Include="include\GameSnapshot.h" />
     <ClInclude Include="include\GraphicsComponent.h" />
     <ClInclude Include="include\UIManager.h" />
+    <ClInclude Include="include\InputHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\images\board.png" />

@@ -1,6 +1,7 @@
 #include "UIManager.h"
 
-#include <cmath>
+#include "Constants.h"
+
 #include <unordered_map>
 
 namespace {
@@ -38,15 +39,15 @@ UIManager::UIManager(ImageCache& images, std::string board_image_path)
 }
 
 Img UIManager::render(const GameSnapshot& snapshot) {
-    Img& board = images_.get(board_image_path_);
-    Img frame = board.clone();
+    const int board_px_w = snapshot.board_width * constants::kCellSizePx;
+    const int board_px_h = snapshot.board_height * constants::kCellSizePx;
 
-    int cell_w = static_cast<int>(std::round(static_cast<double>(board.get_mat().cols) / snapshot.board_width));
-    int cell_h = static_cast<int>(std::round(static_cast<double>(board.get_mat().rows) / snapshot.board_height));
+    Img frame = images_.get(board_image_path_).clone();
+    frame.resize(board_px_w, board_px_h);
 
     for (const auto& piece : snapshot.pieces) {
         Img sprite = images_.get(sprite_path(piece)).clone();
-        sprite.resize(cell_w, cell_h);
+        sprite.resize(constants::kCellSizePx, constants::kCellSizePx);
         sprite.draw_on(frame, piece.pixels_location.x, piece.pixels_location.y);
     }
 
