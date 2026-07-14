@@ -274,6 +274,10 @@ std::optional<Position> RealTimeArbiter::first_due_shared_cell(const PendingMove
     return std::nullopt;
 }
 
+bool RealTimeArbiter::has_priority(const PendingMove& a, const PendingMove& b) const {
+    return a.sequence < b.sequence;
+}
+
 // A hostile (different-color) pair is entirely exempt if either piece
 // can_pass_through_units() - a knight always ignores an enemy's route.
 // Otherwise scans the winning (lower-sequence) mover's own path in order
@@ -289,8 +293,9 @@ std::optional<Position> RealTimeArbiter::due_collision_cell(const PendingMove& a
         }
     }
 
-    const PendingMove& winner = (a.sequence < b.sequence) ? a : b;
-    const PendingMove& other = (a.sequence < b.sequence) ? b : a;
+    bool a_has_priority = has_priority(a, b);
+    const PendingMove& winner = a_has_priority ? a : b;
+    const PendingMove& other = a_has_priority ? b : a;
     return first_due_shared_cell(winner, other, same_color);
 }
 
@@ -343,8 +348,9 @@ bool RealTimeArbiter::resolve_next_collision(bool& king_captured) {
             if (!collision_cell.has_value()) {
                 continue;
             }
-            std::size_t winner_index = (pending_moves_[i].sequence < pending_moves_[j].sequence) ? i : j;
-            std::size_t loser_index = (winner_index == i) ? j : i;
+            bool i_has_priority = has_priority(pending_moves_[i], pending_moves_[j]);
+            std::size_t winner_index = i_has_priority ? i : j;
+            std::size_t loser_index = i_has_priority ? j : i;
 
             if (pending_moves_[i].piece.color == pending_moves_[j].piece.color) {
                 apply_friendly_yield(loser_index, winner_index);

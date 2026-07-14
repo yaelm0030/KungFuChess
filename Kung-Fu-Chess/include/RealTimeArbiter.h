@@ -91,6 +91,10 @@ private:
     std::optional<Position> first_due_shared_cell(const PendingMove& scan_first, const PendingMove& scan_second,
                                                    bool same_color) const;
 
+    // True if `a` was scheduled before `b` (lower sequence) - the tiebreaker
+    // for which of two colliding movers is the "winner".
+    bool has_priority(const PendingMove& a, const PendingMove& b) const;
+
     // The cell where `a` and `b` first collide, if any (scanned in the
     // winning - lower-sequence - mover's own path order). A hostile
     // (different-color) pair is entirely exempt if either piece
