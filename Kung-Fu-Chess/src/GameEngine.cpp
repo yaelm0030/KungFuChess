@@ -1,5 +1,7 @@
 #include "GameEngine.h"
 
+#include <algorithm>
+
 #include "Parser.h"
 #include "Piece.h"
 
@@ -52,4 +54,47 @@ void GameEngine::wait(int milliseconds) {
 
 void GameEngine::print(std::ostream& out) const {
     out << Parser::board_to_string(board_) << "\n";
+}
+
+GameSnapshot GameEngine::snapshot() const {
+    GameSnapshot snap{ board_.get_width(), board_.get_height(), {}, game_over_ };
+
+    for (int y = 0; y < board_.get_height(); ++y) {
+        for (int x = 0; x < board_.get_width(); ++x) {
+            std::optional<Cell> cell = board_.get_at(x, y);
+            if (!cell.has_value()) {
+                continue;
+            }
+
+            PieceState state = PieceState::idle;
+            PixelPosition origin{ x * constants::kCellSizePx, y * constants::kCellSizePx };
+            PixelPosition target = origin;
+            double progress = 1.0;
+
+            if (arbiter_.is_airborne(x, y)) {
+                state = PieceState::jump;
+            } else if (std::optional<RealTimeArbiter::MoveProgress> move = arbiter_.move_progress_at(x, y)) {
+                state = PieceState::move;
+                target = PixelPosition{ move->dest.x * constants::kCellSizePx, move->dest.y * constants::kCellSizePx };
+                long long total_ms = move->arrival_ms - move->scheduled_ms;
+                progress = total_ms > 0 ? std::clamp(static_cast<double>(clock_ms() - move->scheduled_ms) /
+                                                          static_cast<double>(total_ms),
+                                                      0.0, 1.0)
+                                        : 1.0;
+            } else if (cell->is_on_cooldown(arbiter_.clock_ms())) {
+                state = PieceState::short_rest;
+            }
+
+            snap.pieces.push_back(PieceSnapshot{
+                cell->type,
+                cell->color,
+                origin,
+                target,
+                progress,
+                state,
+            });
+        }
+    }
+
+    return snap;
 }

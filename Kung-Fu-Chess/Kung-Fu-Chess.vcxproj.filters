@@ -56,6 +56,9 @@
     <ClInclude Include="include\GameEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\GameSnapshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>

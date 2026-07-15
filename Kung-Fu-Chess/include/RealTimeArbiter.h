@@ -12,6 +12,18 @@ public:
     RealTimeArbiter(Board& board, long long move_ms_per_cell);
 
     bool is_moving(int x, int y) const;
+
+    // A pending move's dest and travel clock range; lets a caller (e.g.
+    // GameSnapshot) compute progress without this class interpolating itself.
+    struct MoveProgress {
+        Position dest;
+        long long scheduled_ms;
+        long long arrival_ms;
+    };
+
+    // The pending move whose start is (x, y), if any.
+    std::optional<MoveProgress> move_progress_at(int x, int y) const;
+
     bool is_airborne(int x, int y) const { return airborne_at(x, y) != nullptr; }
 
     // Call whenever the piece on (x, y) is replaced, so airborne state never outlives it.

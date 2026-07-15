@@ -5,6 +5,7 @@
 
 #include "Board.h"
 #include "Constants.h"
+#include "GameSnapshot.h"
 #include "RealTimeArbiter.h"
 
 class GameEngine {
@@ -33,6 +34,11 @@ public:
     bool is_selectable(Position cell) const;
 
     std::optional<Color> color_at(Position cell) const;
+
+    // Read-only view of every piece's type/color/pixel position/state (idle,
+    // move, jump, short_rest) plus the game-over flag. Pieces mid-move or
+    // mid-jump are reported at their origin cell, matching print().
+    GameSnapshot snapshot() const;
 
 private:
     Board board_;

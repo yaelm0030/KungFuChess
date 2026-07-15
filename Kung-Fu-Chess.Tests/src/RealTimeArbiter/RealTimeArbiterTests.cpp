@@ -340,3 +340,28 @@ TEST_CASE("a normal (non-zero-length) friendly yield still gets cooldown-stamped
 }
 
 }
+
+TEST_SUITE("RealTimeArbiter::move_progress_at") {
+
+TEST_CASE("a pending move reports its destination and scheduling/arrival clock times") {
+    Board board = Parser::parse_board({ "wR . ." });
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.advance(500); // move clock_ms_ off zero so scheduled_ms is non-trivial
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 0 }, *board.get_at(0, 0));
+
+    std::optional<RealTimeArbiter::MoveProgress> progress = arbiter.move_progress_at(0, 0);
+
+    REQUIRE(progress.has_value());
+    CHECK(progress->dest == Position{ 2, 0 });
+    CHECK(progress->scheduled_ms == 500);
+    CHECK(progress->arrival_ms == 500 + 2 * constants::kDefaultMoveMsPerCell);
+}
+
+TEST_CASE("a cell with no pending move has no move progress") {
+    Board board = Parser::parse_board({ "wR . ." });
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+
+    CHECK_FALSE(arbiter.move_progress_at(0, 0).has_value());
+}
+
+}

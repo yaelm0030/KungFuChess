@@ -1,0 +1,34 @@
+#pragma once
+
+#include "Types.h"
+
+#include <vector>
+
+struct PixelPosition {
+    int x;
+    int y;
+};
+
+enum class PieceState {
+    idle,
+    move,
+    jump,
+    short_rest,
+    long_rest
+};
+
+struct PieceSnapshot {
+    PieceType type;
+    Color color;
+    PixelPosition pixels_location;        // origin cell while moving; current cell otherwise
+    PixelPosition target_pixels_location; // destination cell while moving; equal to pixels_location otherwise
+    double progress;                      // 0..1 fraction of the move elapsed; 1.0 when not moving
+    PieceState state;
+};
+
+struct GameSnapshot {
+    int board_width;
+    int board_height;
+    std::vector<PieceSnapshot> pieces;
+    bool is_game_over;
+};

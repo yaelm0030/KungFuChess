@@ -90,6 +90,15 @@ bool RealTimeArbiter::is_moving(int x, int y) const {
     return false;
 }
 
+std::optional<RealTimeArbiter::MoveProgress> RealTimeArbiter::move_progress_at(int x, int y) const {
+    for (const PendingMove& move : pending_moves_) {
+        if (move.start == Position{ x, y }) {
+            return MoveProgress{ move.dest, move.scheduled_ms, move.arrival_ms };
+        }
+    }
+    return std::nullopt;
+}
+
 const RealTimeArbiter::AirbornePiece* RealTimeArbiter::airborne_at(int x, int y) const {
     for (const AirbornePiece& airborne : airborne_) {
         if (airborne.cell == Position{ x, y }) {

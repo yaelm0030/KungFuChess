@@ -155,3 +155,13 @@ and dispatches each line to them.
 `Kung-Fu-Chess.Tests/` mirrors the source layout
 (`GameEngine/`, `Controller/`, `RuleEngine/`) with one test file per
 behavior area (promotion, jumping, wait/timing, printing, game-over).
+
+## UI layer (in progress)
+
+`Kung-Fu-Chess.UI/` (with `include/`, `src/`, and `assets/images/`) is scaffolded as a
+new sibling project for a C++ graphical front end. It will render a `GameSnapshot`
+handed to it by the backend — `board_width`, `board_height`, and a list of `pieces`
+(`type`, `color`, `pixels_location`, `state`: idle/jump/move/etc.), plus `is_game_over`
+— by drawing board and piece images, picking each piece's sprite by its type, color,
+and current state. No `.vcxproj`/solution wiring or rendering library chosen yet;
+that comes once implementation starts.

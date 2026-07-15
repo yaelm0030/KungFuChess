@@ -149,6 +149,7 @@
     <ClInclude Include="include\Types.h" />
     <ClInclude Include="include\Parser.h" />
     <ClInclude Include="include\GameEngine.h" />
+    <ClInclude Include="include\GameSnapshot.h" />
     <ClInclude Include="include\Piece.h" />
     <ClInclude Include="include\RuleEngine.h" />
     <ClInclude Include="include\RealTimeArbiter.h" />
