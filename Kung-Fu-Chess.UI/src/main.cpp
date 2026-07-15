@@ -7,8 +7,6 @@
 #include "Position.h"
 #include "UIManager.h"
 
-#include <iostream>
-#include <optional>
 #include <opencv2/opencv.hpp>
 
 namespace {
@@ -26,6 +24,8 @@ Board starting_board() {
     });
 }
 
+constexpr int kFrameMs = 30;
+
 } // namespace
 
 int main() {
@@ -35,26 +35,17 @@ int main() {
     Controller controller(starting_board());
 
     const std::string window_name = "Kung Fu Chess";
-    Img frame = ui.render(controller.snapshot());
     cv::namedWindow(window_name);
-    cv::imshow(window_name, frame.get_mat());
 
     InputHandler input(controller, window_name);
 
-    std::optional<Position> last_selected;
-    while (cv::waitKey(30) != 27) { // Esc quits
-        if (!(controller.selected() == last_selected)) {
-            last_selected = controller.selected();
-            if (last_selected.has_value()) {
-                std::cout << "selected: (" << last_selected->x << ", " << last_selected->y << ")\n";
-            } else {
-                std::cout << "selection cleared\n";
-            }
-            frame = ui.render(controller.snapshot(), last_selected);
-            cv::imshow(window_name, frame.get_mat());
-        }
-        if (controller.game_over()) {
-            std::cout << "game over\n";
+    while (!controller.game_over()) {
+        controller.wait(kFrameMs);
+
+        Img frame = ui.render(controller.snapshot(), controller.selected());
+        cv::imshow(window_name, frame.get_mat());
+
+        if (cv::waitKey(kFrameMs) == 27) { // Esc quits
             break;
         }
     }
