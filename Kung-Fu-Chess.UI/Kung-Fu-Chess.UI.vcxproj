@@ -91,6 +91,7 @@
     <ClCompile Include="src\Img.cpp" />
     <ClCompile Include="src\ImageCache.cpp" />
     <ClCompile Include="src\GraphicsComponent.cpp" />
+    <ClCompile Include="src\PieceAnimator.cpp" />
     <ClCompile Include="src\UIManager.cpp" />
     <ClCompile Include="src\InputHandler.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
@@ -122,6 +123,7 @@
     <ClInclude Include="include\Img.h" />
     <ClInclude Include="include\ImageCache.h" />
     <ClInclude Include="include\GraphicsComponent.h" />
+    <ClInclude Include="include\PieceAnimator.h" />
     <ClInclude Include="include\UIManager.h" />
     <ClInclude Include="include\InputHandler.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />

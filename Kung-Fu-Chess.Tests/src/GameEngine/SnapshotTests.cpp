@@ -54,6 +54,35 @@ TEST_CASE("a piece in flight is reported at its origin with move state") {
     CHECK(snap.pieces[0].state == PieceState::move);
 }
 
+TEST_CASE("a piece in flight also reports its destination and travel progress") {
+    Board board(3, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R });
+    GameEngine engine(std::move(board), 1000); // 1000ms/cell
+    REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 })); // arrives at 2000ms
+
+    engine.wait(500); // a quarter of the way there
+
+    GameSnapshot snap = engine.snapshot();
+
+    REQUIRE(snap.pieces.size() == 1);
+    CHECK(snap.pieces[0].target_pixels_location.x == 2 * constants::kCellSizePx);
+    CHECK(snap.pieces[0].target_pixels_location.y == 0);
+    CHECK(snap.pieces[0].progress == doctest::Approx(0.25));
+}
+
+TEST_CASE("a piece that isn't moving reports its target equal to its own cell and progress of 1.0") {
+    Board board(2, 2);
+    board.place_at(1, 0, Cell{ Color::w, PieceType::K });
+    GameEngine engine(std::move(board));
+
+    GameSnapshot snap = engine.snapshot();
+
+    REQUIRE(snap.pieces.size() == 1);
+    CHECK(snap.pieces[0].target_pixels_location.x == snap.pieces[0].pixels_location.x);
+    CHECK(snap.pieces[0].target_pixels_location.y == snap.pieces[0].pixels_location.y);
+    CHECK(snap.pieces[0].progress == doctest::Approx(1.0));
+}
+
 TEST_CASE("a piece that just arrived is reported at its destination with short_rest state") {
     Board board(3, 1);
     board.place_at(0, 0, Cell{ Color::w, PieceType::R });

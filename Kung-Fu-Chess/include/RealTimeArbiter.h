@@ -17,6 +17,19 @@ public:
     // True if the piece at (x, y) has a pending move that hasn't arrived yet.
     bool is_moving(int x, int y) const;
 
+    // One pending move's travel timeline: where it's headed and the clock
+    // range ([scheduled_ms, arrival_ms]) it travels over. Lets a caller (e.g.
+    // GameSnapshot) work out how far along the travel is without this class
+    // doing any interpolation itself.
+    struct MoveProgress {
+        Position dest;
+        long long scheduled_ms;
+        long long arrival_ms;
+    };
+
+    // The pending move whose start is (x, y), if any.
+    std::optional<MoveProgress> move_progress_at(int x, int y) const;
+
     bool is_airborne(int x, int y) const { return airborne_at(x, y) != nullptr; }
 
     // Called whenever the piece on (x, y) is replaced, so airborne state

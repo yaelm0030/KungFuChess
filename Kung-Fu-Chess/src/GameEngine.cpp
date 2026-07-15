@@ -1,5 +1,7 @@
 #include "GameEngine.h"
 
+#include <algorithm>
+
 #include "Parser.h"
 #include "Piece.h"
 
@@ -99,10 +101,20 @@ GameSnapshot GameEngine::snapshot() const {
             }
 
             PieceState state = PieceState::idle;
+            PixelPosition origin{ x * constants::kCellSizePx, y * constants::kCellSizePx };
+            PixelPosition target = origin;
+            double progress = 1.0;
+
             if (arbiter_.is_airborne(x, y)) {
                 state = PieceState::jump;
-            } else if (arbiter_.is_moving(x, y)) {
+            } else if (std::optional<RealTimeArbiter::MoveProgress> move = arbiter_.move_progress_at(x, y)) {
                 state = PieceState::move;
+                target = PixelPosition{ move->dest.x * constants::kCellSizePx, move->dest.y * constants::kCellSizePx };
+                long long total_ms = move->arrival_ms - move->scheduled_ms;
+                progress = total_ms > 0 ? std::clamp(static_cast<double>(clock_ms() - move->scheduled_ms) /
+                                                          static_cast<double>(total_ms),
+                                                      0.0, 1.0)
+                                        : 1.0;
             } else if (cell->is_on_cooldown(arbiter_.clock_ms())) {
                 state = PieceState::short_rest;
             }
@@ -110,7 +122,9 @@ GameSnapshot GameEngine::snapshot() const {
             snap.pieces.push_back(PieceSnapshot{
                 cell->type,
                 cell->color,
-                PixelPosition{ x * constants::kCellSizePx, y * constants::kCellSizePx },
+                origin,
+                target,
+                progress,
                 state,
             });
         }

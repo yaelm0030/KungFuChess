@@ -7,6 +7,7 @@
 #include "Position.h"
 #include "UIManager.h"
 
+#include <chrono>
 #include <opencv2/opencv.hpp>
 
 namespace {
@@ -24,7 +25,9 @@ Board starting_board() {
     });
 }
 
-constexpr int kFrameMs = 30;
+// How long each spin blocks pumping GUI/input events for; not the
+// simulation's dt, which is measured separately from the real clock below.
+constexpr int kPollMs = 1;
 
 } // namespace
 
@@ -39,13 +42,18 @@ int main() {
 
     InputHandler input(controller, window_name);
 
+    auto last_tick = std::chrono::steady_clock::now();
     while (!controller.game_over()) {
-        controller.wait(kFrameMs);
+        auto now = std::chrono::steady_clock::now();
+        int dt_ms = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count());
+        last_tick = now;
 
-        Img frame = ui.render(controller.snapshot(), controller.selected());
+        controller.wait(dt_ms);
+
+        Img frame = ui.render(controller.snapshot(), dt_ms, controller.selected());
         cv::imshow(window_name, frame.get_mat());
 
-        if (cv::waitKey(kFrameMs) == 27) { // Esc quits
+        if (cv::waitKey(kPollMs) == 27) { // Esc quits
             break;
         }
     }

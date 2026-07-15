@@ -20,7 +20,9 @@ enum class PieceState {
 struct PieceSnapshot {
     PieceType type;
     Color color;
-    PixelPosition pixels_location;
+    PixelPosition pixels_location;        // origin cell while moving; current cell otherwise
+    PixelPosition target_pixels_location; // destination cell while moving; equal to pixels_location otherwise
+    double progress;                      // 0..1 fraction of the move elapsed; 1.0 when not moving
     PieceState state;
 };
 
