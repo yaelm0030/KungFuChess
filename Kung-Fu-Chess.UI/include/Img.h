@@ -25,7 +25,10 @@ public:
 
     void show();
 
-    void resize(int width, int height, int interpolation = cv::INTER_LINEAR);
+    // keep_aspect scales down uniformly to fit within width x height rather
+    // than stretching each axis independently, so the result may come out
+    // smaller than requested in one dimension.
+    void resize(int width, int height, bool keep_aspect = false, int interpolation = cv::INTER_LINEAR);
 
     // Deep copy (cv::Mat's own copy is shallow/shared).
     Img clone() const;

@@ -23,9 +23,13 @@ Img UIManager::render(const GameSnapshot& snapshot, int dt_ms, std::optional<Pos
 
     for (const auto& piece : snapshot.pieces) {
         Img sprite = images_.get(animator_.frame_path(piece, dt_ms)).clone();
-        sprite.resize(constants::kCellSizePx, constants::kCellSizePx);
-        int x = lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
-        int y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
+        sprite.resize(constants::kCellSizePx, constants::kCellSizePx, /*keep_aspect=*/true);
+
+        int cell_x = lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
+        int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
+        // Center the (possibly non-square) sprite within its cell.
+        int x = cell_x + (constants::kCellSizePx - sprite.get_mat().cols) / 2;
+        int y = cell_y + (constants::kCellSizePx - sprite.get_mat().rows) / 2;
         sprite.draw_on(frame, x, y);
     }
 

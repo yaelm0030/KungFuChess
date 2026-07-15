@@ -3,6 +3,17 @@
 #include <stdexcept>
 #include <vector>
 
+namespace {
+
+// The largest size no bigger than target_w x target_h that preserves
+// src_w:src_h, so scaling down never stretches one axis more than the other.
+cv::Size uniform_fit(int src_w, int src_h, int target_w, int target_h) {
+    double scale = std::min(static_cast<double>(target_w) / src_w, static_cast<double>(target_h) / src_h);
+    return cv::Size(static_cast<int>(src_w * scale), static_cast<int>(src_h * scale));
+}
+
+} // namespace
+
 Img::Img() {
 }
 
@@ -21,15 +32,8 @@ Img& Img::read(const std::string& path,
         int h = img_.rows;
         int w = img_.cols;
 
-        if (keep_aspect) {
-            double scale = std::min(static_cast<double>(target_w) / w,
-                                     static_cast<double>(target_h) / h);
-            int new_w = static_cast<int>(w * scale);
-            int new_h = static_cast<int>(h * scale);
-            cv::resize(img_, img_, cv::Size(new_w, new_h), 0, 0, interpolation);
-        } else {
-            cv::resize(img_, img_, cv::Size(target_w, target_h), 0, 0, interpolation);
-        }
+        cv::Size target = keep_aspect ? uniform_fit(w, h, target_w, target_h) : cv::Size(target_w, target_h);
+        cv::resize(img_, img_, target, 0, 0, interpolation);
     }
 
     return *this;
@@ -106,12 +110,13 @@ void Img::draw_rectangle(int x, int y, int width, int height, const cv::Scalar& 
     cv::rectangle(img_, cv::Rect(x, y, width, height), color, thickness);
 }
 
-void Img::resize(int width, int height, int interpolation) {
+void Img::resize(int width, int height, bool keep_aspect, int interpolation) {
     if (img_.empty()) {
         throw std::runtime_error("Image not loaded.");
     }
 
-    cv::resize(img_, img_, cv::Size(width, height), 0, 0, interpolation);
+    cv::Size target = keep_aspect ? uniform_fit(img_.cols, img_.rows, width, height) : cv::Size(width, height);
+    cv::resize(img_, img_, target, 0, 0, interpolation);
 }
 
 Img Img::clone() const {
