@@ -6,9 +6,6 @@
 #include "Controller.h"
 #include "ProtocolIO.h"
 
-
-// See the complete project on https://github.com/yaelm0030/KungFuChess/tree/main
-
 int main() {
     ProtocolIO io(std::cin, std::cout);
     std::optional<Board> board = io.read_board();
