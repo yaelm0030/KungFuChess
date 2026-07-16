@@ -66,5 +66,5 @@ private:
     std::optional<Position> check_collision(const PendingMove& a, const PendingMove& b);
     std::optional<Position> check_static_board_collision(const PendingMove& move);
     void apply_hostile_collision(std::size_t winner_idx, std::size_t loser_idx, Position cell);
-    void apply_friendly_yield(std::size_t yielder_idx, Position cell);
+    void apply_yield(std::size_t yielder_idx, Position cell);
 };

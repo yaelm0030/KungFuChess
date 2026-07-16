@@ -149,6 +149,14 @@ bool RealTimeArbiter::resolve_collisions() {
         found_collision = false;
 
         for (std::size_t i = 0; i < pending_moves_.size() && !found_collision; ++i) {
+            auto blocked_cell = check_static_board_collision(pending_moves_[i]);
+            if (blocked_cell.has_value()) {
+                apply_yield(i, *blocked_cell);
+                found_collision = true;
+            }
+        }
+
+        for (std::size_t i = 0; i < pending_moves_.size() && !found_collision; ++i) {
             for (std::size_t j = i + 1; j < pending_moves_.size(); ++j) {
                 auto collision_cell = check_collision(pending_moves_[i], pending_moves_[j]);
                 if (!collision_cell.has_value()) continue;
@@ -160,7 +168,7 @@ bool RealTimeArbiter::resolve_collisions() {
                 std::size_t loser_idx = i_has_priority ? j : i;
 
                 if (pending_moves_[i].piece.color == pending_moves_[j].piece.color) {
-                    apply_friendly_yield(loser_idx, *collision_cell);
+                    apply_yield(loser_idx, *collision_cell);
                 }
                 else {
                     if (pending_moves_[loser_idx].piece.type == PieceType::K) {
@@ -250,7 +258,7 @@ void RealTimeArbiter::apply_hostile_collision(std::size_t winner_idx, std::size_
     pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(loser_idx));
 }
 
-void RealTimeArbiter::apply_friendly_yield(std::size_t yielder_idx, Position cell) {
+void RealTimeArbiter::apply_yield(std::size_t yielder_idx, Position cell) {
     auto& yielder = pending_moves_[yielder_idx];
     auto path = get_path(yielder.start, yielder.dest);
 

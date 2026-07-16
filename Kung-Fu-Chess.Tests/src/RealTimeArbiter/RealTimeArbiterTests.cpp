@@ -137,15 +137,14 @@ TEST_CASE("a knight completes its own route untouched, regardless of scheduling 
     }
 }
 
-// ---- a King ending up on either side of a collision ends the game -------------
+// ---- a King captured, whether by arrival or by collision, ends the game ------
 
-TEST_CASE("a collision-truncated move that lands on an enemy king reports a king capture") {
-    Board board = Parser::parse_board({ "wR bK . bR" }); // bK sits right on the swap's collision cell
+TEST_CASE("a plain arrival capture of a static enemy king reports a king capture") {
+    Board board = Parser::parse_board({ "wR bK . ." }); // bK sits directly on wR's destination
     RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
-    arbiter.schedule_move(Position{ 0, 0 }, Position{ 3, 0 }, *board.get_at(0, 0)); // wR; sequence 0
-    arbiter.schedule_move(Position{ 3, 0 }, Position{ 0, 0 }, *board.get_at(3, 0)); // bR; sequence 1
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 1, 0 }, *board.get_at(0, 0)); // wR
 
-    CHECK(arbiter.advance(2 * constants::kDefaultMoveMsPerCell)); // king captured
+    CHECK(arbiter.advance(constants::kDefaultMoveMsPerCell)); // king captured on arrival
     CHECK(Parser::board_to_string(board) == ". wR . .");
 }
 
@@ -295,17 +294,19 @@ TEST_CASE("a friendly piece already adjacent to the shared cell yields as a no-o
 }
 
 TEST_CASE("a friendly head-on overlap with two simultaneously-due shared cells still resolves deterministically") {
-    // A (0,0)->(3,0), sequence 0, and B (3,0)->(0,0), sequence 1: the same
-    // full head-on swap geometry as the hostile test above, but same color.
+    // A (0,0)->(2,0), sequence 0, and B (3,0)->(0,0), sequence 1: A stops one
+    // cell short of B's square, since B never actually leaves (3,0) once the
+    // friendly-collision fixpoint fully yields/erases B's move - landing A on
+    // (3,0) itself would be illegal under the now-enforced static check.
     // Both shared cells (1,0) and (2,0) become due at the exact same instant
     // (t=2*cellms), a tie that must be broken by scanning B's own path first
     // (B is the higher-sequence mover that ends up yielding): B's earliest
     // due cell on its own path is (2,0), its very first step, so the yield
     // is a no-op - B never actually leaves (3,0).
-    // Note: for this collinear full-swap geometry, resolve_collisions()'s
-    // fixpoint re-scan converges to this same result even without the
-    // scan-order fix in due_collision_cell, so this test documents the
-    // tie-break contract rather than regression-guarding that fix - the
+    // This test documents the fixpoint-convergence tie-break contract: for
+    // this collinear geometry, resolve_collisions()'s fixpoint re-scan
+    // converges to this same result even without the scan-order fix in
+    // due_collision_cell, so it isn't a regression guard for that fix - the
     // fix's correctness rests on the index-identity argument in its own
     // comment, not on this test failing without it.
     Board board(4, 1);
@@ -313,15 +314,14 @@ TEST_CASE("a friendly head-on overlap with two simultaneously-due shared cells s
     board.place_at(3, 0, Cell{ Color::w, PieceType::R }); // B; same color as A
 
     RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
-    arbiter.schedule_move(Position{ 0, 0 }, Position{ 3, 0 }, *board.get_at(0, 0)); // A; sequence 0
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 0 }, *board.get_at(0, 0)); // A; sequence 0
     arbiter.schedule_move(Position{ 3, 0 }, Position{ 0, 0 }, *board.get_at(3, 0)); // B; sequence 1
 
-    CHECK_FALSE(arbiter.advance(3 * constants::kDefaultMoveMsPerCell));
-    CHECK_FALSE(arbiter.is_moving(3, 0)); // B's move was dropped, not delayed
-    // B never left (3,0); A's own path is untouched and lands there normally
-    // afterward, so the final board shows a single, cooldown-stamped rook.
-    CHECK(board.get_at(3, 0)->cooldown_end_ms == arbiter.clock_ms() + constants::kCooldownMs);
-    CHECK(Parser::board_to_string(board) == ". . . wR");
+    CHECK_FALSE(arbiter.advance(2 * constants::kDefaultMoveMsPerCell));
+    CHECK_FALSE(arbiter.is_moving(3, 0)); // B never left (3,0)
+    CHECK(board.get_at(2, 0)->cooldown_end_ms == arbiter.clock_ms() + constants::kCooldownMs); // A settled fresh
+    CHECK(board.get_at(3, 0)->cooldown_end_ms == 0); // B genuinely untouched, not overwritten
+    CHECK(Parser::board_to_string(board) == ". . wR wR");
 }
 
 TEST_CASE("a normal (non-zero-length) friendly yield still gets cooldown-stamped on landing") {
@@ -337,6 +337,55 @@ TEST_CASE("a normal (non-zero-length) friendly yield still gets cooldown-stamped
     // B yielded and stopped at (3,0); its landing there is cooldown-stamped
     // exactly like any other settled move.
     CHECK(board.get_at(3, 0)->cooldown_end_ms == arbiter.clock_ms() + constants::kCooldownMs);
+}
+
+// ---- a pending move is blocked by a stationary piece already on the board -----
+
+TEST_CASE("same-color blocker truncates one cell short") {
+    Board board(5, 2);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A
+    board.place_at(2, 1, Cell{ Color::w, PieceType::R }); // B
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 2, 1 }, Position{ 2, 0 }, *board.get_at(2, 1)); // B settles first
+    arbiter.advance(constants::kDefaultMoveMsPerCell);
+
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 4, 0 }, *board.get_at(0, 0)); // A; route passes through B's cell
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+
+    CHECK(Parser::board_to_string(board) == ". wR wR . .\n. . . . .");
+}
+
+TEST_CASE("enemy blocker not at the destination stops the mover, with no pass-through and no capture") {
+    Board board(5, 2);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A
+    board.place_at(2, 1, Cell{ Color::b, PieceType::R }); // B
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 2, 1 }, Position{ 2, 0 }, *board.get_at(2, 1)); // B settles first
+    arbiter.advance(constants::kDefaultMoveMsPerCell);
+
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 4, 0 }, *board.get_at(0, 0)); // A; route passes through B's cell
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+
+    CHECK(Parser::board_to_string(board) == ". wR bR . .\n. . . . .");
+}
+
+TEST_CASE("enemy at the final destination is unaffected, still resolves as a normal capture-on-arrival") {
+    Board board(3, 2);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R }); // A
+    board.place_at(2, 1, Cell{ Color::b, PieceType::R }); // B
+
+    RealTimeArbiter arbiter(board, constants::kDefaultMoveMsPerCell);
+    arbiter.schedule_move(Position{ 2, 1 }, Position{ 2, 0 }, *board.get_at(2, 1)); // B settles first
+    arbiter.advance(constants::kDefaultMoveMsPerCell);
+
+    arbiter.schedule_move(Position{ 0, 0 }, Position{ 2, 0 }, *board.get_at(0, 0)); // A; dest is B's cell
+    arbiter.advance(2 * constants::kDefaultMoveMsPerCell);
+
+    CHECK_FALSE(board.get_at(0, 0).has_value());
+    CHECK(board.get_at(2, 0)->type == PieceType::R);
+    CHECK(board.get_at(2, 0)->color == Color::w);
 }
 
 }
