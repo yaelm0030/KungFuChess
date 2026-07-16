@@ -17,9 +17,8 @@ bool Controller::handle_click_with_selection(Position cell, std::optional<Color>
         return true;
     }
 
-    if (engine_.request_move(*selected_, cell)) {
-        selected_.reset();
-    }
+    engine_.request_move(*selected_, cell);
+    selected_.reset();
     return true;
 }
 

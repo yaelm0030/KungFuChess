@@ -221,20 +221,18 @@ TEST_CASE("a piece can be selected and moved again once its post-move cooldown e
     CHECK(board_of(controller) == ". bN .\n. . .\nbR . wN\n");
 }
 
-// ---- moves that don't match the piece's shape are ignored -------------------
+// ---- illegal move attempts cancel the selection ------------------------------
 
-TEST_CASE("a move that doesn't match the selected piece's shape is ignored") {
+TEST_CASE("a move that doesn't match the selected piece's shape cancels the selection") {
     Controller controller(make_board());
     controller.click(50, 50);   // select bR at (0,0)
     controller.click(150, 150); // (1,1) is a diagonal move; illegal for a rook
 
-    REQUIRE(controller.has_selection());
-    CHECK(controller.selected()->x == 0);
-    CHECK(controller.selected()->y == 0);
+    CHECK_FALSE(controller.has_selection());
     CHECK(board_of(controller) == Parser::board_to_string(make_board()) + "\n");
 }
 
-TEST_CASE("a blocked straight move is ignored") {
+TEST_CASE("a blocked straight move cancels the selection") {
     Controller controller(Parser::parse_board({
         "bR .",
         "bN .",
@@ -243,9 +241,7 @@ TEST_CASE("a blocked straight move is ignored") {
     controller.click(50, 50);  // select bR at (0,0)
     controller.click(50, 250); // (0,2) is past bN, which blocks the column at (0,1)
 
-    REQUIRE(controller.has_selection());
-    CHECK(controller.selected()->x == 0);
-    CHECK(controller.selected()->y == 0);
+    CHECK_FALSE(controller.has_selection());
 }
 
 // ---- colliding moves on a shared route --------------------------------------
