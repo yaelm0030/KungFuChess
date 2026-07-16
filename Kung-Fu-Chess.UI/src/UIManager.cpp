@@ -22,11 +22,20 @@ Img UIManager::render(const GameSnapshot& snapshot, int dt_ms, std::optional<Pos
     frame.resize(board_px_w, board_px_h);
 
     for (const auto& piece : snapshot.pieces) {
+        int cell_x = lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
+        int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
+
+        if (piece.state == PieceState::short_rest) {
+            // Red fill drains from the top down as cooldown_progress falls, so the
+            // remaining red always touches the bottom of the cell.
+            int red_height = static_cast<int>(constants::kCellSizePx * piece.cooldown_progress);
+            frame.draw_rectangle(cell_x, cell_y + constants::kCellSizePx - red_height, constants::kCellSizePx,
+                                  red_height, cv::Scalar(0, 0, 255, 255), cv::FILLED);
+        }
+
         Img sprite = images_.get(animator_.frame_path(piece, dt_ms)).clone();
         sprite.resize(constants::kCellSizePx, constants::kCellSizePx, /*keep_aspect=*/true);
 
-        int cell_x = lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
-        int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
         // Center the (possibly non-square) sprite within its cell.
         int x = cell_x + (constants::kCellSizePx - sprite.get_mat().cols) / 2;
         int y = cell_y + (constants::kCellSizePx - sprite.get_mat().rows) / 2;

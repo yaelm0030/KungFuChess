@@ -70,6 +70,7 @@ GameSnapshot GameEngine::snapshot() const {
             PixelPosition origin{ x * constants::kCellSizePx, y * constants::kCellSizePx };
             PixelPosition target = origin;
             double progress = 1.0;
+            double cooldown_progress = 0.0;
 
             if (arbiter_.is_airborne(x, y)) {
                 state = PieceState::jump;
@@ -83,6 +84,9 @@ GameSnapshot GameEngine::snapshot() const {
                                         : 1.0;
             } else if (cell->is_on_cooldown(arbiter_.clock_ms())) {
                 state = PieceState::short_rest;
+                cooldown_progress = std::clamp(static_cast<double>(cell->cooldown_end_ms - arbiter_.clock_ms()) /
+                                                    static_cast<double>(kCooldownMs),
+                                                0.0, 1.0);
             }
 
             snap.pieces.push_back(PieceSnapshot{
@@ -92,6 +96,7 @@ GameSnapshot GameEngine::snapshot() const {
                 target,
                 progress,
                 state,
+                cooldown_progress,
             });
         }
     }

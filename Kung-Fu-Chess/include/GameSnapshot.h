@@ -24,6 +24,7 @@ struct PieceSnapshot {
     PixelPosition target_pixels_location; // destination cell while moving; equal to pixels_location otherwise
     double progress;                      // 0..1 fraction of the move elapsed; 1.0 when not moving
     PieceState state;
+    double cooldown_progress = 0.0;       // 1.0 when cooldown just started, 0.0 when released
 };
 
 struct GameSnapshot {
