@@ -20,7 +20,9 @@ public:
     // CommandProcessor to tokenize protocol commands.
     static std::vector<std::string> tokenize(const std::string& line);
 
+    // e.g. {Color::w, PieceType::P} -> "wP"; nullopt -> ".".
+    static std::string token_from_cell(const std::optional<Cell>& cell);
+
 private:
     static Cell parse_token(const std::string& token);
-    static std::string token_from_cell(const std::optional<Cell>& cell);
 };

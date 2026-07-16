@@ -50,7 +50,7 @@ int main() {
 
         controller.wait(dt_ms);
 
-        Img frame = ui.render(controller.snapshot(), dt_ms, controller.selected());
+        Img frame = ui.render(controller.snapshot(), controller.move_history(), dt_ms, controller.selected());
         cv::imshow(window_name, frame.get_mat());
 
         if (cv::waitKey(kPollMs) == 27) { // Esc quits

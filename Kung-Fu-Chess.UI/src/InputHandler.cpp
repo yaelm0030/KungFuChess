@@ -1,5 +1,7 @@
 #include "InputHandler.h"
 
+#include "UIManager.h"
+
 #include <opencv2/opencv.hpp>
 
 InputHandler::InputHandler(Controller& controller, const std::string& window_name)
@@ -12,9 +14,12 @@ void InputHandler::on_mouse(int event, int x, int y, int flags, void* userdata) 
 }
 
 void InputHandler::handle_event(int event, int x, int y) {
+    // A click inside the history panel becomes a negative board x, which
+    // Controller/BoardMapper already treat as outside the board.
+    int board_x = x - UIManager::kHistoryPanelWidthPx;
     if (event == cv::EVENT_LBUTTONDOWN) {
-        controller_.click(x, y);
+        controller_.click(board_x, y);
     } else if (event == cv::EVENT_RBUTTONDOWN) {
-        controller_.jump(x, y);
+        controller_.jump(board_x, y);
     }
 }

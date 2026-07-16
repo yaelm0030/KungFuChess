@@ -41,3 +41,23 @@ TEST_CASE("a degenerate 0x0 board has no valid cells") {
 }
 
 }
+
+TEST_SUITE("BoardMapper::cell_to_algebraic") {
+
+TEST_CASE("the top-left cell is the 'a' file, back rank of an 8-row board") {
+    CHECK(BoardMapper::cell_to_algebraic(Position{ 0, 0 }, 8) == "a8");
+}
+
+TEST_CASE("the bottom-left cell is a1, matching white's home rank") {
+    CHECK(BoardMapper::cell_to_algebraic(Position{ 0, 7 }, 8) == "a1");
+}
+
+TEST_CASE("the bottom-right cell is h1") {
+    CHECK(BoardMapper::cell_to_algebraic(Position{ 7, 7 }, 8) == "h1");
+}
+
+TEST_CASE("the top-right cell is h8") {
+    CHECK(BoardMapper::cell_to_algebraic(Position{ 7, 0 }, 8) == "h8");
+}
+
+}

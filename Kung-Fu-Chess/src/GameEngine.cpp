@@ -34,6 +34,7 @@ bool GameEngine::request_move(Position start, Position dest) {
     if (!piece.is_available_move(start.x, start.y, dest.x, dest.y, board_)) return false;
 
     arbiter_.schedule_move(start, dest, *piece_at_start);
+    move_history_.push_back(MoveRecord{ piece_at_start->type, piece_at_start->color, start, dest });
     return true;
 }
 

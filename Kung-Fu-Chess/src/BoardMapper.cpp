@@ -16,3 +16,9 @@ std::optional<Position> BoardMapper::pixel_to_cell(int pixel_x, int pixel_y, int
 
     return Position{ cell_x, cell_y };
 }
+
+std::string BoardMapper::cell_to_algebraic(Position cell, int board_height) {
+    char file = static_cast<char>('a' + cell.x);
+    int rank = board_height - cell.y;
+    return std::string(1, file) + std::to_string(rank);
+}

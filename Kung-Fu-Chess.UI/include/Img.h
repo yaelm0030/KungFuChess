@@ -8,6 +8,8 @@ class Img {
 public:
     Img();
 
+    static Img blank(int width, int height, const cv::Scalar& color = cv::Scalar(255, 255, 255, 255));
+
     Img& read(const std::string& path,
               const std::pair<int, int>& size = {},
               bool keep_aspect = false,

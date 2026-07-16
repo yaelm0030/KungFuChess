@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Position.h"
 #include "Types.h"
 
 #include <vector>
@@ -32,4 +33,11 @@ struct GameSnapshot {
     int board_height;
     std::vector<PieceSnapshot> pieces;
     bool is_game_over;
+};
+
+struct MoveRecord {
+    PieceType type;
+    Color color;
+    Position source;
+    Position destination;
 };

@@ -17,6 +17,12 @@ cv::Size uniform_fit(int src_w, int src_h, int target_w, int target_h) {
 Img::Img() {
 }
 
+Img Img::blank(int width, int height, const cv::Scalar& color) {
+    Img img;
+    img.img_ = cv::Mat(height, width, CV_8UC4, color);
+    return img;
+}
+
 Img& Img::read(const std::string& path,
                const std::pair<int, int>& size,
                bool keep_aspect,

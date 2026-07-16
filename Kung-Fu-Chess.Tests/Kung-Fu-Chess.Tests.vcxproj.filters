@@ -97,6 +97,9 @@
     <ClCompile Include="src\GameEngine\CooldownTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameEngine\MoveHistoryTests.cpp">
+      <Filter>GameEngine</Filter>
+    </ClCompile>
     <ClCompile Include="src\GameEngine\SnapshotTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>

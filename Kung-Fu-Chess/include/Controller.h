@@ -21,6 +21,7 @@ public:
     std::optional<Position> selected() const { return selected_; }
     bool game_over() const { return engine_.game_over(); }
     GameSnapshot snapshot() const { return engine_.snapshot(); }
+    const std::vector<MoveRecord>& move_history() const { return engine_.move_history(); }
 
 private:
     GameEngine engine_;

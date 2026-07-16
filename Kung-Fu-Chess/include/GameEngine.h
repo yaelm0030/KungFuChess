@@ -40,8 +40,12 @@ public:
     // mid-jump are reported at their origin cell, matching print().
     GameSnapshot snapshot() const;
 
+    // Every move successfully scheduled via request_move, in order. Jumps aren't recorded.
+    const std::vector<MoveRecord>& move_history() const { return move_history_; }
+
 private:
     Board board_;
     RealTimeArbiter arbiter_;
     bool game_over_ = false;
+    std::vector<MoveRecord> move_history_;
 };
