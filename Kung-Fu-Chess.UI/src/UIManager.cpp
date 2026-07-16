@@ -18,8 +18,11 @@ Img UIManager::render(const GameSnapshot& snapshot, int dt_ms, std::optional<Pos
     const int board_px_w = snapshot.board_width * constants::kCellSizePx;
     const int board_px_h = snapshot.board_height * constants::kCellSizePx;
 
-    Img frame = images_.get(board_image_path_).clone();
-    frame.resize(board_px_w, board_px_h);
+    if (!resized_board_.has_value()) {
+        resized_board_ = images_.get(board_image_path_).clone();
+        resized_board_->resize(board_px_w, board_px_h);
+    }
+    Img frame = resized_board_->clone();
 
     for (const auto& piece : snapshot.pieces) {
         int cell_x = lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);

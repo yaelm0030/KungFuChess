@@ -21,4 +21,5 @@ private:
     ImageCache& images_;
     std::string board_image_path_;
     PieceAnimator animator_;
+    std::optional<Img> resized_board_; // built once, at the first render()'s board size
 };
