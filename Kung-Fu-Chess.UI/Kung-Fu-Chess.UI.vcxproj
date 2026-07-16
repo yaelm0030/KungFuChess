@@ -125,6 +125,7 @@
     <ClInclude Include="include\GraphicsComponent.h" />
     <ClInclude Include="include\PieceAnimator.h" />
     <ClInclude Include="include\UIManager.h" />
+    <ClInclude Include="include\UIConstants.h" />
     <ClInclude Include="include\InputHandler.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h" />

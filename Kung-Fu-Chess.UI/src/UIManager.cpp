@@ -3,17 +3,13 @@
 #include "BoardMapper.h"
 #include "Constants.h"
 #include "Parser.h"
+#include "UIConstants.h"
 
 namespace {
 
 int lerp(int from, int to, double t) {
     return static_cast<int>(from + (to - from) * t);
 }
-
-constexpr int kPanelColumnX[] = { 10, 80, 130, 190 };
-constexpr int kPanelHeaderY = 20;
-constexpr int kPanelRowHeightPx = 22;
-const cv::Scalar kPanelTextColor(0, 0, 0, 255);
 
 } // namespace
 
@@ -25,20 +21,21 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
                        std::optional<Position> selected_cell) {
     const int board_px_w = snapshot.board_width * constants::kCellSizePx;
     const int board_px_h = snapshot.board_height * constants::kCellSizePx;
-    const int board_offset_x = kHistoryPanelWidthPx;
 
     if (!resized_board_.has_value()) {
         Img board_only = images_.get(board_image_path_).clone();
         board_only.resize(board_px_w, board_px_h);
 
-        Img canvas = Img::blank(kHistoryPanelWidthPx + board_px_w, board_px_h);
-        board_only.draw_on(canvas, board_offset_x, 0);
+        Img canvas = Img::blank(ui_constants::kBoardOffsetX + board_px_w, board_px_h + ui_constants::kFileLabelMarginPx,
+                                 ui_constants::kPanelBackgroundColor);
+        board_only.draw_on(canvas, ui_constants::kBoardOffsetX, 0);
         resized_board_ = canvas;
     }
     Img frame = resized_board_->clone();
 
     for (const auto& piece : snapshot.pieces) {
-        int cell_x = board_offset_x + lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
+        int cell_x =
+            ui_constants::kBoardOffsetX + lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
         int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
 
         if (piece.state == PieceState::short_rest) {
@@ -46,7 +43,7 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
             // remaining red always touches the bottom of the cell.
             int red_height = static_cast<int>(constants::kCellSizePx * piece.cooldown_progress);
             frame.draw_rectangle(cell_x, cell_y + constants::kCellSizePx - red_height, constants::kCellSizePx,
-                                  red_height, cv::Scalar(0, 0, 255, 255), cv::FILLED);
+                                  red_height, ui_constants::kCooldownFillColor, cv::FILLED);
         }
 
         Img sprite = images_.get(animator_.frame_path(piece, dt_ms)).clone();
@@ -59,27 +56,49 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
     }
 
     if (selected_cell.has_value()) {
-        frame.draw_rectangle(board_offset_x + selected_cell->x * constants::kCellSizePx,
+        frame.draw_rectangle(ui_constants::kBoardOffsetX + selected_cell->x * constants::kCellSizePx,
                               selected_cell->y * constants::kCellSizePx, constants::kCellSizePx,
-                              constants::kCellSizePx, cv::Scalar(0, 255, 255, 255), 3);
+                              constants::kCellSizePx, ui_constants::kSelectionColor, ui_constants::kSelectionThickness);
     }
 
     if (snapshot.is_game_over) {
-        frame.put_text("Game Over", board_offset_x + 40, frame.get_mat().rows / 2, 1.5, cv::Scalar(0, 0, 255, 255), 3);
+        frame.put_text("Game Over", ui_constants::kBoardOffsetX + 40, board_px_h / 2, ui_constants::kGameOverFontSize,
+                        ui_constants::kGameOverColor, ui_constants::kGameOverThickness);
     }
 
+    draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
     draw_move_history(frame, move_history, snapshot.board_height);
 
     return frame;
 }
 
-void UIManager::draw_move_history(Img& frame, const std::vector<MoveRecord>& move_history, int board_height) const {
-    frame.put_text("Type", kPanelColumnX[0], kPanelHeaderY, 0.5, kPanelTextColor);
-    frame.put_text("Color", kPanelColumnX[1], kPanelHeaderY, 0.5, kPanelTextColor);
-    frame.put_text("From", kPanelColumnX[2], kPanelHeaderY, 0.5, kPanelTextColor);
-    frame.put_text("To", kPanelColumnX[3], kPanelHeaderY, 0.5, kPanelTextColor);
+void UIManager::draw_axis_labels(Img& frame, int board_width, int board_height) const {
+    for (int x = 0; x < board_width; ++x) {
+        std::string file(1, static_cast<char>('a' + x));
+        int center_x = ui_constants::kBoardOffsetX + x * constants::kCellSizePx + constants::kCellSizePx / 2;
+        frame.put_text(file, center_x - 5, board_height * constants::kCellSizePx + ui_constants::kFileLabelMarginPx - 8,
+                        ui_constants::kAxisLabelFontSize, ui_constants::kTextColor);
+    }
 
-    int y = kPanelHeaderY + kPanelRowHeightPx;
+    for (int y = 0; y < board_height; ++y) {
+        std::string rank = std::to_string(board_height - y);
+        int center_y = y * constants::kCellSizePx + constants::kCellSizePx / 2;
+        frame.put_text(rank, ui_constants::kBoardOffsetX - ui_constants::kRankLabelMarginPx + 8, center_y + 5,
+                        ui_constants::kAxisLabelFontSize, ui_constants::kTextColor);
+    }
+}
+
+void UIManager::draw_move_history(Img& frame, const std::vector<MoveRecord>& move_history, int board_height) const {
+    frame.put_text("Type", ui_constants::kHistoryColumnX[0], ui_constants::kHistoryHeaderY, ui_constants::kHistoryFontSize,
+                    ui_constants::kTextColor);
+    frame.put_text("Color", ui_constants::kHistoryColumnX[1], ui_constants::kHistoryHeaderY,
+                    ui_constants::kHistoryFontSize, ui_constants::kTextColor);
+    frame.put_text("From", ui_constants::kHistoryColumnX[2], ui_constants::kHistoryHeaderY,
+                    ui_constants::kHistoryFontSize, ui_constants::kTextColor);
+    frame.put_text("To", ui_constants::kHistoryColumnX[3], ui_constants::kHistoryHeaderY, ui_constants::kHistoryFontSize,
+                    ui_constants::kTextColor);
+
+    int y = ui_constants::kHistoryHeaderY + ui_constants::kHistoryRowHeightPx;
     for (const MoveRecord& record : move_history) {
         std::string token = Parser::token_from_cell(Cell{ record.color, record.type });
         std::string color_letter(1, token[0]);
@@ -87,10 +106,14 @@ void UIManager::draw_move_history(Img& frame, const std::vector<MoveRecord>& mov
         std::string from = BoardMapper::cell_to_algebraic(record.source, board_height);
         std::string to = BoardMapper::cell_to_algebraic(record.destination, board_height);
 
-        frame.put_text(type_letter, kPanelColumnX[0], y, 0.5, kPanelTextColor);
-        frame.put_text(color_letter, kPanelColumnX[1], y, 0.5, kPanelTextColor);
-        frame.put_text(from, kPanelColumnX[2], y, 0.5, kPanelTextColor);
-        frame.put_text(to, kPanelColumnX[3], y, 0.5, kPanelTextColor);
-        y += kPanelRowHeightPx;
+        frame.put_text(type_letter, ui_constants::kHistoryColumnX[0], y, ui_constants::kHistoryFontSize,
+                        ui_constants::kTextColor);
+        frame.put_text(color_letter, ui_constants::kHistoryColumnX[1], y, ui_constants::kHistoryFontSize,
+                        ui_constants::kTextColor);
+        frame.put_text(from, ui_constants::kHistoryColumnX[2], y, ui_constants::kHistoryFontSize,
+                        ui_constants::kTextColor);
+        frame.put_text(to, ui_constants::kHistoryColumnX[3], y, ui_constants::kHistoryFontSize,
+                        ui_constants::kTextColor);
+        y += ui_constants::kHistoryRowHeightPx;
     }
 }

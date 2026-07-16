@@ -83,6 +83,9 @@
     <ClInclude Include="include\UIManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\UIConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
