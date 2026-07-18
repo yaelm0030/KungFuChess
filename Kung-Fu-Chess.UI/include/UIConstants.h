@@ -10,10 +10,15 @@ namespace ui_constants {
 
 // ---- History panel (left of the rank labels) ----
 inline constexpr int kHistoryPanelWidthPx = 260;
-inline constexpr int kHistoryHeaderY = 20;
+inline constexpr int kHistoryHeaderY = 70;
 inline constexpr int kHistoryRowHeightPx = 22;
 inline constexpr int kHistoryColumnX[] = { 10, 80, 130, 190 };
 inline constexpr double kHistoryFontSize = 0.5;
+
+// ---- Score lines (top of the history panel) ----
+inline constexpr int kScoreY = 20;
+inline constexpr int kScoreRowHeightPx = 22;
+inline constexpr double kScoreFontSize = 0.5;
 
 // ---- Board axis labels ----
 inline constexpr int kRankLabelMarginPx = 24; // strip left of the board, for 1-8

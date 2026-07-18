@@ -33,6 +33,8 @@ struct GameSnapshot {
     int board_height;
     std::vector<PieceSnapshot> pieces;
     bool is_game_over;
+    int score_w = 0; // sum of captured black pieces' values
+    int score_b = 0; // sum of captured white pieces' values
 };
 
 struct MoveRecord {

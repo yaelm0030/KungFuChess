@@ -1,9 +1,19 @@
 #include "GameEngine.h"
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "Parser.h"
 #include "Piece.h"
+
+namespace {
+
+const std::unordered_map<PieceType, int> kPieceValues{
+    { PieceType::K, 0 }, { PieceType::Q, 9 }, { PieceType::R, 5 },
+    { PieceType::B, 3 }, { PieceType::N, 3 }, { PieceType::P, 1 },
+};
+
+} // namespace
 
 GameEngine::GameEngine(Board board, long long move_ms_per_cell)
     : board_(std::move(board)), arbiter_(board_, move_ms_per_cell) {
@@ -99,6 +109,15 @@ GameSnapshot GameEngine::snapshot() const {
                 state,
                 cooldown_progress,
             });
+        }
+    }
+
+    for (const Cell& captured : arbiter_.captured_pieces()) {
+        int value = kPieceValues.at(captured.type);
+        if (captured.color == Color::w) {
+            snap.score_b += value;
+        } else {
+            snap.score_w += value;
         }
     }
 

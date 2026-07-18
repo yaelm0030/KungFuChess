@@ -153,4 +153,71 @@ TEST_CASE("is_game_over becomes true once a king is captured") {
     CHECK(engine.snapshot().is_game_over);
 }
 
+TEST_CASE("score_w and score_b start at zero") {
+    Board board(2, 2);
+    GameEngine engine(std::move(board));
+
+    GameSnapshot snap = engine.snapshot();
+
+    CHECK(snap.score_w == 0);
+    CHECK(snap.score_b == 0);
+}
+
+TEST_CASE("a normal capture credits the capturing color's score with the captured piece's value") {
+    Board board(3, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R });
+    board.place_at(2, 0, Cell{ Color::b, PieceType::N });
+    GameEngine engine(std::move(board));
+    REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 })); // wR captures bN
+
+    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+
+    GameSnapshot snap = engine.snapshot();
+    CHECK(snap.score_w == 3); // knight
+    CHECK(snap.score_b == 0);
+}
+
+TEST_CASE("a hostile mid-flight collision credits the winning side's score with the loser's value") {
+    Board board(4, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::R });
+    board.place_at(3, 0, Cell{ Color::b, PieceType::Q });
+    GameEngine engine(std::move(board));
+    REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 3, 0 })); // wR scheduled first
+    REQUIRE(engine.request_move(Position{ 3, 0 }, Position{ 0, 0 })); // bQ scheduled second, loses the head-on collision
+
+    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+
+    GameSnapshot snap = engine.snapshot();
+    CHECK(snap.score_w == 9); // queen
+    CHECK(snap.score_b == 0);
+}
+
+TEST_CASE("a piece captured by a still-airborne guard credits the guard's color") {
+    Board board(2, 1);
+    board.place_at(0, 0, Cell{ Color::w, PieceType::K });
+    board.place_at(1, 0, Cell{ Color::b, PieceType::R });
+    GameEngine engine(std::move(board));
+    REQUIRE(engine.request_jump(Position{ 0, 0 }));                  // wK jumps, guarding its cell
+    REQUIRE(engine.request_move(Position{ 1, 0 }, Position{ 0, 0 })); // bR moves onto the guarded cell
+
+    engine.wait(GameEngine::kJumpDurationMs);
+
+    GameSnapshot snap = engine.snapshot();
+    CHECK(snap.score_w == 5); // rook
+    CHECK(snap.score_b == 0);
+}
+
+TEST_CASE("a pawn promotion does not affect the score") {
+    Board board(1, 2);
+    board.place_at(0, 1, Cell{ Color::w, PieceType::P });
+    GameEngine engine(std::move(board));
+    REQUIRE(engine.request_move(Position{ 0, 1 }, Position{ 0, 0 })); // promotes to Q on arrival, no capture
+
+    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+
+    GameSnapshot snap = engine.snapshot();
+    CHECK(snap.score_w == 0);
+    CHECK(snap.score_b == 0);
+}
+
 } // TEST_SUITE

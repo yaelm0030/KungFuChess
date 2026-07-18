@@ -44,6 +44,9 @@ public:
 
     bool advance(int milliseconds);
 
+    // Every piece removed from the board via capture, in order (promotions don't count).
+    const std::vector<Cell>& captured_pieces() const { return captured_pieces_; }
+
 private:
     Board& board_;
     long long move_ms_per_cell_;
@@ -52,6 +55,7 @@ private:
 
     std::vector<PendingMove> pending_moves_;
     std::vector<AirbornePiece> airborne_;
+    std::vector<Cell> captured_pieces_;
 
     const AirbornePiece* airborne_at(int x, int y) const;
     static long long get_distance(Position a, Position b);

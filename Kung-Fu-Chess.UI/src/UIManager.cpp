@@ -67,9 +67,18 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
     }
 
     draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
+    draw_score(frame, snapshot.score_w, snapshot.score_b);
     draw_move_history(frame, move_history, snapshot.board_height);
 
     return frame;
+}
+
+void UIManager::draw_score(Img& frame, int score_w, int score_b) const {
+    frame.put_text("White: " + std::to_string(score_w), ui_constants::kHistoryColumnX[0], ui_constants::kScoreY,
+                    ui_constants::kScoreFontSize, ui_constants::kTextColor);
+    frame.put_text("Black: " + std::to_string(score_b), ui_constants::kHistoryColumnX[0],
+                    ui_constants::kScoreY + ui_constants::kScoreRowHeightPx, ui_constants::kScoreFontSize,
+                    ui_constants::kTextColor);
 }
 
 void UIManager::draw_axis_labels(Img& frame, int board_width, int board_height) const {

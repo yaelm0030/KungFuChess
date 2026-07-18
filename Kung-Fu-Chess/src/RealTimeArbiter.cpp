@@ -113,12 +113,15 @@ bool RealTimeArbiter::settle_arrived_moves() {
 
         const AirbornePiece* guard = airborne_at(move.dest.x, move.dest.y);
         if (guard != nullptr && guard->piece.color != move.piece.color && move.arrival_ms <= guard->land_ms) {
+            captured_pieces_.push_back(move.piece);
             board_.clear_at(move.start.x, move.start.y);
             if (move.piece.type == PieceType::K) king_captured = true;
             continue;
         }
 
         if (captures_king(move)) king_captured = true;
+        std::optional<Cell> captured_at_dest = board_.get_at(move.dest.x, move.dest.y);
+        if (captured_at_dest.has_value()) captured_pieces_.push_back(*captured_at_dest);
 
         Cell piece = move.piece;
         if (is_pawn_promotion(move)) piece.type = PieceType::Q;
@@ -254,6 +257,7 @@ void RealTimeArbiter::apply_hostile_collision(std::size_t winner_idx, std::size_
     winner.dest = cell;
     winner.arrival_ms = winner.scheduled_ms + get_distance(winner.start, cell) * move_ms_per_cell_;
 
+    captured_pieces_.push_back(pending_moves_[loser_idx].piece);
     board_.clear_at(pending_moves_[loser_idx].start.x, pending_moves_[loser_idx].start.y);
     pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(loser_idx));
 }
