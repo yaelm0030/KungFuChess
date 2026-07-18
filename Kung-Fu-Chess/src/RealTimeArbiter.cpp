@@ -11,36 +11,25 @@ RealTimeArbiter::RealTimeArbiter(Board& board, long long move_ms_per_cell)
 }
 
 bool RealTimeArbiter::is_moving(int x, int y) const {
-    for (const auto& move : pending_moves_) {
-        if (move.start == Position{ x, y }) return true;
-    }
-    return false;
+    return std::any_of(pending_moves_.begin(), pending_moves_.end(),
+                        [&](const PendingMove& move) { return move.start == Position{ x, y }; });
 }
 
 std::optional<RealTimeArbiter::MoveProgress> RealTimeArbiter::move_progress_at(int x, int y) const {
-    for (const auto& move : pending_moves_) {
-        if (move.start == Position{ x, y }) {
-            return MoveProgress{ move.dest, move.scheduled_ms, move.arrival_ms };
-        }
-    }
-    return std::nullopt;
+    auto it = std::find_if(pending_moves_.begin(), pending_moves_.end(),
+                            [&](const PendingMove& move) { return move.start == Position{ x, y }; });
+    if (it == pending_moves_.end()) return std::nullopt;
+    return MoveProgress{ it->dest, it->scheduled_ms, it->arrival_ms };
 }
 
 const RealTimeArbiter::AirbornePiece* RealTimeArbiter::airborne_at(int x, int y) const {
-    for (const auto& airborne : airborne_) {
-        if (airborne.cell == Position{ x, y }) return &airborne;
-    }
-    return nullptr;
+    auto it = std::find_if(airborne_.begin(), airborne_.end(),
+                            [&](const AirbornePiece& airborne) { return airborne.cell == Position{ x, y }; });
+    return it == airborne_.end() ? nullptr : &*it;
 }
 
 void RealTimeArbiter::drop_airborne_at(int x, int y) {
-    std::vector<AirbornePiece> kept;
-    for (const auto& airborne : airborne_) {
-        if (airborne.cell.x != x || airborne.cell.y != y) {
-            kept.push_back(airborne);
-        }
-    }
-    airborne_ = std::move(kept);
+    std::erase_if(airborne_, [&](const AirbornePiece& airborne) { return airborne.cell == Position{ x, y }; });
 }
 
 void RealTimeArbiter::schedule_move(Position start, Position dest, Cell piece) {
@@ -90,13 +79,11 @@ std::vector<Position> RealTimeArbiter::get_path(Position start, Position dest) {
 }
 
 bool RealTimeArbiter::has_arrivals_to_settle() const {
-    for (const auto& move : pending_moves_) {
-        if (move.arrival_ms <= clock_ms_) return true;
-    }
-    for (const auto& airborne : airborne_) {
-        if (airborne.land_ms <= clock_ms_) return true;
-    }
-    return false;
+    bool move_due =
+        std::any_of(pending_moves_.begin(), pending_moves_.end(), [&](const PendingMove& move) { return move.arrival_ms <= clock_ms_; });
+    bool landing_due =
+        std::any_of(airborne_.begin(), airborne_.end(), [&](const AirbornePiece& airborne) { return airborne.land_ms <= clock_ms_; });
+    return move_due || landing_due;
 }
 
 bool RealTimeArbiter::settle_arrived_moves() {
@@ -133,13 +120,7 @@ bool RealTimeArbiter::settle_arrived_moves() {
     }
     pending_moves_ = std::move(still_pending);
 
-    std::vector<AirbornePiece> still_airborne;
-    for (const auto& airborne : airborne_) {
-        if (airborne.land_ms > clock_ms_) {
-            still_airborne.push_back(airborne);
-        }
-    }
-    airborne_ = std::move(still_airborne);
+    std::erase_if(airborne_, [&](const AirbornePiece& airborne) { return airborne.land_ms <= clock_ms_; });
 
     return king_captured;
 }
@@ -266,10 +247,8 @@ void RealTimeArbiter::apply_yield(std::size_t yielder_idx, Position cell) {
     auto& yielder = pending_moves_[yielder_idx];
     auto path = get_path(yielder.start, yielder.dest);
 
-    std::size_t idx = 0;
-    while (idx < path.size() && !(path[idx] == cell)) {
-        ++idx;
-    }
+    auto found = std::find(path.begin(), path.end(), cell);
+    std::size_t idx = static_cast<std::size_t>(std::distance(path.begin(), found));
 
     if (idx <= 1) {
         pending_moves_.erase(pending_moves_.begin() + static_cast<std::ptrdiff_t>(yielder_idx));
