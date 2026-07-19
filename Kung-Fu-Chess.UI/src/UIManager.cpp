@@ -33,7 +33,25 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
     }
     Img frame = resized_board_->clone();
 
-    for (const auto& piece : snapshot.pieces) {
+    draw_pieces(frame, snapshot.pieces, dt_ms);
+
+    if (selected_cell.has_value()) {
+        draw_selection_highlight(frame, *selected_cell);
+    }
+
+    if (snapshot.is_game_over) {
+        draw_game_over_message(frame, board_px_h);
+    }
+
+    draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
+    draw_score(frame, snapshot.score_w, snapshot.score_b);
+    draw_move_history(frame, move_history, snapshot.board_height);
+
+    return frame;
+}
+
+void UIManager::draw_pieces(Img& frame, const std::vector<PieceSnapshot>& pieces, int dt_ms) {
+    for (const auto& piece : pieces) {
         int cell_x =
             ui_constants::kBoardOffsetX + lerp(piece.pixels_location.x, piece.target_pixels_location.x, piece.progress);
         int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
@@ -50,21 +68,11 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
         int y = cell_y + (constants::kCellSizePx - sprite.get_mat().rows) / 2;
         sprite.draw_on(frame, x, y);
     }
+}
 
-    if (selected_cell.has_value()) {
-        draw_selection_highlight(frame, *selected_cell);
-    }
-
-    if (snapshot.is_game_over) {
-        frame.put_text("Game Over", ui_constants::kBoardOffsetX + 40, board_px_h / 2, ui_constants::kGameOverFontSize,
-                        ui_constants::kGameOverColor, ui_constants::kGameOverThickness);
-    }
-
-    draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
-    draw_score(frame, snapshot.score_w, snapshot.score_b);
-    draw_move_history(frame, move_history, snapshot.board_height);
-
-    return frame;
+void UIManager::draw_game_over_message(Img& frame, int board_px_h) const {
+    frame.put_text("Game Over", ui_constants::kBoardOffsetX + 40, board_px_h / 2, ui_constants::kGameOverFontSize,
+                    ui_constants::kGameOverColor, ui_constants::kGameOverThickness);
 }
 
 void UIManager::draw_cooldown_overlay(Img& frame, int cell_x, int cell_y, double cooldown_progress) const {

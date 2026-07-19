@@ -20,9 +20,11 @@ public:
                std::optional<Position> selected_cell = std::nullopt);
 
 private:
+    void draw_pieces(Img& frame, const std::vector<PieceSnapshot>& pieces, int dt_ms);
     void draw_move_history(Img& frame, const std::vector<MoveRecord>& move_history, int board_height) const;
     void draw_axis_labels(Img& frame, int board_width, int board_height) const;
     void draw_score(Img& frame, int score_w, int score_b) const;
+    void draw_game_over_message(Img& frame, int board_px_h) const;
     void draw_cooldown_overlay(Img& frame, int cell_x, int cell_y, double cooldown_progress) const;
     void draw_selection_highlight(Img& frame, Position selected_cell) const;
 
