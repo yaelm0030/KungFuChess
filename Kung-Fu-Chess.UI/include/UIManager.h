@@ -23,6 +23,8 @@ private:
     void draw_move_history(Img& frame, const std::vector<MoveRecord>& move_history, int board_height) const;
     void draw_axis_labels(Img& frame, int board_width, int board_height) const;
     void draw_score(Img& frame, int score_w, int score_b) const;
+    void draw_cooldown_overlay(Img& frame, int cell_x, int cell_y, double cooldown_progress) const;
+    void draw_selection_highlight(Img& frame, Position selected_cell) const;
 
     ImageCache& images_;
     std::string board_image_path_;

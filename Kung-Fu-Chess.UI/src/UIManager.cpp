@@ -39,11 +39,7 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
         int cell_y = lerp(piece.pixels_location.y, piece.target_pixels_location.y, piece.progress);
 
         if (piece.state == PieceState::short_rest) {
-            // Red fill drains from the top down as cooldown_progress falls, so the
-            // remaining red always touches the bottom of the cell.
-            int red_height = static_cast<int>(constants::kCellSizePx * piece.cooldown_progress);
-            frame.draw_rectangle(cell_x, cell_y + constants::kCellSizePx - red_height, constants::kCellSizePx,
-                                  red_height, ui_constants::kCooldownFillColor, cv::FILLED);
+            draw_cooldown_overlay(frame, cell_x, cell_y, piece.cooldown_progress);
         }
 
         Img sprite = images_.get(animator_.frame_path(piece, dt_ms)).clone();
@@ -56,9 +52,7 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
     }
 
     if (selected_cell.has_value()) {
-        frame.draw_rectangle(ui_constants::kBoardOffsetX + selected_cell->x * constants::kCellSizePx,
-                              selected_cell->y * constants::kCellSizePx, constants::kCellSizePx,
-                              constants::kCellSizePx, ui_constants::kSelectionColor, ui_constants::kSelectionThickness);
+        draw_selection_highlight(frame, *selected_cell);
     }
 
     if (snapshot.is_game_over) {
@@ -71,6 +65,20 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
     draw_move_history(frame, move_history, snapshot.board_height);
 
     return frame;
+}
+
+void UIManager::draw_cooldown_overlay(Img& frame, int cell_x, int cell_y, double cooldown_progress) const {
+    // Red fill drains from the top down as cooldown_progress falls, so the
+    // remaining red always touches the bottom of the cell.
+    int red_height = static_cast<int>(constants::kCellSizePx * cooldown_progress);
+    frame.draw_rectangle(cell_x, cell_y + constants::kCellSizePx - red_height, constants::kCellSizePx, red_height,
+                          ui_constants::kCooldownFillColor, cv::FILLED);
+}
+
+void UIManager::draw_selection_highlight(Img& frame, Position selected_cell) const {
+    frame.draw_rectangle(ui_constants::kBoardOffsetX + selected_cell.x * constants::kCellSizePx,
+                          selected_cell.y * constants::kCellSizePx, constants::kCellSizePx, constants::kCellSizePx,
+                          ui_constants::kSelectionColor, ui_constants::kSelectionThickness);
 }
 
 void UIManager::draw_score(Img& frame, int score_w, int score_b) const {
