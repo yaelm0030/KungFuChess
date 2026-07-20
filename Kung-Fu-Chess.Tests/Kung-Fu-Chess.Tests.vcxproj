@@ -165,6 +165,7 @@
     <ClCompile Include="src\CommandProcessor\CommandProcessorTests.cpp" />
     <ClCompile Include="src\ProtocolIO\ProtocolIOTests.cpp" />
     <ClCompile Include="src\RealTimeArbiter\RealTimeArbiterTests.cpp" />
+    <ClCompile Include="src\ClientCommand\ClientCommandTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -198,6 +199,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\ClientCommand.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -216,6 +220,7 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\ProtocolIO.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\ClientCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

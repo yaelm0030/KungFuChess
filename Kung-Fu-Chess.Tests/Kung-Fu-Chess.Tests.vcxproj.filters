@@ -25,6 +25,9 @@
     <Filter Include="GameSnapshot">
       <UniqueIdentifier>{b8e7f5a8-a0a0-4eaf-ea8f-8f8f90a1b2c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ClientCommand">
+      <UniqueIdentifier>{c9f8a6b9-b1b1-4fb0-fb90-90a0a1b2c3d5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -127,6 +130,9 @@
     <ClCompile Include="src\GameSnapshot\GameSnapshotJsonTests.cpp">
       <Filter>GameSnapshot</Filter>
     </ClCompile>
+    <ClCompile Include="src\ClientCommand\ClientCommandTests.cpp">
+      <Filter>ClientCommand</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h">
@@ -151,6 +157,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\ClientCommand.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

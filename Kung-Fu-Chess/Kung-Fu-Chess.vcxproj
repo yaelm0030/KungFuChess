@@ -150,6 +150,7 @@
     <ClCompile Include="src\CommandProcessor.cpp" />
     <ClCompile Include="src\ProtocolIO.cpp" />
     <ClCompile Include="src\GameSnapshotJson.cpp" />
+    <ClCompile Include="src\ClientCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="include\CommandProcessor.h" />
     <ClInclude Include="include\ProtocolIO.h" />
     <ClInclude Include="include\GameSnapshotJson.h" />
+    <ClInclude Include="include\ClientCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
