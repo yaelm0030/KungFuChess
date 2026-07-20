@@ -167,6 +167,7 @@
     <ClCompile Include="src\RealTimeArbiter\RealTimeArbiterTests.cpp" />
     <ClCompile Include="src\ClientCommand\ClientCommandTests.cpp" />
     <ClCompile Include="src\GameServer\GameServerTests.cpp" />
+    <ClCompile Include="src\GameServer\GameServerLifecycleTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
