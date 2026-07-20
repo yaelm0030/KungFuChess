@@ -142,6 +142,9 @@
     <ClCompile Include="src\GameServer\GameServerLifecycleTests.cpp">
       <Filter>GameServer</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameServer\GameServerBroadcastTests.cpp">
+      <Filter>GameServer</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>

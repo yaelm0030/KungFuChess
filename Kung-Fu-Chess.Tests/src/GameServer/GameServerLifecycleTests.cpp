@@ -36,7 +36,7 @@ TEST_SUITE("GameServer::start/stop") {
 TEST_CASE("start then stop returns promptly without hanging or crashing") {
     GameServer server(make_board());
 
-    server.start();
+    server.start(0);
     server.stop();
 
     CHECK_FALSE(server.snapshot().is_game_over);
@@ -45,7 +45,7 @@ TEST_CASE("start then stop returns promptly without hanging or crashing") {
 TEST_CASE("a command applied while the tick thread is running is eventually reflected in snapshot") {
     GameServer server(make_board());
 
-    server.start();
+    server.start(0);
     server.apply_command("click 50 50"); // select bR at (0,0)
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     server.stop();
@@ -57,7 +57,7 @@ TEST_CASE("the tick thread advances the clock on its own with no external tick c
     const long long move_ms_per_cell = 100; // small, so the test proves this in tens of ms, not over a second
     GameServer server(make_board(), move_ms_per_cell);
 
-    server.start();
+    server.start(0);
     server.apply_command("click 50 50");  // select bR at (0,0)
     server.apply_command("click 50 150"); // move down to (0,1); 1 cell of travel time
     std::this_thread::sleep_for(std::chrono::milliseconds(move_ms_per_cell + 100));
@@ -72,7 +72,7 @@ TEST_CASE("the tick thread advances the clock on its own with no external tick c
 TEST_CASE("stop is idempotent when called twice in a row") {
     GameServer server(make_board());
 
-    server.start();
+    server.start(0);
     server.stop();
     server.stop();
 
@@ -82,7 +82,7 @@ TEST_CASE("stop is idempotent when called twice in a row") {
 TEST_CASE("a server that goes out of scope while still running tears down cleanly") {
     {
         GameServer server(make_board());
-        server.start();
+        server.start(0);
     }
 
     CHECK(true);
