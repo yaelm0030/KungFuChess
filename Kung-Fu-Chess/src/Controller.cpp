@@ -61,3 +61,10 @@ void Controller::wait(int milliseconds) {
 void Controller::print(std::ostream& out) const {
     engine_.print(out);
 }
+
+// Overlays the controller-owned selection cursor onto the engine's snapshot; GameEngine has no concept of UI selection.
+GameSnapshot Controller::snapshot() const {
+    GameSnapshot snap = engine_.snapshot();
+    snap.selected = selected_;
+    return snap;
+}

@@ -221,6 +221,30 @@ TEST_CASE("a piece can be selected and moved again once its post-move cooldown e
     CHECK(board_of(controller) == ". bN .\n. . .\nbR . wN\n");
 }
 
+// ---- snapshot overlays the controller's own selection state ------------------
+
+TEST_CASE("a snapshot taken with no selection has selected == nullopt") {
+    Controller controller(make_board());
+    CHECK(controller.snapshot().selected == std::nullopt);
+}
+
+TEST_CASE("a snapshot taken with an active selection reports the selected cell") {
+    Controller controller(make_board());
+    controller.click(50, 50); // select bR at (0,0)
+    REQUIRE(controller.has_selection());
+
+    CHECK(controller.snapshot().selected == Position{ 0, 0 });
+}
+
+TEST_CASE("a snapshot taken after the selection is cancelled reports nullopt again") {
+    Controller controller(make_board());
+    controller.click(50, 50);   // select bR at (0,0)
+    controller.click(150, 150); // (1,1) is a diagonal move; illegal for a rook, cancels the selection
+    REQUIRE_FALSE(controller.has_selection());
+
+    CHECK(controller.snapshot().selected == std::nullopt);
+}
+
 // ---- illegal move attempts cancel the selection ------------------------------
 
 TEST_CASE("a move that doesn't match the selected piece's shape cancels the selection") {

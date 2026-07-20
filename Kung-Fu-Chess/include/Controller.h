@@ -20,7 +20,7 @@ public:
     bool has_selection() const { return selected_.has_value(); }
     std::optional<Position> selected() const { return selected_; }
     bool game_over() const { return engine_.game_over(); }
-    GameSnapshot snapshot() const { return engine_.snapshot(); }
+    GameSnapshot snapshot() const;
     const std::vector<MoveRecord>& move_history() const { return engine_.move_history(); }
 
 private:

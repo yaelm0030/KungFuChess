@@ -3,6 +3,7 @@
 #include "Board.h"
 #include "Constants.h"
 #include "GameEngine.h"
+#include "Parser.h"
 #include "Position.h"
 
 TEST_SUITE("GameEngine::snapshot") {
@@ -205,6 +206,34 @@ TEST_CASE("a piece captured by a still-airborne guard credits the guard's color"
     GameSnapshot snap = engine.snapshot();
     CHECK(snap.score_w == 5); // rook
     CHECK(snap.score_b == 0);
+}
+
+TEST_CASE("a fresh engine's snapshot has an empty move_history") {
+    Board board(2, 2);
+    GameEngine engine(std::move(board));
+
+    CHECK(engine.snapshot().move_history.empty());
+}
+
+TEST_CASE("the snapshot's move_history mirrors move_history() after moves are recorded, in order") {
+    Board board = Parser::parse_board({
+        "bR bN .",
+        ".  .  .",
+        "wR .  wN",
+    });
+    GameEngine engine(std::move(board));
+    REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 0, 1 })); // bR down one cell
+    REQUIRE(engine.request_move(Position{ 2, 2 }, Position{ 0, 1 })); // wN's L-shaped move
+
+    GameSnapshot snap = engine.snapshot();
+
+    REQUIRE(snap.move_history.size() == 2);
+    for (size_t i = 0; i < snap.move_history.size(); ++i) {
+        CHECK(snap.move_history[i].type == engine.move_history()[i].type);
+        CHECK(snap.move_history[i].color == engine.move_history()[i].color);
+        CHECK(snap.move_history[i].source == engine.move_history()[i].source);
+        CHECK(snap.move_history[i].destination == engine.move_history()[i].destination);
+    }
 }
 
 TEST_CASE("a pawn promotion does not affect the score") {

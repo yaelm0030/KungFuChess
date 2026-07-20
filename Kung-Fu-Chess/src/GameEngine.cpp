@@ -121,5 +121,7 @@ GameSnapshot GameEngine::snapshot() const {
         }
     }
 
+    snap.move_history = move_history_;
+
     return snap;
 }
