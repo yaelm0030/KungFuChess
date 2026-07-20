@@ -22,6 +22,9 @@
     <Filter Include="RealTimeArbiter">
       <UniqueIdentifier>{a7d6e4f7-9f9f-4fdf-df7f-7f7f8091a2b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameSnapshot">
+      <UniqueIdentifier>{b8e7f5a8-a0a0-4eaf-ea8f-8f8f90a1b2c4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -106,6 +109,24 @@
     <ClCompile Include="src\RealTimeArbiter\RealTimeArbiterTests.cpp">
       <Filter>RealTimeArbiter</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameSnapshot\PositionJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameSnapshot\PixelPositionJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameSnapshot\EnumJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameSnapshot\PieceSnapshotJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameSnapshot\MoveRecordJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameSnapshot\GameSnapshotJsonTests.cpp">
+      <Filter>GameSnapshot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h">
@@ -125,6 +146,12 @@
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Piece.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

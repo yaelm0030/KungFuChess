@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;$(SolutionDir)third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;$(SolutionDir)third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;$(SolutionDir)third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,7 +123,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\Kung-Fu-Chess\include;$(SolutionDir)third_party\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +146,12 @@
     <ClCompile Include="src\GameEngine\CooldownTests.cpp" />
     <ClCompile Include="src\GameEngine\MoveHistoryTests.cpp" />
     <ClCompile Include="src\GameEngine\SnapshotTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\PositionJsonTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\PixelPositionJsonTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\EnumJsonTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\PieceSnapshotJsonTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\MoveRecordJsonTests.cpp" />
+    <ClCompile Include="src\GameSnapshot\GameSnapshotJsonTests.cpp" />
     <ClCompile Include="src\Piece\KingTests.cpp" />
     <ClCompile Include="src\Piece\QueenTests.cpp" />
     <ClCompile Include="src\Piece\RookTests.cpp" />
@@ -189,6 +195,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\ProtocolIO.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -205,6 +214,8 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\CommandProcessor.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\ProtocolIO.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
