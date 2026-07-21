@@ -1,11 +1,11 @@
 #pragma once
 
-// JSON serialization hooks for GameSnapshot and its nested types, for the future
+// JSON serialization hooks for GameSnapshot and its nested types, for the
 // networking layer. Kept out of GameSnapshot.h/Position.h/Types.h so that
 // <nlohmann/json.hpp> doesn't get pulled into every translation unit that includes
-// those widely-shared headers. ADL only needs to_json declared in a header included
-// before the call site, in the type's namespace (global here) - it doesn't need to
-// live beside the struct definition. to_json only: no from_json for composite types.
+// those widely-shared headers. ADL only needs to_json/from_json declared in a header
+// included before the call site, in the type's namespace (global here) - they don't
+// need to live beside the struct definition.
 
 #include <nlohmann/json.hpp>
 
@@ -40,3 +40,9 @@ void to_json(nlohmann::json& json, const PixelPosition& pixel_position);
 void to_json(nlohmann::json& json, const PieceSnapshot& piece_snapshot);
 void to_json(nlohmann::json& json, const MoveRecord& move_record);
 void to_json(nlohmann::json& json, const GameSnapshot& snapshot);
+
+void from_json(const nlohmann::json& json, Position& position);
+void from_json(const nlohmann::json& json, PixelPosition& pixel_position);
+void from_json(const nlohmann::json& json, PieceSnapshot& piece_snapshot);
+void from_json(const nlohmann::json& json, MoveRecord& move_record);
+void from_json(const nlohmann::json& json, GameSnapshot& snapshot);
