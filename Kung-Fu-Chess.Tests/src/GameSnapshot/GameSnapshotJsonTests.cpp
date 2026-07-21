@@ -20,6 +20,8 @@ TEST_CASE("an empty snapshot serializes with empty arrays and a null selected") 
         { "score_b", 0 },
         { "move_history", json::array() },
         { "selected", nullptr },
+        { "selected_w", nullptr },
+        { "selected_b", nullptr },
     });
 }
 
@@ -74,6 +76,8 @@ TEST_CASE("a non-trivial snapshot serializes pieces, move_history, and selected"
             },
         }) },
         { "selected", { { "x", 1 }, { "y", 2 } } },
+        { "selected_w", nullptr },
+        { "selected_b", nullptr },
     });
 }
 
@@ -91,6 +95,8 @@ TEST_CASE("an empty snapshot round-trips through empty arrays and a null selecte
         { "score_b", 0 },
         { "move_history", json::array() },
         { "selected", nullptr },
+        { "selected_w", nullptr },
+        { "selected_b", nullptr },
     };
 
     GameSnapshot parsed = input.get<GameSnapshot>();
@@ -134,6 +140,8 @@ TEST_CASE("a non-trivial snapshot round-trips pieces, move_history, and selected
             },
         }) },
         { "selected", { { "x", 1 }, { "y", 2 } } },
+        { "selected_w", nullptr },
+        { "selected_b", nullptr },
     };
 
     GameSnapshot parsed = input.get<GameSnapshot>();

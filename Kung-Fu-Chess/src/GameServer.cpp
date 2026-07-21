@@ -21,9 +21,9 @@ void GameServer::tick(int milliseconds) {
     controller_.wait(milliseconds);
 }
 
-void GameServer::apply_command(const std::string& line) {
+void GameServer::apply_command(const std::string& line, std::optional<Color> acting_color) {
     std::lock_guard<std::mutex> lock(mutex_);
-    ClientCommand::apply(controller_, line);
+    ClientCommand::apply(controller_, line, acting_color);
 }
 
 GameSnapshot GameServer::snapshot() const {
@@ -44,13 +44,42 @@ void GameServer::start(uint16_t port) {
     ws_server_.set_open_handler([this](websocketpp::connection_hdl hdl) {
         std::lock_guard<std::mutex> lock(mutex_);
         connections_.insert(hdl);
+
+        // Occupancy-based (not a monotonic counter) so a freed slot can be
+        // reassigned to the next connection. Any connection beyond the two
+        // colors is a spectator: no entry in player_colors_.
+        bool white_taken = false;
+        bool black_taken = false;
+        for (const auto& entry : player_colors_) {
+            if (entry.second == Color::w) {
+                white_taken = true;
+            } else {
+                black_taken = true;
+            }
+        }
+        if (!white_taken) {
+            player_colors_[hdl] = Color::w;
+        } else if (!black_taken) {
+            player_colors_[hdl] = Color::b;
+        }
     });
     ws_server_.set_close_handler([this](websocketpp::connection_hdl hdl) {
         std::lock_guard<std::mutex> lock(mutex_);
         connections_.erase(hdl);
+        player_colors_.erase(hdl);
     });
-    ws_server_.set_message_handler([this](websocketpp::connection_hdl, WsServer::message_ptr msg) {
-        apply_command(msg->get_payload());
+    ws_server_.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg) {
+        std::optional<Color> acting_color;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto it = player_colors_.find(hdl);
+            if (it != player_colors_.end()) {
+                acting_color = it->second;
+            }
+        }
+        if (acting_color.has_value()) {
+            apply_command(msg->get_payload(), acting_color);
+        }
     });
 
     ws_server_.listen(port);

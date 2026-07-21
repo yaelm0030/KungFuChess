@@ -2,7 +2,9 @@
 
 #include <atomic>
 #include <cstdint>
+#include <map>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <string>
 #include <thread>
@@ -19,6 +21,7 @@
 #include "Controller.h"
 #include "GameEngine.h"
 #include "GameSnapshot.h"
+#include "Types.h"
 
 // Sole gateway to Controller, now with a real WebSocket transport: accepts
 // connections, broadcasts a JSON snapshot after every tick, and applies
@@ -38,7 +41,8 @@ public:
 
     // Applies a click/jump line via ClientCommand; malformed or non-click/jump
     // lines (e.g. "wait") are silently ignored, same policy as ClientCommand.
-    void apply_command(const std::string& line);
+    // acting_color is forwarded to ClientCommand::apply; see Controller::click for its meaning.
+    void apply_command(const std::string& line, std::optional<Color> acting_color = std::nullopt);
 
     GameSnapshot snapshot() const;
 
@@ -70,6 +74,7 @@ private:
 
     WsServer ws_server_;
     std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections_;
+    std::map<websocketpp::connection_hdl, Color, std::owner_less<websocketpp::connection_hdl>> player_colors_;
     uint16_t port_{ 0 };
     bool started_{ false };
 };

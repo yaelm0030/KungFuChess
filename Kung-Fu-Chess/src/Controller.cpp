@@ -88,5 +88,7 @@ void Controller::print(std::ostream& out) const {
 GameSnapshot Controller::snapshot() const {
     GameSnapshot snap = engine_.snapshot();
     snap.selected = selected_;
+    snap.selected_w = selected_by_color_[static_cast<size_t>(Color::w)];
+    snap.selected_b = selected_by_color_[static_cast<size_t>(Color::b)];
     return snap;
 }

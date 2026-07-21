@@ -45,4 +45,6 @@ struct GameSnapshot {
     int score_b = 0; // sum of captured white pieces' values
     std::vector<MoveRecord> move_history;
     std::optional<Position> selected; // always nullopt from GameEngine::snapshot(); Controller::snapshot() overlays it
+    std::optional<Position> selected_w; // Controller::snapshot() overlays White's per-color cursor
+    std::optional<Position> selected_b; // Controller::snapshot() overlays Black's per-color cursor
 };

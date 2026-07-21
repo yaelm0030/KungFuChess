@@ -31,15 +31,15 @@ TEST_CASE("a client's click command selects the clicked piece, reflected in a su
     TestClient client(server.port());
     REQUIRE(client.wait_for_messages(1, kWaitTimeout));
 
-    client.send("click 50 50"); // -> cell (0,0), the black rook
+    client.send("click 50 250"); // -> cell (0,2), the white rook
 
     // A few ticks' worth of headroom for the command to be applied and
     // picked up by a broadcast, bounded overall by kWaitTimeout.
     REQUIRE(client.wait_for_messages(4, kWaitTimeout));
     nlohmann::json json = nlohmann::json::parse(client.last_message());
-    REQUIRE(json["selected"].is_object());
-    CHECK(json["selected"]["x"] == 0);
-    CHECK(json["selected"]["y"] == 0);
+    REQUIRE(json["selected_w"].is_object());
+    CHECK(json["selected_w"]["x"] == 0);
+    CHECK(json["selected_w"]["y"] == 2);
 
     client.close();
     server.stop();
