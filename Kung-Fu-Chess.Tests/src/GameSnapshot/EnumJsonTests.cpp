@@ -22,3 +22,22 @@ TEST_CASE("PieceState serializes to its name token") {
 }
 
 } // TEST_SUITE
+
+TEST_SUITE("enum from_json") {
+
+TEST_CASE("Color deserializes from its single-letter token") {
+    CHECK(json("w").get<Color>() == Color::w);
+    CHECK(json("b").get<Color>() == Color::b);
+}
+
+TEST_CASE("PieceType deserializes from its letter token, distinguishing K from N") {
+    CHECK(json("K").get<PieceType>() == PieceType::K);
+    CHECK(json("N").get<PieceType>() == PieceType::N);
+}
+
+TEST_CASE("PieceState deserializes from its name token") {
+    CHECK(json("jump").get<PieceState>() == PieceState::jump);
+    CHECK(json("short_rest").get<PieceState>() == PieceState::short_rest);
+}
+
+} // TEST_SUITE

@@ -13,3 +13,15 @@ TEST_CASE("a pixel position serializes to an x/y object") {
 }
 
 } // TEST_SUITE
+
+TEST_SUITE("PixelPosition::from_json") {
+
+TEST_CASE("an x/y object round-trips through a pixel position") {
+    json input = json{ { "x", 120 }, { "y", 40 } };
+
+    PixelPosition parsed = input.get<PixelPosition>();
+
+    CHECK(json(parsed) == input);
+}
+
+} // TEST_SUITE

@@ -23,3 +23,23 @@ TEST_CASE("a piece snapshot serializes all its fields") {
 }
 
 } // TEST_SUITE
+
+TEST_SUITE("PieceSnapshot::from_json") {
+
+TEST_CASE("all fields round-trip through a piece snapshot") {
+    json input = json{
+        { "type", "Q" },
+        { "color", "b" },
+        { "pixels_location", { { "x", 10 }, { "y", 20 } } },
+        { "target_pixels_location", { { "x", 30 }, { "y", 40 } } },
+        { "progress", 0.5 },
+        { "state", "move" },
+        { "cooldown_progress", 0.75 },
+    };
+
+    PieceSnapshot parsed = input.get<PieceSnapshot>();
+
+    CHECK(json(parsed) == input);
+}
+
+} // TEST_SUITE
