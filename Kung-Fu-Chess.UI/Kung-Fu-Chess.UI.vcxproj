@@ -95,6 +95,7 @@
     <ClCompile Include="src\PieceAnimator.cpp" />
     <ClCompile Include="src\UIManager.cpp" />
     <ClCompile Include="src\InputHandler.cpp" />
+    <ClCompile Include="src\ServerConnection.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -119,6 +120,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
       <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
+      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Img.h" />
@@ -128,10 +132,12 @@
     <ClInclude Include="include\UIManager.h" />
     <ClInclude Include="include\UIConstants.h" />
     <ClInclude Include="include\InputHandler.h" />
+    <ClInclude Include="include\ServerConnection.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Position.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Types.h" />

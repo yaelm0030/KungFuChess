@@ -42,6 +42,9 @@
     <ClCompile Include="src\InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ServerConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
@@ -64,6 +67,9 @@
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
+      <Filter>Engine\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,6 +95,9 @@
     <ClInclude Include="include\InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ServerConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
@@ -99,6 +108,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h">
