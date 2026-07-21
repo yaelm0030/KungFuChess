@@ -67,6 +67,24 @@ TEST_CASE("a print line is ignored") {
     CHECK(board_of(controller) == Parser::board_to_string(make_board()) + "\n");
 }
 
+TEST_CASE("a click line selects the clicked piece when acting_color matches it") {
+    Controller controller(make_board());
+
+    ClientCommand::apply(controller, "click 50 250", Color::w); // white rook at (0,2)
+
+    REQUIRE(controller.has_selection(Color::w));
+    CHECK(controller.selected(Color::w)->x == 0);
+    CHECK(controller.selected(Color::w)->y == 2);
+}
+
+TEST_CASE("a click line on the other color's piece is silently ignored") {
+    Controller controller(make_board());
+
+    ClientCommand::apply(controller, "click 50 50", Color::w); // black rook at (0,0)
+
+    CHECK_FALSE(controller.has_selection(Color::w));
+}
+
 TEST_CASE("malformed input is ignored without throwing") {
     Controller controller(make_board());
 
