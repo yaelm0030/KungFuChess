@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <iostream>
 #include <optional>
 #include <opencv2/opencv.hpp>
 
@@ -21,12 +22,16 @@ constexpr int kPollMs = 1;
 } // namespace
 
 int main() {
+    std::cout << "Enter username: ";
+    std::string username;
+    std::getline(std::cin, username);
+
     ImageCache images;
     UIManager ui(images, "assets/images/board.png");
 
-    ServerConnection server(kServerHost, kServerPort);
+    ServerConnection server(kServerHost, kServerPort, username);
 
-    const std::string window_name = "Kung Fu Chess";
+    const std::string window_name = "Kung Fu Chess - " + username;
     cv::namedWindow(window_name);
 
     InputHandler input(server, window_name);

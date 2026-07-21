@@ -6,11 +6,13 @@
 
 #include "GameSnapshotJson.h"
 
-ServerConnection::ServerConnection(const std::string& host, uint16_t port) {
+ServerConnection::ServerConnection(const std::string& host, uint16_t port, std::string username) {
     client_.init_asio();
     client_.set_access_channels(websocketpp::log::alevel::none);
     client_.clear_access_channels(websocketpp::log::alevel::all);
     client_.set_error_channels(websocketpp::log::elevel::none);
+
+    client_.set_open_handler([this, username](websocketpp::connection_hdl) { send("name " + username); });
 
     client_.set_message_handler([this](websocketpp::connection_hdl, WsClient::message_ptr msg) {
         // The server is the only sender and always emits a valid GameSnapshot, but a

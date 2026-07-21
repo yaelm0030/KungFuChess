@@ -25,7 +25,10 @@
 // than racing it.
 class ServerConnection {
 public:
-    ServerConnection(const std::string& host, uint16_t port);
+    // Sends "name <username>" as soon as the handshake completes (not immediately after
+    // construction, since the connection isn't open yet at that point and the send
+    // would silently be dropped).
+    ServerConnection(const std::string& host, uint16_t port, std::string username);
     ~ServerConnection();
 
     // Sends a plain-text command line (e.g. "click 50 50") to the server.
