@@ -13,8 +13,8 @@ int lerp(int from, int to, double t) {
 
 } // namespace
 
-UIManager::UIManager(ImageCache& images, std::string board_image_path)
-    : images_(images), board_image_path_(std::move(board_image_path)) {
+UIManager::UIManager(ImageCache& images, std::string board_image_path, std::string username)
+    : images_(images), board_image_path_(std::move(board_image_path)), username_(std::move(username)) {
 }
 
 Img UIManager::render(const GameSnapshot& snapshot, int dt_ms) {
@@ -49,6 +49,7 @@ Img UIManager::render(const GameSnapshot& snapshot, int dt_ms) {
     }
 
     draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
+    draw_username(frame);
     draw_score(frame, snapshot.score_w, snapshot.score_b);
     draw_move_history(frame, snapshot.move_history, snapshot.board_height);
 
@@ -92,6 +93,11 @@ void UIManager::draw_selection_highlight(Img& frame, Position selected_cell) con
     frame.draw_rectangle(ui_constants::kBoardOffsetX + selected_cell.x * constants::kCellSizePx,
                           selected_cell.y * constants::kCellSizePx, constants::kCellSizePx, constants::kCellSizePx,
                           ui_constants::kSelectionColor, ui_constants::kSelectionThickness);
+}
+
+void UIManager::draw_username(Img& frame) const {
+    frame.put_text(username_, ui_constants::kHistoryColumnX[0], ui_constants::kUsernameY, ui_constants::kUsernameFontSize,
+                    ui_constants::kTextColor);
 }
 
 void UIManager::draw_score(Img& frame, int score_w, int score_b) const {

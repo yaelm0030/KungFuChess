@@ -27,7 +27,7 @@ int main() {
     std::getline(std::cin, username);
 
     ImageCache images;
-    UIManager ui(images, "assets/images/board.png");
+    UIManager ui(images, "assets/images/board.png", username);
 
     ServerConnection server(kServerHost, kServerPort, username);
 
