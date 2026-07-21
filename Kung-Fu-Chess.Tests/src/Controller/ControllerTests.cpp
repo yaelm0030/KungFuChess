@@ -377,6 +377,68 @@ TEST_CASE("selecting then jumping the same piece clears the selection") {
     CHECK(board_of(controller) == "wR . .\n");
 }
 
+// ---- per-color selection cursors ------------------------------------------
+
+TEST_CASE("a color-restricted click on the caller's own piece selects it") {
+    Controller controller(make_board());
+    controller.click(50, 50, Color::b); // select bR at (0,0) as black
+    REQUIRE(controller.has_selection(Color::b));
+    CHECK(controller.selected(Color::b) == Position{ 0, 0 });
+}
+
+TEST_CASE("a color-restricted click on an enemy piece with no active selection is rejected") {
+    Controller controller(make_board());
+    controller.click(50, 250, Color::b); // wR at (0,2) belongs to white
+    CHECK_FALSE(controller.has_selection(Color::b));
+}
+
+TEST_CASE("independent per-color cursors do not interfere when interleaved") {
+    Controller controller(make_board());
+    controller.click(50, 250, Color::w); // select wR at (0,2) as white
+    controller.click(150, 50, Color::b); // select bN at (1,0) as black
+
+    CHECK(controller.selected(Color::w) == Position{ 0, 2 });
+    CHECK(controller.selected(Color::b) == Position{ 1, 0 });
+}
+
+TEST_CASE("a color-restricted click on a cell already selected by another color is rejected without disturbing it") {
+    Controller controller(make_board());
+    controller.click(50, 250, Color::w); // select wR at (0,2) as white
+    controller.click(50, 250, Color::b); // wR belongs to white; rejected for black
+
+    CHECK_FALSE(controller.has_selection(Color::b));
+    CHECK(controller.selected(Color::w) == Position{ 0, 2 });
+}
+
+TEST_CASE("a full move scheduled and resolved under one color's cursor leaves another color's pending selection untouched") {
+    Controller controller(make_board());
+    controller.click(250, 250, Color::w); // select wN at (2,2) as white; left pending throughout
+
+    controller.click(50, 50, Color::b);  // select bR at (0,0) as black
+    controller.click(50, 150, Color::b); // move bR down to (0,1)
+
+    controller.wait(GameEngine::kDefaultMoveMsPerCell);
+    CHECK(board_of(controller) == ". bN .\nbR . .\nwR . wN\n");
+    CHECK(controller.selected(Color::w) == Position{ 2, 2 });
+}
+
+TEST_CASE("jumping under a color-restricted cursor clears only that color's own selection") {
+    Controller controller(make_board());
+    controller.click(50, 50, Color::b); // select bR at (0,0) as black
+    REQUIRE(controller.has_selection(Color::b));
+
+    controller.jump(50, 50, Color::b); // jumping the selected piece drops the black cursor
+    CHECK_FALSE(controller.has_selection(Color::b));
+}
+
+TEST_CASE("a color-restricted jump on an enemy piece is rejected, leaving it normally selectable") {
+    Controller controller(make_board());
+    controller.jump(50, 250, Color::b); // wR at (0,2) belongs to white; rejected, no-op
+
+    controller.click(50, 250, Color::w); // wR is still on the board and normally selectable by white
+    CHECK(controller.has_selection(Color::w));
+}
+
 // ---- once the game is over -----------------------------------------------------
 
 TEST_CASE("once the game is over, further clicks are ignored") {
