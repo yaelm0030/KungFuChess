@@ -51,22 +51,7 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\Parser.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\GameEngine.cpp">
-      <Filter>Engine\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
-      <Filter>Engine\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\RuleEngine.cpp">
-      <Filter>Engine\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\RealTimeArbiter.cpp">
-      <Filter>Engine\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\BoardMapper.cpp">
-      <Filter>Engine\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
@@ -102,9 +87,6 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h">
-      <Filter>Engine\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h">

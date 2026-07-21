@@ -17,8 +17,7 @@ UIManager::UIManager(ImageCache& images, std::string board_image_path)
     : images_(images), board_image_path_(std::move(board_image_path)) {
 }
 
-Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord>& move_history, int dt_ms,
-                       std::optional<Position> selected_cell) {
+Img UIManager::render(const GameSnapshot& snapshot, int dt_ms) {
     const int board_px_w = snapshot.board_width * constants::kCellSizePx;
     const int board_px_h = snapshot.board_height * constants::kCellSizePx;
 
@@ -35,8 +34,8 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
 
     draw_pieces(frame, snapshot.pieces, dt_ms);
 
-    if (selected_cell.has_value()) {
-        draw_selection_highlight(frame, *selected_cell);
+    if (snapshot.selected.has_value()) {
+        draw_selection_highlight(frame, *snapshot.selected);
     }
 
     if (snapshot.is_game_over) {
@@ -45,7 +44,7 @@ Img UIManager::render(const GameSnapshot& snapshot, const std::vector<MoveRecord
 
     draw_axis_labels(frame, snapshot.board_width, snapshot.board_height);
     draw_score(frame, snapshot.score_w, snapshot.score_b);
-    draw_move_history(frame, move_history, snapshot.board_height);
+    draw_move_history(frame, snapshot.move_history, snapshot.board_height);
 
     return frame;
 }

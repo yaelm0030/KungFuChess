@@ -102,22 +102,7 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\Parser.cpp">
       <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\GameEngine.cpp">
-      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\Piece.cpp">
-      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\RuleEngine.cpp">
-      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\RealTimeArbiter.cpp">
-      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
-    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\BoardMapper.cpp">
-      <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\Kung-Fu-Chess\src\Controller.cpp">
       <ObjectFileName>$(IntDir)Engine\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameSnapshotJson.cpp">
@@ -135,7 +120,6 @@
     <ClInclude Include="include\ServerConnection.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Board.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Constants.h" />
-    <ClInclude Include="..\Kung-Fu-Chess\include\Controller.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshot.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameSnapshotJson.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\Parser.h" />

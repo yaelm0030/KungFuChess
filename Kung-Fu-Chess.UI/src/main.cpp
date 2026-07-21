@@ -1,29 +1,18 @@
-#include "Board.h"
-#include "Controller.h"
 #include "GameSnapshot.h"
 #include "ImageCache.h"
 #include "InputHandler.h"
-#include "Parser.h"
-#include "Position.h"
+#include "ServerConnection.h"
 #include "UIManager.h"
 
 #include <chrono>
+#include <cstdint>
+#include <optional>
 #include <opencv2/opencv.hpp>
 
 namespace {
 
-Board starting_board() {
-    return Parser::parse_board({
-        "bR bN bB bQ bK bB bN bR",
-        "bP bP bP bP bP bP bP bP",
-        ". . . . . . . .",
-        ". . . . . . . .",
-        ". . . . . . . .",
-        ". . . . . . . .",
-        "wP wP wP wP wP wP wP wP",
-        "wR wN wB wQ wK wB wN wR",
-    });
-}
+constexpr const char* kServerHost = "localhost";
+constexpr uint16_t kServerPort = 9002;
 
 // How long each spin blocks pumping GUI/input events for; not the
 // simulation's dt, which is measured separately from the real clock below.
@@ -35,25 +24,28 @@ int main() {
     ImageCache images;
     UIManager ui(images, "assets/images/board.png");
 
-    Controller controller(starting_board());
+    ServerConnection server(kServerHost, kServerPort);
 
     const std::string window_name = "Kung Fu Chess";
     cv::namedWindow(window_name);
 
-    InputHandler input(controller, window_name);
+    InputHandler input(server, window_name);
 
     auto last_tick = std::chrono::steady_clock::now();
-    while (!controller.game_over()) {
+    for (;;) {
         auto now = std::chrono::steady_clock::now();
         int dt_ms = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count());
         last_tick = now;
 
-        controller.wait(dt_ms);
+        std::optional<GameSnapshot> snapshot = server.latest_snapshot();
+        bool game_over = false;
+        if (snapshot.has_value()) {
+            Img frame = ui.render(*snapshot, dt_ms);
+            cv::imshow(window_name, frame.get_mat());
+            game_over = snapshot->is_game_over;
+        }
 
-        Img frame = ui.render(controller.snapshot(), controller.move_history(), dt_ms, controller.selected());
-        cv::imshow(window_name, frame.get_mat());
-
-        if (cv::waitKey(kPollMs) == 27) { // Esc quits
+        if (cv::waitKey(kPollMs) == 27 || game_over) { // Esc or game over quits
             break;
         }
     }

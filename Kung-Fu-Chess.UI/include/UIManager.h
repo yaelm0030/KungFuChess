@@ -16,8 +16,9 @@ public:
 
     // dt_ms drives sprite-frame animation timing; pieces are drawn
     // interpolated between their origin and target cell per snapshot.progress.
-    Img render(const GameSnapshot& snapshot, const std::vector<MoveRecord>& move_history, int dt_ms,
-               std::optional<Position> selected_cell = std::nullopt);
+    // move_history/selected come from the snapshot itself, not separate params,
+    // since a networked GameSnapshot already carries both.
+    Img render(const GameSnapshot& snapshot, int dt_ms);
 
 private:
     void draw_pieces(Img& frame, const std::vector<PieceSnapshot>& pieces, int dt_ms);
