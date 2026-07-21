@@ -49,6 +49,9 @@ void GameServer::start(uint16_t port) {
         std::lock_guard<std::mutex> lock(mutex_);
         connections_.erase(hdl);
     });
+    ws_server_.set_message_handler([this](websocketpp::connection_hdl, WsServer::message_ptr msg) {
+        apply_command(msg->get_payload());
+    });
 
     ws_server_.listen(port);
     ws_server_.start_accept();

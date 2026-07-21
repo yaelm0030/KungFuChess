@@ -21,11 +21,11 @@
 #include "GameSnapshot.h"
 
 // Sole gateway to Controller, now with a real WebSocket transport: accepts
-// connections and broadcasts a JSON snapshot after every tick. No inbound
-// message handling yet (clients receive pushes; sending a command from a
-// client is a later step). Thread-safe: tick/apply_command/snapshot and the
-// connection open/close handlers all lock mutex_, so the tick thread, the
-// io thread, and a caller thread can safely share one GameServer.
+// connections, broadcasts a JSON snapshot after every tick, and applies
+// click/jump commands sent by clients. Thread-safe: tick/apply_command/
+// snapshot and the connection open/close/message handlers all lock mutex_,
+// so the tick thread, the io thread, and a caller thread can safely share
+// one GameServer.
 class GameServer {
 public:
     static constexpr int kTickMs = 16;
