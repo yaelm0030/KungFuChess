@@ -26,7 +26,7 @@ TEST_CASE("an empty snapshot serializes with empty arrays and a null selected") 
 TEST_CASE("a non-trivial snapshot serializes pieces, move_history, and selected") {
     GameSnapshot snapshot;
     snapshot.board_width = 3;
-    snapshot.board_height = 3;
+    snapshot.board_height = 5;
     snapshot.pieces = {
         PieceSnapshot{ PieceType::K, Color::w, { 0, 0 }, { 0, 0 }, 1.0, PieceState::idle, 0.0 },
         PieceSnapshot{ PieceType::P, Color::b, { 60, 0 }, { 60, 60 }, 0.5, PieceState::move, 0.0 },
@@ -41,7 +41,7 @@ TEST_CASE("a non-trivial snapshot serializes pieces, move_history, and selected"
 
     CHECK(actual == json{
         { "board_width", 3 },
-        { "board_height", 3 },
+        { "board_height", 5 },
         { "pieces", json::array({
             json{
                 { "type", "K" },
@@ -101,7 +101,7 @@ TEST_CASE("an empty snapshot round-trips through empty arrays and a null selecte
 TEST_CASE("a non-trivial snapshot round-trips pieces, move_history, and selected") {
     json input = json{
         { "board_width", 3 },
-        { "board_height", 3 },
+        { "board_height", 5 },
         { "pieces", json::array({
             json{
                 { "type", "K" },
