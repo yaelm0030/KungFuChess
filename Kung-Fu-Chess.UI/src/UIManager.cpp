@@ -34,9 +34,6 @@ Img UIManager::render(const GameSnapshot& snapshot, int dt_ms) {
 
     draw_pieces(frame, snapshot.pieces, dt_ms);
 
-    if (snapshot.selected.has_value()) {
-        draw_selection_highlight(frame, *snapshot.selected);
-    }
     if (snapshot.selected_w.has_value()) {
         draw_selection_highlight(frame, *snapshot.selected_w);
     }
