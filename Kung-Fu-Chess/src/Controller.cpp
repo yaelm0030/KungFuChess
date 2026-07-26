@@ -76,7 +76,7 @@ void Controller::jump(int pixel_x, int pixel_y, std::optional<Color> acting_colo
 }
 
 void Controller::wait(int milliseconds) {
-    engine_.wait(milliseconds);
+    engine_.tick(milliseconds);
 }
 
 void Controller::print(std::ostream& out) const {

@@ -27,7 +27,7 @@ TEST_CASE("capturing the enemy king ends the game once the move settles") {
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bK; 2 cells of travel time
 
     CHECK_FALSE(engine.game_over()); // not settled yet
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     CHECK(engine.game_over());
     CHECK(board_of(engine) == ". . wR\n");
 }
@@ -36,14 +36,14 @@ TEST_CASE("capturing a non-king piece does not end the game") {
     GameEngine engine(Parser::parse_board({ "wR . bR" }));
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bR
 
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     CHECK_FALSE(engine.game_over());
 }
 
 TEST_CASE("once the game is over, further move requests are ignored") {
     GameEngine engine(Parser::parse_board({ "wR . bK", "wN . ." }));
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bK
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     REQUIRE(engine.game_over());
 
     CHECK_FALSE(engine.request_move(Position{ 0, 1 }, Position{ 0, 0 })); // wN attempts to move; ignored
@@ -55,7 +55,7 @@ TEST_CASE("once the game is over, a piece that would otherwise be selectable is 
     CHECK(engine.is_selectable(Position{ 0, 1 })); // wN is selectable before the game ends
 
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bK
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     REQUIRE(engine.game_over());
 
     CHECK_FALSE(engine.is_selectable(Position{ 0, 1 })); // wN is no longer selectable
@@ -71,7 +71,7 @@ TEST_CASE("a move already in flight when the game ends still settles on the boar
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR captures bK; 2 cells of travel time
     engine.request_move(Position{ 0, 2 }, Position{ 2, 3 }); // wN's L-shaped move, scheduled before the king capture settles; also 2 cells of travel time
 
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     CHECK(engine.game_over());
     CHECK(board_of(engine) == ". . wR .\n. . . .\n. . . .\n. . wN .\n");
 }
@@ -89,7 +89,7 @@ TEST_CASE("a king arriving on a cell guarded by a still-airborne enemy piece is 
 
     CHECK_FALSE(engine.game_over()); // not settled yet
 
-    engine.wait(GameEngine::kDefaultMoveMsPerCell); // arrives exactly as the guard lands
+    engine.tick(GameEngine::kDefaultMoveMsPerCell); // arrives exactly as the guard lands
     CHECK(engine.game_over());
     CHECK(board_of(engine) == ". bR\n"); // king destroyed; guard untouched on its cell
 }
@@ -104,7 +104,7 @@ TEST_CASE("a normal capture and an airborne-guard capture settle independently w
     engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }); // wR onto bN at (1,0); normal capture-on-arrival
     engine.request_move(Position{ 3, 0 }, Position{ 4, 0 }); // wQ onto bQ's guarded cell; destroyed by the guard on arrival
 
-    engine.wait(GameEngine::kDefaultMoveMsPerCell); // both moves arrive together
+    engine.tick(GameEngine::kDefaultMoveMsPerCell); // both moves arrive together
     CHECK_FALSE(engine.game_over()); // no king involved in either skirmish
     CHECK(board_of(engine) == ". wR . . bQ\n"); // bN captured normally; wQ destroyed, guard untouched
 }

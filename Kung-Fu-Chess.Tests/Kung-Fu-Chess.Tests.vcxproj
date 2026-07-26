@@ -145,7 +145,7 @@
     <ClCompile Include="src\GameEngine\GameOverTests.cpp" />
     <ClCompile Include="src\GameEngine\JumpTests.cpp" />
     <ClCompile Include="src\GameEngine\PromotionTests.cpp" />
-    <ClCompile Include="src\GameEngine\WaitTests.cpp" />
+    <ClCompile Include="src\GameEngine\TickTests.cpp" />
     <ClCompile Include="src\GameEngine\PrintTests.cpp" />
     <ClCompile Include="src\GameEngine\CooldownTests.cpp" />
     <ClCompile Include="src\GameEngine\MoveHistoryTests.cpp" />

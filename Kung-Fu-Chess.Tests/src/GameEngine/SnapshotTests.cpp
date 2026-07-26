@@ -61,7 +61,7 @@ TEST_CASE("a piece in flight also reports its destination and travel progress") 
     GameEngine engine(std::move(board), 1000); // 1000ms/cell
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 })); // arrives at 2000ms
 
-    engine.wait(500); // a quarter of the way there
+    engine.tick(500); // a quarter of the way there
 
     GameSnapshot snap = engine.snapshot();
 
@@ -90,7 +90,7 @@ TEST_CASE("a piece that just arrived is reported at its destination with short_r
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }));
 
-    engine.wait(2000); // arrival_ms for a 2-cell move at 1000ms/cell
+    engine.tick(2000); // arrival_ms for a 2-cell move at 1000ms/cell
 
     GameSnapshot snap = engine.snapshot();
 
@@ -106,8 +106,8 @@ TEST_CASE("a piece is idle again once its cooldown has expired") {
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }));
 
-    engine.wait(2000); // arrives and stamps cooldown_end_ms = 2000 + kCooldownMs
-    engine.wait(static_cast<int>(GameEngine::kCooldownMs)); // cooldown now expired
+    engine.tick(2000); // arrives and stamps cooldown_end_ms = 2000 + kCooldownMs
+    engine.tick(static_cast<int>(GameEngine::kCooldownMs)); // cooldown now expired
 
     GameSnapshot snap = engine.snapshot();
 
@@ -134,7 +134,7 @@ TEST_CASE("a piece is idle again once its jump has landed") {
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_jump(Position{ 0, 0 }));
 
-    engine.wait(static_cast<int>(GameEngine::kJumpDurationMs));
+    engine.tick(static_cast<int>(GameEngine::kJumpDurationMs));
 
     GameSnapshot snap = engine.snapshot();
 
@@ -149,7 +149,7 @@ TEST_CASE("is_game_over becomes true once a king is captured") {
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }));
 
-    engine.wait(1000); // arrival_ms for a 1-cell move
+    engine.tick(1000); // arrival_ms for a 1-cell move
 
     CHECK(engine.snapshot().is_game_over);
 }
@@ -171,7 +171,7 @@ TEST_CASE("a normal capture credits the capturing color's score with the capture
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 })); // wR captures bN
 
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
 
     GameSnapshot snap = engine.snapshot();
     CHECK(snap.score_w == 3); // knight
@@ -186,7 +186,7 @@ TEST_CASE("a hostile mid-flight collision credits the winning side's score with 
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 3, 0 })); // wR scheduled first
     REQUIRE(engine.request_move(Position{ 3, 0 }, Position{ 0, 0 })); // bQ scheduled second, loses the head-on collision
 
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
 
     GameSnapshot snap = engine.snapshot();
     CHECK(snap.score_w == 9); // queen
@@ -201,7 +201,7 @@ TEST_CASE("a piece captured by a still-airborne guard credits the guard's color"
     REQUIRE(engine.request_jump(Position{ 0, 0 }));                  // wK jumps, guarding its cell
     REQUIRE(engine.request_move(Position{ 1, 0 }, Position{ 0, 0 })); // bR moves onto the guarded cell
 
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
 
     GameSnapshot snap = engine.snapshot();
     CHECK(snap.score_w == 5); // rook
@@ -242,7 +242,7 @@ TEST_CASE("a pawn promotion does not affect the score") {
     GameEngine engine(std::move(board));
     REQUIRE(engine.request_move(Position{ 0, 1 }, Position{ 0, 0 })); // promotes to Q on arrival, no capture
 
-    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(GameEngine::kDefaultMoveMsPerCell);
 
     GameSnapshot snap = engine.snapshot();
     CHECK(snap.score_w == 0);

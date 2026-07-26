@@ -55,7 +55,7 @@
     <ClCompile Include="src\GameEngine\ClickTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameEngine\WaitTests.cpp">
+    <ClCompile Include="src\GameEngine\TickTests.cpp">
       <Filter>GameEngine</Filter>
     </ClCompile>
     <ClCompile Include="src\GameEngine\PrintTests.cpp">

@@ -34,7 +34,7 @@ TEST_CASE("printing a 0x0 board produces just a trailing newline") {
 TEST_CASE("print reflects the settled state once a move has arrived") {
     GameEngine engine(Parser::parse_board({ "wK ." }));
     engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }); // move to (1,0)
-    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(GameEngine::kDefaultMoveMsPerCell);
 
     CHECK(board_of(engine) == ". wK\n");
 }

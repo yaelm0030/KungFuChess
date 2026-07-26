@@ -57,7 +57,7 @@ bool GameEngine::request_jump(Position cell) {
 }
 
 // Ends the game if an enemy king was captured while settling.
-void GameEngine::wait(int milliseconds) {
+void GameEngine::tick(int milliseconds) {
     if (milliseconds > 0 && arbiter_.advance(milliseconds)) {
         game_over_ = true;
     }

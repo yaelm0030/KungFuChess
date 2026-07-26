@@ -20,7 +20,7 @@ public:
     bool request_move(Position start, Position dest);
     bool request_jump(Position cell);
 
-    void wait(int milliseconds);
+    void tick(int milliseconds);
 
     // Pieces mid-move still show at their origin.
     void print(std::ostream& out) const;

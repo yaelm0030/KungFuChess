@@ -44,12 +44,16 @@ void RealTimeArbiter::start_jump(Position cell, Cell piece, long long jump_durat
 
 bool RealTimeArbiter::advance(int milliseconds) {
     if (milliseconds <= 0) return false;
-    clock_ms_ += milliseconds;
+    advance_clock(milliseconds);
 
     bool king_lost_to_collision = resolve_collisions();
     bool king_captured_while_settling = settle_arrived_moves();
 
     return king_lost_to_collision || king_captured_while_settling;
+}
+
+void RealTimeArbiter::advance_clock(int milliseconds) {
+    clock_ms_ += milliseconds;
 }
 
 long long RealTimeArbiter::get_distance(Position a, Position b) {

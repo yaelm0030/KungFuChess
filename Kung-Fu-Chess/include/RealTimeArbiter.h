@@ -61,6 +61,7 @@ private:
     static long long get_distance(Position a, Position b);
     static std::vector<Position> get_path(Position start, Position dest);
 
+    void advance_clock(int milliseconds);
     bool has_arrivals_to_settle() const;
     bool settle_arrived_moves();
     bool captures_king(const PendingMove& move) const;

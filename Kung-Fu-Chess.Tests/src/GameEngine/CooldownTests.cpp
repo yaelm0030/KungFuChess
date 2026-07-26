@@ -78,7 +78,7 @@ TEST_CASE("request_jump still succeeds for a piece not on cooldown") {
 TEST_CASE("a piece is on cooldown immediately after its move settles") {
     GameEngine engine(Parser::parse_board({ "wR . ." }));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 })); // 2 cells of travel time
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell); // arrives; cooldown starts now
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell); // arrives; cooldown starts now
 
     CHECK_FALSE(engine.is_selectable(Position{ 2, 0 }));
     CHECK_FALSE(engine.request_move(Position{ 2, 0 }, Position{ 1, 0 }));
@@ -87,9 +87,9 @@ TEST_CASE("a piece is on cooldown immediately after its move settles") {
 TEST_CASE("a piece is selectable and movable again once its post-move cooldown elapses") {
     GameEngine engine(Parser::parse_board({ "wR . ." }));
     REQUIRE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }));
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell); // arrives; cooldown starts now
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell); // arrives; cooldown starts now
 
-    engine.wait(GameEngine::kCooldownMs); // cooldown elapses
+    engine.tick(GameEngine::kCooldownMs); // cooldown elapses
     CHECK(engine.is_selectable(Position{ 2, 0 }));
     CHECK(engine.request_move(Position{ 2, 0 }, Position{ 1, 0 }));
 }
@@ -99,7 +99,7 @@ TEST_CASE("a piece is selectable and movable again once its post-move cooldown e
 TEST_CASE("a jump-landed piece is not put on cooldown") {
     GameEngine engine(Parser::parse_board({ "wR . ." }));
     REQUIRE(engine.request_jump(Position{ 0, 0 }));
-    engine.wait(GameEngine::kJumpDurationMs); // lands
+    engine.tick(GameEngine::kJumpDurationMs); // lands
 
     CHECK(engine.is_selectable(Position{ 0, 0 }));
     CHECK(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }));

@@ -26,7 +26,7 @@ TEST_CASE("a jump lands on the same square when nothing arrives") {
     }));
     engine.request_jump(Position{ 1, 1 }); // wK at (1,1) jumps for 1000 ms
 
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == ". . .\n. wK .\n. . .\n");
 }
 
@@ -41,7 +41,7 @@ TEST_CASE("an airborne piece captures an enemy that arrives during the jump") {
     engine.request_jump(Position{ 0, 1 });                     // wK at (0,1) jumps; lands at t=1000
     engine.request_move(Position{ 1, 1 }, Position{ 0, 1 });    // bR moves onto (0,1); arrives at t=1000
 
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == ". . .\nwK . .\n. . .\n");
 }
 
@@ -54,7 +54,7 @@ TEST_CASE("a jump after the piece was already captured does not save it") {
         ".  .  .",
     }));
     engine.request_move(Position{ 1, 1 }, Position{ 0, 1 }); // bR moves onto (0,1), capturing wK
-    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(GameEngine::kDefaultMoveMsPerCell);
 
     engine.request_jump(Position{ 0, 1 }); // (0,1) now holds bR; wK is gone, so this is moot
     CHECK(board_of(engine) == ". . .\nbR . .\n. . .\n");
@@ -70,9 +70,9 @@ TEST_CASE("an enemy arriving after the jump lands captures the piece normally") 
     }));
     engine.request_jump(Position{ 0, 1 });                    // wK at (0,1) jumps; lands at t=1000
     engine.request_move(Position{ 3, 1 }, Position{ 0, 1 });   // bR moves onto (0,1); arrives at t=4000
-    engine.wait(GameEngine::kJumpDurationMs);                 // wK back on the ground
+    engine.tick(GameEngine::kJumpDurationMs);                 // wK back on the ground
 
-    engine.wait(2 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(2 * GameEngine::kDefaultMoveMsPerCell);
     CHECK(board_of(engine) == ". . . .\nbR . . .\n. . . .\n");
 }
 
@@ -80,10 +80,10 @@ TEST_CASE("an enemy arriving after the jump lands captures the piece normally") 
 TEST_CASE("a moving piece cannot jump") {
     GameEngine engine(Parser::parse_board({ "wR . ." }));
     engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }); // wR moves to (2,0); arrives at t=2000
-    engine.wait(500);                                        // still in flight
+    engine.tick(500);                                        // still in flight
 
     CHECK_FALSE(engine.request_jump(Position{ 0, 0 })); // wR is moving, so the jump is rejected
-    engine.wait(1500);                                  // wR completes its move
+    engine.tick(1500);                                  // wR completes its move
     CHECK(board_of(engine) == ". . wR\n");
 }
 
@@ -98,7 +98,7 @@ TEST_CASE("an airborne piece does not affect a friendly piece") {
     engine.request_jump(Position{ 0, 1 }); // wK at (0,1) jumps
     CHECK_FALSE(engine.request_move(Position{ 1, 1 }, Position{ 0, 1 })); // wR onto friendly wK; rejected
 
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == ". . .\nwK wR .\n. . .\n");
 }
 
@@ -110,18 +110,18 @@ TEST_CASE("jumping an empty cell does nothing") {
         ". .",
     }));
     CHECK_FALSE(engine.request_jump(Position{ 1, 0 })); // (1,0) is empty
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == ". .\n. .\n");
 }
 
 TEST_CASE("jumping is ignored once the game is over") {
     GameEngine engine(Parser::parse_board({ "wR bK" }));
     engine.request_move(Position{ 0, 0 }, Position{ 1, 0 }); // capture bK; game over
-    engine.wait(GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(GameEngine::kDefaultMoveMsPerCell);
     REQUIRE(engine.game_over());
 
     CHECK_FALSE(engine.request_jump(Position{ 1, 0 })); // ignored: game is over
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == ". wR\n");
 }
 
@@ -132,7 +132,7 @@ TEST_CASE("an airborne piece cannot be moved") {
     engine.request_jump(Position{ 0, 0 });                                    // wR jumps; it is now committed to its cell
     CHECK_FALSE(engine.request_move(Position{ 0, 0 }, Position{ 2, 0 }));     // must be rejected
 
-    engine.wait(GameEngine::kJumpDurationMs);
+    engine.tick(GameEngine::kJumpDurationMs);
     CHECK(board_of(engine) == "wR . .\n"); // still on its original cell
 }
 
@@ -143,10 +143,10 @@ TEST_CASE("no stale airborne record protects a cell after the window ends") {
         ".  . . .",
     }));
     engine.request_jump(Position{ 0, 1 });                    // wK jumps; lands at t=1000
-    engine.wait(GameEngine::kJumpDurationMs);                 // wK grounded again
+    engine.tick(GameEngine::kJumpDurationMs);                 // wK grounded again
     engine.request_move(Position{ 3, 1 }, Position{ 0, 1 });  // bR moves onto (0,1); arrives t=4000
 
-    engine.wait(3 * GameEngine::kDefaultMoveMsPerCell);
+    engine.tick(3 * GameEngine::kDefaultMoveMsPerCell);
     // bR captures the grounded wK normally; the expired airborne record does
     // not shield the cell.
     CHECK(board_of(engine) == ". . . .\nbR . . .\n. . . .\n");
