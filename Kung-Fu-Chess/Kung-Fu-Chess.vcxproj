@@ -72,6 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ThirdPartyDir>$(SolutionDir)third_party</ThirdPartyDir>
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -152,6 +154,7 @@
     <ClCompile Include="src\GameSnapshotJson.cpp" />
     <ClCompile Include="src\ClientCommand.cpp" />
     <ClCompile Include="src\GameServer.cpp" />
+    <ClCompile Include="src\PqxxSmokeCheck.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -171,6 +174,7 @@
     <ClInclude Include="include\GameSnapshotJson.h" />
     <ClInclude Include="include\ClientCommand.h" />
     <ClInclude Include="include\GameServer.h" />
+    <ClInclude Include="include\PqxxSmokeCheck.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

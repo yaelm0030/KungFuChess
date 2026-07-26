@@ -6,6 +6,7 @@
 #include "CommandProcessor.h"
 #include "Controller.h"
 #include "GameServer.h"
+#include "PqxxSmokeCheck.h"
 #include "ProtocolIO.h"
 
 namespace {
@@ -36,6 +37,9 @@ int run_server(uint16_t port) {
 int main(int argc, char** argv) {
     if (argc >= 3 && std::string(argv[1]) == "--serve") {
         return run_server(static_cast<uint16_t>(std::stoi(argv[2])));
+    }
+    if (argc >= 2 && std::string(argv[1]) == "--pqxx-smoke-check") {
+        return run_pqxx_smoke_check();
     }
 
     ProtocolIO io(std::cin, std::cout);
