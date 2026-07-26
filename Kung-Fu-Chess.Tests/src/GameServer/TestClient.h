@@ -39,6 +39,9 @@ public:
             messages_.push_back(msg->get_payload());
             cv_.notify_all();
         });
+        // Lets close() stop the io_service as soon as the close handshake
+        // actually completes, instead of always waiting out its grace timer.
+        client_.set_close_handler([this](websocketpp::connection_hdl) { client_.stop(); });
 
         websocketpp::lib::error_code ec;
         WsClient::connection_ptr con = client_.get_connection("ws://localhost:" + std::to_string(port), ec);
@@ -75,9 +78,13 @@ public:
     // Closes the connection and joins the io thread. Idempotent. Like
     // GameServer::stop(), client_.stop() mutates io_service state that
     // io_thread_ concurrently touches, so it must run on that thread, not be
-    // called cross-thread here; posting it (unconditionally, regardless of
-    // whether the close handshake completes) also guarantees run() returns
-    // promptly, so the join below can't hang.
+    // called cross-thread here. client_.close() only queues the close frame;
+    // stopping the io_service right after that (as before) could cut it off
+    // before it — or a send() issued just before close() — actually reached
+    // the wire. So stop() is deferred: the close_handler above fires it as
+    // soon as the handshake completes, and set_timer() bounds the wait with
+    // a short grace period for when it doesn't (e.g. no server listening),
+    // so a broken server still fails the test instead of hanging it.
     void close() {
         if (closed_.exchange(true)) {
             return;
@@ -85,7 +92,7 @@ public:
         client_.get_io_service().post([this]() {
             websocketpp::lib::error_code ec;
             client_.close(hdl_, websocketpp::close::status::normal, "", ec);
-            client_.stop();
+            client_.set_timer(kCloseGraceMs, [this](websocketpp::lib::error_code) { client_.stop(); });
         });
         if (io_thread_.joinable()) {
             io_thread_.join();
@@ -93,6 +100,8 @@ public:
     }
 
 private:
+    static constexpr long kCloseGraceMs = 100;
+
     WsClient client_;
     websocketpp::connection_hdl hdl_;
     std::thread io_thread_;

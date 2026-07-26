@@ -54,6 +54,10 @@ public:
     // The actual bound port; only meaningful after start() has returned.
     uint16_t port() const;
 
+    // The username last sent by color's connection via a "name <username>"
+    // message, or nullopt if it never sent one (or has no connection at all).
+    std::optional<std::string> username(Color color) const;
+
     // Stops accepting connections, closes the websocket server, and joins
     // both the tick thread and the io thread. Idempotent; safe if never
     // started. Not safe to call concurrently with itself or the destructor
@@ -75,6 +79,7 @@ private:
     WsServer ws_server_;
     std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections_;
     std::map<websocketpp::connection_hdl, Color, std::owner_less<websocketpp::connection_hdl>> player_colors_;
+    std::map<websocketpp::connection_hdl, std::string, std::owner_less<websocketpp::connection_hdl>> player_names_;
     uint16_t port_{ 0 };
     bool started_{ false };
 };

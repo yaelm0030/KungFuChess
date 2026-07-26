@@ -175,6 +175,7 @@
     <ClCompile Include="src\GameServer\GameServerBroadcastTests.cpp" />
     <ClCompile Include="src\GameServer\GameServerColorAssignmentTests.cpp" />
     <ClCompile Include="src\GameServer\GameServerInboundTests.cpp" />
+    <ClCompile Include="src\GameServer\GameServerUsernameTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
