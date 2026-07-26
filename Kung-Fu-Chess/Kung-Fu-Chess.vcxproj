@@ -175,6 +175,7 @@
     <ClInclude Include="include\ClientCommand.h" />
     <ClInclude Include="include\GameServer.h" />
     <ClInclude Include="include\PqxxSmokeCheck.h" />
+    <ClInclude Include="include\UserRepository.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

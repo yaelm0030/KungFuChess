@@ -116,5 +116,8 @@
     <ClInclude Include="include\PqxxSmokeCheck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\UserRepository.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

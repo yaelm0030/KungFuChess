@@ -31,6 +31,9 @@
     <Filter Include="GameServer">
       <UniqueIdentifier>{daf9b7ca-c2c2-4fc1-fca1-a1b1b2c3d4e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UserRepository">
+      <UniqueIdentifier>{ebfac7db-d3d3-4fd2-fdb2-b2c2c3d4e5f7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -154,6 +157,9 @@
     <ClCompile Include="src\GameServer\GameServerUsernameTests.cpp">
       <Filter>GameServer</Filter>
     </ClCompile>
+    <ClCompile Include="src\UserRepository\FakeUserRepositoryTests.cpp">
+      <Filter>UserRepository</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -188,6 +194,12 @@
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\GameServer.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\UserRepository.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserRepository\FakeUserRepository.h">
+      <Filter>UserRepository</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
