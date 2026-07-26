@@ -1,6 +1,6 @@
 ---
 name: cpp-style
-description: The C++17 coding conventions and senior quality bar for the Kung-Fu-Chess engine. Load BEFORE writing or reviewing any C++ code — covers naming (member vars end with a trailing underscore, NOT m_), formatting, comment style, and the correctness/ownership bar. Keeps code concise, clear, and debuggable.
+description: The C++20 coding conventions and senior quality bar for the Kung-Fu-Chess engine. Load BEFORE writing or reviewing any C++ code — covers naming (member vars end with a trailing underscore, NOT m_), formatting, comment style, and the correctness/ownership bar. Keeps code concise, clear, and debuggable.
 ---
 
 # Kung-Fu-Chess C++ style & quality

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Checklist for hunting real correctness bugs in a diff of the Kung-Fu-Chess C++17 engine — edge cases, off-by-one, UB, exception paths, wrong state transitions, real-time-loop cost. Load when reviewing a just-completed step (reviewer). Does not cover style (see cpp-style) or design/pattern fit (see design-patterns) — this skill is correctness only.
+description: Checklist for hunting real correctness bugs in a diff of the Kung-Fu-Chess C++20 engine — edge cases, off-by-one, UB, exception paths, wrong state transitions, real-time-loop cost. Load when reviewing a just-completed step (reviewer). Does not cover style (see cpp-style) or design/pattern fit (see design-patterns) — this skill is correctness only.
 ---
 
 # Correctness review checklist

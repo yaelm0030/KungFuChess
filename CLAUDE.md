@@ -1,6 +1,6 @@
 # Kung-Fu-Chess
 
-Real-time chess variant engine (C++17, MSVC/Visual Studio). Pure logic core driven by a
+Real-time chess variant engine (C++20, MSVC/Visual Studio). Pure logic core driven by a
 text protocol on stdin/stdout — no graphics. Engine: `Kung-Fu-Chess/` (headers in
 `include/`, sources in `src/`). Tests: `Kung-Fu-Chess.Tests/` (doctest).
 
