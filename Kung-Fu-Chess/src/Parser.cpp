@@ -32,7 +32,6 @@ std::vector<std::string> Parser::tokenize(const std::string& line) {
     return tokens;
 }
 
-// Parses a two-character token, such as "wK", into a Cell.
 Cell Parser::parse_token(const std::string& token) {
     if (token.size() != 2) {
         throw ParseError("UNKNOWN_TOKEN");
@@ -65,8 +64,7 @@ std::string Parser::token_from_cell(const std::optional<Cell>& cell) {
     return token;
 }
 
-// Parses board text into a Board: blank lines are skipped, and every
-// non-blank row must tokenize to the same width as the first one.
+// Blank lines are skipped; every row must match the first row's width.
 Board Parser::parse_board(const std::vector<std::string>& lines) {
     std::vector<std::vector<std::string>> rows;
     size_t width = 0;

@@ -4,9 +4,7 @@
 
 inline constexpr int kDefaultUserRating = 1000; // matches db/init.sql's DEFAULT 1000
 
-// Maps a username to its persisted rating. ensure_user is an upsert: a
-// never-seen username is created with kDefaultUserRating and that value is
-// returned; a known username's current rating is returned unchanged.
+// ensure_user is an upsert: creates with kDefaultUserRating, or returns the existing rating.
 class UserRepository {
 public:
     virtual ~UserRepository() = default;

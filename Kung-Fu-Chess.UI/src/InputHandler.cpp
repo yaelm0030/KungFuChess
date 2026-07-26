@@ -9,7 +9,6 @@
 namespace {
 
 // Maps an OpenCV mouse event to the wire verb ClientCommand::apply understands.
-// Adding a new server-side command is a one-line addition here.
 const std::unordered_map<int, std::string>& event_verbs() {
     static const std::unordered_map<int, std::string> verbs = {
         { cv::EVENT_LBUTTONDOWN, "click" },
@@ -36,9 +35,7 @@ void InputHandler::handle_event(int event, int x, int y) {
         return;
     }
 
-    // A click left of the board (panel + rank-label margin) becomes a
-    // negative board x, which ClientCommand/BoardMapper already treat as
-    // outside the board.
+    // A panel click becomes a negative board x, already treated as outside the board.
     int board_x = x - ui_constants::kBoardOffsetX;
     server_.send(it->second + " " + std::to_string(board_x) + " " + std::to_string(y));
 }

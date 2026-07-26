@@ -11,9 +11,7 @@ class Controller {
 public:
     explicit Controller(Board board, long long move_ms_per_cell = GameEngine::kDefaultMoveMsPerCell);
 
-    // acting_color scopes the selection cursor: nullopt uses the shared unrestricted cursor
-    // (local stdin/stdout play); a concrete Color uses that color's own cursor and may only
-    // start a fresh selection or jump on a piece of that color.
+    // nullopt acting_color uses a shared cursor (local play); a Color uses that color's own cursor.
     void click(int pixel_x, int pixel_y, std::optional<Color> acting_color = std::nullopt);
     void jump(int pixel_x, int pixel_y, std::optional<Color> acting_color = std::nullopt);
     void wait(int milliseconds);
@@ -32,7 +30,6 @@ private:
     std::optional<Position> selected_;
     std::array<std::optional<Position>, 2> selected_by_color_;
 
-    // Picks the selection cursor for acting_color: nullopt -> selected_, else selected_by_color_[color].
     std::optional<Position>& cursor(std::optional<Color> acting_color);
     const std::optional<Position>& cursor(std::optional<Color> acting_color) const;
 

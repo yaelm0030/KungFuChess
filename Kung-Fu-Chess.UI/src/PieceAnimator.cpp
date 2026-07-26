@@ -29,8 +29,7 @@ std::string state_dir(PieceType type, Color color, PieceState state) {
     return "assets/images/pieces/" + piece_folder + "/states/" + kStateFolders.at(state);
 }
 
-// Every "N.png" under dir/sprites, in order starting at 1, stopping at the
-// first missing number.
+// "N.png" under dir/sprites, starting at 1, stopping at the first gap.
 std::vector<std::string> frame_paths_in(const std::string& dir) {
     std::vector<std::string> paths;
     for (int n = 1;; ++n) {
@@ -43,8 +42,7 @@ std::vector<std::string> frame_paths_in(const std::string& dir) {
     return paths;
 }
 
-// Pulls "frames_per_sec" out of dir/config.json. Not a general JSON parser -
-// this is the only field this layer needs from that file.
+// Pulls "frames_per_sec" out of config.json; not a general JSON parser.
 int frames_per_sec_in(const std::string& dir) {
     std::ifstream config_file(dir + "/config.json");
     std::string text((std::istreambuf_iterator<char>(config_file)), std::istreambuf_iterator<char>());

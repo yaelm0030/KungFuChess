@@ -1,11 +1,6 @@
 #pragma once
 
-// JSON serialization hooks for GameSnapshot and its nested types, for the
-// networking layer. Kept out of GameSnapshot.h/Position.h/Types.h so that
-// <nlohmann/json.hpp> doesn't get pulled into every translation unit that includes
-// those widely-shared headers. ADL only needs to_json/from_json declared in a header
-// included before the call site, in the type's namespace (global here) - they don't
-// need to live beside the struct definition.
+// JSON hooks for GameSnapshot, kept separate so json.hpp isn't pulled into every shared header.
 
 #include <nlohmann/json.hpp>
 

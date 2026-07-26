@@ -7,11 +7,9 @@
 
 class Controller;
 
-// Click/jump-only dispatcher for untrusted network input (GameServer's future inbound
-// channel). Silently ignores malformed or unknown commands, same policy as
-// CommandProcessor, but has no reply channel and no "wait"/"print".
+// Click/jump dispatcher for untrusted network input; unknown commands are ignored.
 class ClientCommand {
 public:
-    // acting_color is forwarded to Controller::click/jump; see there for its meaning.
+    // acting_color is forwarded to Controller::click/jump.
     static void apply(Controller& controller, const std::string& line, std::optional<Color> acting_color = std::nullopt);
 };

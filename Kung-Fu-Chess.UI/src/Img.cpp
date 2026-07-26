@@ -5,8 +5,7 @@
 
 namespace {
 
-// The largest size no bigger than target_w x target_h that preserves
-// src_w:src_h, so scaling down never stretches one axis more than the other.
+// Largest size <= target_w x target_h that preserves the source aspect ratio.
 cv::Size uniform_fit(int src_w, int src_h, int target_w, int target_h) {
     double scale = std::min(static_cast<double>(target_w) / src_w, static_cast<double>(target_h) / src_h);
     return cv::Size(static_cast<int>(src_w * scale), static_cast<int>(src_h * scale));

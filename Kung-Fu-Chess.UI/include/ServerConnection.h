@@ -15,23 +15,14 @@
 
 #include "GameSnapshot.h"
 
-// WebSocket client side of GameServer: connects once at construction and, on its own
-// io thread, parses every incoming JSON broadcast into a GameSnapshot kept as the
-// latest one under mutex_. The render loop polls latest_snapshot() instead of driving
-// a Controller directly; outbound click/jump commands go through send(). Thread-safe
-// the same way GameServer/TestClient are: send() is safe to call cross-thread
-// (websocketpp queues it onto the connection's strand), but close()/the destructor
-// must post onto the client's own io_service to serialize with the io thread rather
-// than racing it.
+// WebSocket client for GameServer; stores the latest broadcast snapshot under mutex_.
+// close() must post onto the io thread to avoid racing it.
 class ServerConnection {
 public:
-    // Sends "name <username>" as soon as the handshake completes (not immediately after
-    // construction, since the connection isn't open yet at that point and the send
-    // would silently be dropped).
+    // Sends "name <username>" on handshake completion; earlier, the send would be dropped.
     ServerConnection(const std::string& host, uint16_t port, std::string username);
     ~ServerConnection();
 
-    // Sends a plain-text command line (e.g. "click 50 50") to the server.
     void send(const std::string& line);
 
     // The most recently received snapshot, or nullopt before the first one arrives.

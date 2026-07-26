@@ -52,7 +52,6 @@ void Controller::click(int pixel_x, int pixel_y, std::optional<Color> acting_col
         return;
     }
 
-    // A fresh selection under a concrete acting_color may only pick up that color's own piece.
     if (clicked_cell_is_selectable && (!acting_color.has_value() || clicked_color == acting_color)) {
         selection = cell;
     }
@@ -84,7 +83,7 @@ void Controller::print(std::ostream& out) const {
     engine_.print(out);
 }
 
-// Overlays the controller-owned selection cursor onto the engine's snapshot; GameEngine has no concept of UI selection.
+// Overlays the selection cursor; GameEngine has no concept of UI selection.
 GameSnapshot Controller::snapshot() const {
     GameSnapshot snap = engine_.snapshot();
     snap.selected = selected_;

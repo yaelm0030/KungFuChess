@@ -82,8 +82,7 @@ void UIManager::draw_game_over_message(Img& frame, int board_px_h) const {
 }
 
 void UIManager::draw_cooldown_overlay(Img& frame, int cell_x, int cell_y, double cooldown_progress) const {
-    // Red fill drains from the top down as cooldown_progress falls, so the
-    // remaining red always touches the bottom of the cell.
+    // Red fill drains top-down as cooldown_progress falls.
     int red_height = static_cast<int>(constants::kCellSizePx * cooldown_progress);
     frame.draw_rectangle(cell_x, cell_y + constants::kCellSizePx - red_height, constants::kCellSizePx, red_height,
                           ui_constants::kCooldownFillColor, cv::FILLED);

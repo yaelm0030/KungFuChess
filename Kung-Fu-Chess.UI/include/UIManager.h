@@ -14,10 +14,7 @@ class UIManager {
 public:
     UIManager(ImageCache& images, std::string board_image_path, std::string username);
 
-    // dt_ms drives sprite-frame animation timing; pieces are drawn
-    // interpolated between their origin and target cell per snapshot.progress.
-    // move_history/selected come from the snapshot itself, not separate params,
-    // since a networked GameSnapshot already carries both.
+    // dt_ms drives sprite animation; position comes from snapshot.progress.
     Img render(const GameSnapshot& snapshot, int dt_ms);
 
 private:

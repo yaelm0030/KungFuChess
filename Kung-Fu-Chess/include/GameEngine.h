@@ -35,9 +35,7 @@ public:
 
     std::optional<Color> color_at(Position cell) const;
 
-    // Read-only view of every piece's type/color/pixel position/state (idle,
-    // move, jump, short_rest) plus the game-over flag. Pieces mid-move or
-    // mid-jump are reported at their origin cell, matching print().
+    // Per-piece type/color/position/state snapshot, plus game-over. Mid-move pieces report their origin cell.
     GameSnapshot snapshot() const;
 
     // Every move successfully scheduled via request_move, in order. Jumps aren't recorded.

@@ -15,8 +15,7 @@ namespace {
 constexpr const char* kServerHost = "localhost";
 constexpr uint16_t kServerPort = 9002;
 
-// How long each spin blocks pumping GUI/input events for; not the
-// simulation's dt, which is measured separately from the real clock below.
+// GUI/input poll interval, not the render dt (measured separately below).
 constexpr int kPollMs = 1;
 
 } // namespace

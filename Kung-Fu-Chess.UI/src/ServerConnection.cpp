@@ -15,10 +15,7 @@ ServerConnection::ServerConnection(const std::string& host, uint16_t port, std::
     client_.set_open_handler([this, username](websocketpp::connection_hdl) { send("name " + username); });
 
     client_.set_message_handler([this](websocketpp::connection_hdl, WsClient::message_ptr msg) {
-        // The server is the only sender and always emits a valid GameSnapshot, but a
-        // corrupt/partial message shouldn't take the whole client down: skip it and
-        // keep showing the last good snapshot, same tolerance ClientCommand applies
-        // to malformed input on the server side.
+        // A corrupt/partial message is skipped, keeping the last good snapshot.
         try {
             GameSnapshot snapshot = nlohmann::json::parse(msg->get_payload()).get<GameSnapshot>();
             std::lock_guard<std::mutex> lock(mutex_);
@@ -58,9 +55,7 @@ void ServerConnection::close() {
         return;
     }
 
-    // Same race avoided as GameServer::stop(): close()/stop() mutate io_service state
-    // that io_thread_ concurrently touches, so they must run on that thread via post(),
-    // not be called directly from here.
+    // Same race as GameServer::stop(): must run via post() on the io thread, not called directly.
     client_.get_io_service().post([this]() {
         websocketpp::lib::error_code ec;
         client_.close(hdl_, websocketpp::close::status::normal, "", ec);

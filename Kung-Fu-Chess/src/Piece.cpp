@@ -110,8 +110,7 @@ bool Knight::is_available_move(int start_x, int start_y, int dest_x, int dest_y,
 
 namespace {
 
-// A pawn's home row, from which it may open with a two-cell move: one cell
-// in front of white's own back rank, one cell in front of black's.
+// Pawn's home row: one cell in front of its own back rank.
 int pawn_start_row(Color color, const Board& board) {
     return color == Color::w ? board.get_height() - 2 : 1;
 }

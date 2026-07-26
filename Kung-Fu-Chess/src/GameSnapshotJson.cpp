@@ -79,7 +79,7 @@ void from_json(const nlohmann::json& json, GameSnapshot& snapshot) {
     snapshot.score_w = json.at("score_w").get<int>();
     snapshot.score_b = json.at("score_b").get<int>();
     snapshot.move_history = json.at("move_history").get<std::vector<MoveRecord>>();
-    // selected/selected_w/selected_b are the lenient fields: absent key or explicit null both mean nullopt
+    // selected*: absent or null both mean nullopt.
     snapshot.selected = json.value("selected", std::optional<Position>{});
     snapshot.selected_w = json.value("selected_w", std::optional<Position>{});
     snapshot.selected_b = json.value("selected_b", std::optional<Position>{});

@@ -7,15 +7,10 @@
 #include <string>
 #include <unordered_map>
 
-// Owns one GraphicsComponent per (piece type, color, state) combination and
-// keeps it advancing in real time; every piece cycling through the same
-// sprite sequence shares one clock, since which specific piece it is doesn't
-// affect which frame is showing.
+// One GraphicsComponent per (type, color, state); all pieces in that state share one clock.
 class PieceAnimator {
 public:
-    // Advances piece's current animation by dt_ms and returns its frame's
-    // sprite path, loading frame paths and frames-per-second from disk the
-    // first time a given type/color/state combination is seen.
+    // Advances the animation by dt_ms; loads frames/fps from disk on first use.
     const std::string& frame_path(const PieceSnapshot& piece, int dt_ms);
 
 private:

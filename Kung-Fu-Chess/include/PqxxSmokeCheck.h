@@ -1,10 +1,7 @@
 #pragma once
 
-// Connection string for the docker-compose Postgres instance, shared by all
-// smoke checks that talk to it.
+// Shared connection string for the docker-compose Postgres instance.
 inline constexpr const char* kDatabaseConnectionString = "postgresql://kfc:kfc@localhost:5432/kfc";
 
-// Standalone connectivity check proving libpqxx is wired into the build.
-// Connects to the docker-compose Postgres, runs "SELECT 1", prints the
-// result to stdout. Returns 0 on success, non-zero on failure.
+// Standalone check that libpqxx is wired into the build; 0 on success.
 int run_pqxx_smoke_check();

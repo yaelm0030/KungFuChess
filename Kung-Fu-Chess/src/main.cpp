@@ -12,11 +12,7 @@
 
 namespace {
 
-// Exercises PostgresUserRepository against the docker-compose Postgres:
-// ensure_user on a fixed username twice, proving the second call returns the
-// same rating as the first (upsert doesn't reset it). Reuses one fixed
-// username across runs so repeated invocations upsert the same row instead
-// of accumulating new ones.
+// Proves ensure_user is idempotent: a fixed username should get the same rating both times.
 int run_user_repo_smoke_check() {
     try {
         const std::string username = "__user_repo_smoke_check__";
@@ -42,9 +38,7 @@ int run_user_repo_smoke_check() {
     }
 }
 
-// Reads a board from stdin and serves it over WebSocket on port, blocking
-// until the user presses Enter. Same board-loading path as the stdin/stdout
-// protocol below, just handed to a GameServer instead of a Controller.
+// Same board-loading path as below, served over WebSocket instead of stdout.
 int run_server(uint16_t port) {
     ProtocolIO io(std::cin, std::cout);
     std::optional<Board> board = io.read_board();

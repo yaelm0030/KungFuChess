@@ -48,9 +48,7 @@ void GameServer::start(uint16_t port) {
         std::lock_guard<std::mutex> lock(mutex_);
         connections_.insert(hdl);
 
-        // Occupancy-based (not a monotonic counter) so a freed slot can be
-        // reassigned to the next connection. Any connection beyond the two
-        // colors is a spectator: no entry in player_colors_.
+        // Occupancy-based, so a freed color slot is reused; extra connections are spectators.
         bool white_taken = false;
         bool black_taken = false;
         for (const auto& entry : player_colors_) {
@@ -81,9 +79,7 @@ void GameServer::start(uint16_t port) {
             try {
                 player_ratings_[hdl] = user_repository_.ensure_user(tokens[1]);
             } catch (const std::exception&) {
-                // Swallow: keep the in-memory username, no rating this time.
-                // A DB hiccup for one player must never crash/hang the server
-                // for everyone else.
+                // Swallow: a DB hiccup for one player must not affect everyone else.
             }
             return;
         }
@@ -107,9 +103,7 @@ void GameServer::start(uint16_t port) {
 
     websocketpp::lib::asio::error_code ec;
     auto endpoint = ws_server_.get_local_endpoint(ec);
-    // Should never fail right after a successful listen(); an assert is more
-    // honest here than silently handing back the OS-assign sentinel (0) as
-    // if it were the real bound port.
+    // Should never fail right after listen(); assert instead of silently returning 0.
     assert(!ec && "GameServer::start: get_local_endpoint failed after listen()");
     port_ = ec ? port : endpoint.port();
 
@@ -153,19 +147,8 @@ void GameServer::stop() {
     running_ = false;
 
     if (started_) {
-        // stop_listening()/stop() mutate transport state (the acceptor, the
-        // io_service itself) that io_thread_ concurrently touches via its
-        // perpetually-outstanding async_accept; calling them directly from
-        // this (foreign) thread would race that. Posting onto ws_server_'s
-        // own io_service runs them serialized with everything else already
-        // scheduled there instead. ws_server_.stop() makes run() return, so
-        // io_thread_ exits on its own once this handler completes.
-        //
-        // This is an abrupt teardown, not a graceful WS close handshake:
-        // stop() halts the io_service before any close frame we might queue
-        // here could actually be written, so connected clients just see the
-        // TCP connection drop. Nothing in this codebase distinguishes that
-        // from a clean close yet, so there's no handshake-draining logic.
+        // Must run on ws_server_'s own io thread to avoid racing it.
+        // This is an abrupt teardown; clients just see the TCP connection drop.
         ws_server_.get_io_service().post([this]() {
             websocketpp::lib::error_code ec;
             ws_server_.stop_listening(ec);
@@ -183,16 +166,13 @@ void GameServer::stop() {
 }
 
 void GameServer::run_tick_loop() {
-    // sleep_until against an absolute deadline (rather than repeated sleep_for(kTickMs))
-    // avoids compounding drift from the OS timer's coarse resolution, keeping the
-    // virtual clock from lagging behind wall-clock time over many iterations.
+    // Absolute deadline avoids drift from repeated sleep_for calls.
     auto next_deadline = std::chrono::steady_clock::now();
     while (running_) {
         try {
             tick(kTickMs);
         } catch (const std::exception&) {
-            // Stop rather than retry into the same failure every kTickMs;
-            // pre-thread, an exception from tick() would have reached the caller.
+            // Stop instead of retrying into the same failure every tick.
             running_ = false;
             break;
         }
