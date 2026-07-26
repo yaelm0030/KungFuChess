@@ -1,0 +1,5 @@
+CREATE TABLE users (
+    id       SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    rating   INTEGER NOT NULL DEFAULT 1000
+);
