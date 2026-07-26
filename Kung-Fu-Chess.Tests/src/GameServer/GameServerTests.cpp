@@ -7,6 +7,7 @@
 #include "GameServer.h"
 #include "Parser.h"
 #include "Position.h"
+#include "../UserRepository/FakeUserRepository.h"
 
 namespace {
 
@@ -32,7 +33,8 @@ std::optional<PieceSnapshot> find_piece(const GameSnapshot& snap, Color color, P
 TEST_SUITE("GameServer::tick") {
 
 TEST_CASE("tick advances the clock like Controller::wait, arriving after the full travel time") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.apply_command("click 50 50");  // select bR at (0,0)
     server.apply_command("click 50 150"); // move down to (0,1); 1 cell of travel time
 
@@ -45,7 +47,8 @@ TEST_CASE("tick advances the clock like Controller::wait, arriving after the ful
 }
 
 TEST_CASE("tick one millisecond short of the travel time leaves the move mid-flight") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.apply_command("click 50 50");  // select bR at (0,0)
     server.apply_command("click 50 150"); // 1 cell of travel time is needed to arrive
 
@@ -61,7 +64,8 @@ TEST_CASE("tick one millisecond short of the travel time leaves the move mid-fli
 TEST_SUITE("GameServer::apply_command") {
 
 TEST_CASE("a well-formed click line selects the piece at that cell") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
 
     server.apply_command("click 50 50"); // (0,0) = bR
 
@@ -69,7 +73,8 @@ TEST_CASE("a well-formed click line selects the piece at that cell") {
 }
 
 TEST_CASE("a well-formed jump line on an already-selected piece clears the selection") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.apply_command("click 50 50"); // select bR at (0,0)
     REQUIRE(server.snapshot().selected == Position{ 0, 0 });
 
@@ -79,7 +84,8 @@ TEST_CASE("a well-formed jump line on an already-selected piece clears the selec
 }
 
 TEST_CASE("a wait command sent through apply_command is ignored; GameServer stays the sole clock authority") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.apply_command("click 50 50");  // select bR at (0,0)
     server.apply_command("click 50 150"); // schedule move to (0,1); still in flight
 
@@ -93,7 +99,8 @@ TEST_CASE("a wait command sent through apply_command is ignored; GameServer stay
 }
 
 TEST_CASE("a print command is ignored") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
 
     server.apply_command("print board");
 
@@ -106,7 +113,8 @@ TEST_CASE("a print command is ignored") {
 }
 
 TEST_CASE("malformed or empty input is ignored without throwing") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
 
     SUBCASE("wrong arg count") {
         server.apply_command("click 5");
@@ -129,7 +137,8 @@ TEST_CASE("malformed or empty input is ignored without throwing") {
 TEST_SUITE("GameServer::snapshot") {
 
 TEST_CASE("a freshly constructed server's snapshot reflects the board it was constructed with") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
 
     GameSnapshot snap = server.snapshot();
 

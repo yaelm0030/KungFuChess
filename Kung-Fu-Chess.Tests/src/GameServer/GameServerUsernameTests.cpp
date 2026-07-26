@@ -5,6 +5,8 @@
 #include "GameServer.h"
 #include "Parser.h"
 #include "TestClient.h"
+#include "../UserRepository/FakeUserRepository.h"
+#include "../UserRepository/ThrowingUserRepository.h"
 
 namespace {
 
@@ -23,7 +25,8 @@ constexpr std::chrono::milliseconds kWaitTimeout{ 2000 };
 TEST_SUITE("GameServer::username") {
 
 TEST_CASE("before any name message, a connection's username is unset") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port()); // becomes White
@@ -36,7 +39,8 @@ TEST_CASE("before any name message, a connection's username is unset") {
 }
 
 TEST_CASE("a name message sets the username for that connection's color") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port()); // becomes White
@@ -52,7 +56,8 @@ TEST_CASE("a name message sets the username for that connection's color") {
 }
 
 TEST_CASE("two connections track independent usernames") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // White
@@ -74,7 +79,8 @@ TEST_CASE("two connections track independent usernames") {
 }
 
 TEST_CASE("a second name message overwrites the first") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port()); // becomes White
@@ -92,7 +98,8 @@ TEST_CASE("a second name message overwrites the first") {
 }
 
 TEST_CASE("a spectator's name message doesn't affect White/Black state and doesn't crash the server") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // White
@@ -118,7 +125,8 @@ TEST_CASE("a spectator's name message doesn't affect White/Black state and doesn
 }
 
 TEST_CASE("a malformed name message with no username token is ignored") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port()); // becomes White
@@ -136,7 +144,8 @@ TEST_CASE("a malformed name message with no username token is ignored") {
 }
 
 TEST_CASE("a disconnect clears the username along with the color slot") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // White
@@ -159,6 +168,99 @@ TEST_CASE("a disconnect clears the username along with the color slot") {
 
     client_b.close();
     client_c.close();
+    server.stop();
+}
+
+}
+
+TEST_SUITE("GameServer::rating") {
+
+TEST_CASE("a name message for a never-seen username stores the default rating") {
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    client.send("name Alice");
+    REQUIRE(client.wait_for_messages(2, kWaitTimeout));
+
+    CHECK(server.rating(Color::w) == kDefaultUserRating);
+
+    client.close();
+    server.stop();
+}
+
+TEST_CASE("a name message for an already-known username returns its existing rating") {
+    FakeUserRepository repository({ { "Alice", 1500 } });
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    client.send("name Alice");
+    REQUIRE(client.wait_for_messages(2, kWaitTimeout));
+
+    CHECK(server.rating(Color::w) == 1500);
+
+    client.close();
+    server.stop();
+}
+
+TEST_CASE("a second name message re-resolves the rating for the new username") {
+    FakeUserRepository repository({ { "Alice", 1500 }, { "Bob", 1200 } });
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    client.send("name Alice");
+    REQUIRE(client.wait_for_messages(2, kWaitTimeout));
+    client.send("name Bob");
+    REQUIRE(client.wait_for_messages(3, kWaitTimeout));
+
+    CHECK(server.rating(Color::w) == 1200);
+
+    client.close();
+    server.stop();
+}
+
+TEST_CASE("before any name message, a connection's rating is unset") {
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    CHECK(server.rating(Color::w) == std::nullopt);
+
+    client.close();
+    server.stop();
+}
+
+TEST_CASE("a repository failure keeps the username but leaves the rating unset, without disrupting the connection") {
+    ThrowingUserRepository repository;
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    client.send("name Alice");
+    REQUIRE(client.wait_for_messages(2, kWaitTimeout));
+
+    CHECK(server.username(Color::w) == "Alice");
+    CHECK(server.rating(Color::w) == std::nullopt);
+
+    // The connection must keep receiving broadcasts well past the throw,
+    // proving the server didn't crash and didn't stall.
+    REQUIRE(client.wait_for_messages(6, kWaitTimeout));
+
+    client.close();
     server.stop();
 }
 

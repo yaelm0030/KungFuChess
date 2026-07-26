@@ -11,7 +11,8 @@
 #include "GameSnapshotJson.h"
 #include "Parser.h"
 
-GameServer::GameServer(Board board, long long move_ms_per_cell) : controller_(std::move(board), move_ms_per_cell) {
+GameServer::GameServer(Board board, UserRepository& user_repository, long long move_ms_per_cell)
+    : controller_(std::move(board), move_ms_per_cell), user_repository_(user_repository) {
 }
 
 GameServer::~GameServer() {
@@ -70,12 +71,20 @@ void GameServer::start(uint16_t port) {
         connections_.erase(hdl);
         player_colors_.erase(hdl);
         player_names_.erase(hdl);
+        player_ratings_.erase(hdl);
     });
     ws_server_.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg) {
         std::vector<std::string> tokens = Parser::tokenize(msg->get_payload());
         if (tokens.size() == 2 && tokens[0] == "name") {
             std::lock_guard<std::mutex> lock(mutex_);
             player_names_[hdl] = tokens[1];
+            try {
+                player_ratings_[hdl] = user_repository_.ensure_user(tokens[1]);
+            } catch (const std::exception&) {
+                // Swallow: keep the in-memory username, no rating this time.
+                // A DB hiccup for one player must never crash/hang the server
+                // for everyone else.
+            }
             return;
         }
 
@@ -118,6 +127,20 @@ std::optional<std::string> GameServer::username(Color color) const {
         if (entry.second == color) {
             auto it = player_names_.find(entry.first);
             if (it != player_names_.end()) {
+                return it->second;
+            }
+            return std::nullopt;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<int> GameServer::rating(Color color) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto& entry : player_colors_) {
+        if (entry.second == color) {
+            auto it = player_ratings_.find(entry.first);
+            if (it != player_ratings_.end()) {
                 return it->second;
             }
             return std::nullopt;

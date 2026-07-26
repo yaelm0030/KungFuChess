@@ -201,5 +201,8 @@
     <ClInclude Include="src\UserRepository\FakeUserRepository.h">
       <Filter>UserRepository</Filter>
     </ClInclude>
+    <ClInclude Include="src\UserRepository\ThrowingUserRepository.h">
+      <Filter>UserRepository</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

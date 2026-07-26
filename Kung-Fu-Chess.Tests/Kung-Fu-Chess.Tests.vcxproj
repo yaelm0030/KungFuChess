@@ -238,6 +238,7 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\GameServer.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\UserRepository.h" />
     <ClInclude Include="src\UserRepository\FakeUserRepository.h" />
+    <ClInclude Include="src\UserRepository\ThrowingUserRepository.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

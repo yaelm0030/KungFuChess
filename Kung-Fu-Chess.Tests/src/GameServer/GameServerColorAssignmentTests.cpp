@@ -7,6 +7,7 @@
 #include "GameServer.h"
 #include "Parser.h"
 #include "TestClient.h"
+#include "../UserRepository/FakeUserRepository.h"
 
 namespace {
 
@@ -25,7 +26,8 @@ constexpr std::chrono::milliseconds kWaitTimeout{ 2000 };
 TEST_SUITE("GameServer::color assignment") {
 
 TEST_CASE("the first connection becomes White: it can select White pieces but not Black ones") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port());
@@ -50,7 +52,8 @@ TEST_CASE("the first connection becomes White: it can select White pieces but no
 }
 
 TEST_CASE("the second connection becomes Black: it can select Black pieces but not White ones") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // becomes White
@@ -78,7 +81,8 @@ TEST_CASE("the second connection becomes Black: it can select Black pieces but n
 }
 
 TEST_CASE("a third connection is a spectator: it keeps receiving broadcasts but its clicks never select anything") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // White
@@ -105,7 +109,8 @@ TEST_CASE("a third connection is a spectator: it keeps receiving broadcasts but 
 }
 
 TEST_CASE("a disconnect frees its color slot for the next connection") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port()); // White

@@ -7,6 +7,7 @@
 #include "GameServer.h"
 #include "Parser.h"
 #include "TestClient.h"
+#include "../UserRepository/FakeUserRepository.h"
 
 namespace {
 
@@ -25,7 +26,8 @@ constexpr std::chrono::milliseconds kWaitTimeout{ 2000 };
 TEST_SUITE("GameServer::broadcast") {
 
 TEST_CASE("a connected client receives a JSON broadcast after start") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port());
@@ -41,7 +43,8 @@ TEST_CASE("a connected client receives a JSON broadcast after start") {
 }
 
 TEST_CASE("two independently connected clients both receive the same broadcast content") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port());
@@ -57,7 +60,8 @@ TEST_CASE("two independently connected clients both receive the same broadcast c
 }
 
 TEST_CASE("a client that disconnects mid-session is dropped without affecting the other client's future broadcasts") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port());

@@ -22,6 +22,7 @@
 #include "GameEngine.h"
 #include "GameSnapshot.h"
 #include "Types.h"
+#include "UserRepository.h"
 
 // Sole gateway to Controller, now with a real WebSocket transport: accepts
 // connections, broadcasts a JSON snapshot after every tick, and applies
@@ -33,7 +34,8 @@ class GameServer {
 public:
     static constexpr int kTickMs = 16;
 
-    explicit GameServer(Board board, long long move_ms_per_cell = GameEngine::kDefaultMoveMsPerCell);
+    explicit GameServer(Board board, UserRepository& user_repository,
+                         long long move_ms_per_cell = GameEngine::kDefaultMoveMsPerCell);
     ~GameServer();
 
     // Advances the game clock; the only way time moves forward.
@@ -58,6 +60,11 @@ public:
     // message, or nullopt if it never sent one (or has no connection at all).
     std::optional<std::string> username(Color color) const;
 
+    // The rating resolved from user_repository_ for color's last "name"
+    // message, or nullopt if it never sent one (no connection, or the
+    // repository lookup failed and was swallowed).
+    std::optional<int> rating(Color color) const;
+
     // Stops accepting connections, closes the websocket server, and joins
     // both the tick thread and the io thread. Idempotent; safe if never
     // started. Not safe to call concurrently with itself or the destructor
@@ -71,6 +78,7 @@ private:
     using WsServer = websocketpp::server<websocketpp::config::asio>;
 
     Controller controller_;
+    UserRepository& user_repository_;
     mutable std::mutex mutex_;
     std::thread tick_thread_;
     std::thread io_thread_;
@@ -80,6 +88,7 @@ private:
     std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> connections_;
     std::map<websocketpp::connection_hdl, Color, std::owner_less<websocketpp::connection_hdl>> player_colors_;
     std::map<websocketpp::connection_hdl, std::string, std::owner_less<websocketpp::connection_hdl>> player_names_;
+    std::map<websocketpp::connection_hdl, int, std::owner_less<websocketpp::connection_hdl>> player_ratings_;
     uint16_t port_{ 0 };
     bool started_{ false };
 };

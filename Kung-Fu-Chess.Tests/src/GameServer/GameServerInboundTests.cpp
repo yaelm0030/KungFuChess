@@ -7,6 +7,7 @@
 #include "GameServer.h"
 #include "Parser.h"
 #include "TestClient.h"
+#include "../UserRepository/FakeUserRepository.h"
 
 namespace {
 
@@ -25,7 +26,8 @@ constexpr std::chrono::milliseconds kWaitTimeout{ 2000 };
 TEST_SUITE("GameServer::inbound") {
 
 TEST_CASE("a client's click command selects the clicked piece, reflected in a subsequent broadcast") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client(server.port());
@@ -46,7 +48,8 @@ TEST_CASE("a client's click command selects the clicked piece, reflected in a su
 }
 
 TEST_CASE("a malformed client message does not crash the server or disrupt other clients") {
-    GameServer server(make_board());
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
     server.start(0);
 
     TestClient client_a(server.port());

@@ -52,7 +52,8 @@ int run_server(uint16_t port) {
         return 0;
     }
 
-    GameServer server(std::move(*board));
+    PostgresUserRepository repository(kDatabaseConnectionString);
+    GameServer server(std::move(*board), repository);
     server.start(port);
     std::cout << "Server listening on port " << server.port() << ". Press Enter to stop.\n";
 
