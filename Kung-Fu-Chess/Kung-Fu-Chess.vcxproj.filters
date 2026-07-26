@@ -60,6 +60,9 @@
     <ClCompile Include="src\PqxxSmokeCheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PostgresUserRepository.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h">
@@ -117,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\UserRepository.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PostgresUserRepository.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

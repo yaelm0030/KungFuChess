@@ -155,6 +155,7 @@
     <ClCompile Include="src\ClientCommand.cpp" />
     <ClCompile Include="src\GameServer.cpp" />
     <ClCompile Include="src\PqxxSmokeCheck.cpp" />
+    <ClCompile Include="src\PostgresUserRepository.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="include\GameServer.h" />
     <ClInclude Include="include\PqxxSmokeCheck.h" />
     <ClInclude Include="include\UserRepository.h" />
+    <ClInclude Include="include\PostgresUserRepository.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

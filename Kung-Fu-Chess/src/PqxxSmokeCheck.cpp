@@ -4,15 +4,9 @@
 
 #include <pqxx/pqxx>
 
-namespace {
-
-constexpr const char* kConnectionString = "postgresql://kfc:kfc@localhost:5432/kfc";
-
-} // namespace
-
 int run_pqxx_smoke_check() {
     try {
-        pqxx::connection connection(kConnectionString);
+        pqxx::connection connection(kDatabaseConnectionString);
         pqxx::work transaction(connection);
         pqxx::result result = transaction.exec("SELECT 1");
         transaction.commit();
@@ -22,7 +16,7 @@ int run_pqxx_smoke_check() {
             return 1;
         }
 
-        std::cout << "pqxx smoke check OK: connected to " << kConnectionString << "\n";
+        std::cout << "pqxx smoke check OK: connected to " << kDatabaseConnectionString << "\n";
         return 0;
     } catch (const std::exception& e) {
         std::cout << "pqxx smoke check FAILED: " << e.what() << "\n";
