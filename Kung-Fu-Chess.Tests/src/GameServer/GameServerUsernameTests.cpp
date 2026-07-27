@@ -97,6 +97,23 @@ TEST_CASE("a second name message overwrites the first") {
     server.stop();
 }
 
+TEST_CASE("a multi-word name message is stored joined with single spaces") {
+    FakeUserRepository repository;
+    GameServer server(make_board(), repository);
+    server.start(0);
+
+    TestClient client(server.port()); // becomes White
+    REQUIRE(client.wait_for_messages(1, kWaitTimeout));
+
+    client.send("name John Smith");
+    REQUIRE(client.wait_for_messages(2, kWaitTimeout));
+
+    CHECK(server.username(Color::w) == "John Smith");
+
+    client.close();
+    server.stop();
+}
+
 TEST_CASE("a spectator's name message doesn't affect White/Black state and doesn't crash the server") {
     FakeUserRepository repository;
     GameServer server(make_board(), repository);

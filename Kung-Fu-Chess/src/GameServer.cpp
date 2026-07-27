@@ -73,11 +73,16 @@ void GameServer::start(uint16_t port) {
     });
     ws_server_.set_message_handler([this](websocketpp::connection_hdl hdl, WsServer::message_ptr msg) {
         std::vector<std::string> tokens = Parser::tokenize(msg->get_payload());
-        if (tokens.size() == 2 && tokens[0] == "name") {
+        if (tokens.size() >= 2 && tokens[0] == "name") {
+            std::string name = tokens[1];
+            for (size_t i = 2; i < tokens.size(); ++i) {
+                name += ' ' + tokens[i];
+            }
+
             std::lock_guard<std::mutex> lock(mutex_);
-            player_names_[hdl] = tokens[1];
+            player_names_[hdl] = name;
             try {
-                player_ratings_[hdl] = user_repository_.ensure_user(tokens[1]);
+                player_ratings_[hdl] = user_repository_.ensure_user(name);
             } catch (const std::exception&) {
                 // Swallow: a DB hiccup for one player must not affect everyone else.
             }
