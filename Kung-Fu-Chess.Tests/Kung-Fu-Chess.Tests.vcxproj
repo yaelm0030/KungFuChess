@@ -181,6 +181,11 @@
     <ClCompile Include="src\CommandEnvelope\CommandEnvelopeTests.cpp" />
     <ClCompile Include="src\GameShard\GameShardTests.cpp" />
     <ClCompile Include="src\GameShard\GameShardLifecycleTests.cpp" />
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayColorAssignmentTests.cpp" />
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayBroadcastTests.cpp" />
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayInboundTests.cpp" />
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayLifecycleTests.cpp" />
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayUsernameTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -226,6 +231,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\GameShard.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\WebSocketGateway.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -248,12 +256,14 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\GameServer.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\CommandEnvelope.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\GameShard.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\WebSocketGateway.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\BusChannels.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\UserRepository.h" />
     <ClInclude Include="src\UserRepository\FakeUserRepository.h" />
     <ClInclude Include="src\UserRepository\ThrowingUserRepository.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\MessageBus.h" />
     <ClInclude Include="src\MessageBus\InProcessMessageBus.h" />
+    <ClInclude Include="src\WebSocketGateway\ShardAndGateway.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

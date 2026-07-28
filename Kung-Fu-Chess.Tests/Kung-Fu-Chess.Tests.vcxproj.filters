@@ -43,6 +43,9 @@
     <Filter Include="GameShard">
       <UniqueIdentifier>{1e2daf0e-0606-4ff5-a0e5-e5f5f6071820}</UniqueIdentifier>
     </Filter>
+    <Filter Include="WebSocketGateway">
+      <UniqueIdentifier>{2f3ebf1f-1717-4006-b1f6-f60607182931}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -181,6 +184,21 @@
     <ClCompile Include="src\GameShard\GameShardLifecycleTests.cpp">
       <Filter>GameShard</Filter>
     </ClCompile>
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayColorAssignmentTests.cpp">
+      <Filter>WebSocketGateway</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayBroadcastTests.cpp">
+      <Filter>WebSocketGateway</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayInboundTests.cpp">
+      <Filter>WebSocketGateway</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayLifecycleTests.cpp">
+      <Filter>WebSocketGateway</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSocketGateway\WebSocketGatewayUsernameTests.cpp">
+      <Filter>WebSocketGateway</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -188,6 +206,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameShard.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\WebSocketGateway.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,6 +266,12 @@
     </ClInclude>
     <ClInclude Include="src\MessageBus\InProcessMessageBus.h">
       <Filter>MessageBus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\WebSocketGateway.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WebSocketGateway\ShardAndGateway.h">
+      <Filter>WebSocketGateway</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

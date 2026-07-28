@@ -156,6 +156,7 @@
     <ClCompile Include="src\GameServer.cpp" />
     <ClCompile Include="src\CommandEnvelope.cpp" />
     <ClCompile Include="src\GameShard.cpp" />
+    <ClCompile Include="src\WebSocketGateway.cpp" />
     <ClCompile Include="src\PqxxSmokeCheck.cpp" />
     <ClCompile Include="src\PostgresUserRepository.cpp" />
   </ItemGroup>
@@ -179,6 +180,7 @@
     <ClInclude Include="include\GameServer.h" />
     <ClInclude Include="include\CommandEnvelope.h" />
     <ClInclude Include="include\GameShard.h" />
+    <ClInclude Include="include\WebSocketGateway.h" />
     <ClInclude Include="include\BusChannels.h" />
     <ClInclude Include="include\PqxxSmokeCheck.h" />
     <ClInclude Include="include\UserRepository.h" />
