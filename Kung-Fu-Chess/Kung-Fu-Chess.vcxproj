@@ -154,6 +154,7 @@
     <ClCompile Include="src\GameSnapshotJson.cpp" />
     <ClCompile Include="src\ClientCommand.cpp" />
     <ClCompile Include="src\GameServer.cpp" />
+    <ClCompile Include="src\CommandEnvelope.cpp" />
     <ClCompile Include="src\PqxxSmokeCheck.cpp" />
     <ClCompile Include="src\PostgresUserRepository.cpp" />
   </ItemGroup>
@@ -175,6 +176,7 @@
     <ClInclude Include="include\GameSnapshotJson.h" />
     <ClInclude Include="include\ClientCommand.h" />
     <ClInclude Include="include\GameServer.h" />
+    <ClInclude Include="include\CommandEnvelope.h" />
     <ClInclude Include="include\PqxxSmokeCheck.h" />
     <ClInclude Include="include\UserRepository.h" />
     <ClInclude Include="include\PostgresUserRepository.h" />
