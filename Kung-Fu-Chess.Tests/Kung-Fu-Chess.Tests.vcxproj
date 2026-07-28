@@ -180,6 +180,7 @@
     <ClCompile Include="src\MessageBus\InProcessMessageBusTests.cpp" />
     <ClCompile Include="src\CommandEnvelope\CommandEnvelopeTests.cpp" />
     <ClCompile Include="src\GameShard\GameShardTests.cpp" />
+    <ClCompile Include="src\GameShard\GameShardLifecycleTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>

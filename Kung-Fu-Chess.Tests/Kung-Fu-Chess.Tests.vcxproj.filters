@@ -178,6 +178,9 @@
     <ClCompile Include="src\GameShard\GameShardTests.cpp">
       <Filter>GameShard</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameShard\GameShardLifecycleTests.cpp">
+      <Filter>GameShard</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
