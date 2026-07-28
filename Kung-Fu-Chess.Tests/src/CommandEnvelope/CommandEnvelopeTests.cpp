@@ -34,4 +34,10 @@ TEST_CASE("a missing line field throws out_of_range") {
     CHECK_THROWS_AS(input.get<CommandEnvelope>(), nlohmann::json::out_of_range);
 }
 
+TEST_CASE("an unmapped color value throws instead of silently decoding to Color::w") {
+    json input = json{ { "color", "z" }, { "line", "move a2 a3" } };
+
+    CHECK_THROWS_AS(input.get<CommandEnvelope>(), nlohmann::json::exception);
+}
+
 } // TEST_SUITE
