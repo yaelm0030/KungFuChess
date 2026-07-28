@@ -34,6 +34,9 @@
     <Filter Include="UserRepository">
       <UniqueIdentifier>{ebfac7db-d3d3-4fd2-fdb2-b2c2c3d4e5f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MessageBus">
+      <UniqueIdentifier>{fc0bd8ec-e4e4-4fe3-8ec3-c3d3d4e5f608}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -160,6 +163,9 @@
     <ClCompile Include="src\UserRepository\FakeUserRepositoryTests.cpp">
       <Filter>UserRepository</Filter>
     </ClCompile>
+    <ClCompile Include="src\MessageBus\InProcessMessageBusTests.cpp">
+      <Filter>MessageBus</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -203,6 +209,12 @@
     </ClInclude>
     <ClInclude Include="src\UserRepository\ThrowingUserRepository.h">
       <Filter>UserRepository</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\MessageBus.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MessageBus\InProcessMessageBus.h">
+      <Filter>MessageBus</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

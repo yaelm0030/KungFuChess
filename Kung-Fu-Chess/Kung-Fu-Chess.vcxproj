@@ -178,6 +178,7 @@
     <ClInclude Include="include\PqxxSmokeCheck.h" />
     <ClInclude Include="include\UserRepository.h" />
     <ClInclude Include="include\PostgresUserRepository.h" />
+    <ClInclude Include="include\MessageBus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

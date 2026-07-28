@@ -177,6 +177,7 @@
     <ClCompile Include="src\GameServer\GameServerInboundTests.cpp" />
     <ClCompile Include="src\GameServer\GameServerUsernameTests.cpp" />
     <ClCompile Include="src\UserRepository\FakeUserRepositoryTests.cpp" />
+    <ClCompile Include="src\MessageBus\InProcessMessageBusTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -239,6 +240,8 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\UserRepository.h" />
     <ClInclude Include="src\UserRepository\FakeUserRepository.h" />
     <ClInclude Include="src\UserRepository\ThrowingUserRepository.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\MessageBus.h" />
+    <ClInclude Include="src\MessageBus\InProcessMessageBus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
