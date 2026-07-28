@@ -40,6 +40,9 @@
     <Filter Include="CommandEnvelope">
       <UniqueIdentifier>{0d1ce9fd-f5f5-4fe4-9fd4-d4e4e5f60719}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameShard">
+      <UniqueIdentifier>{1e2daf0e-0606-4ff5-a0e5-e5f5f6071820}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -172,10 +175,16 @@
     <ClCompile Include="src\CommandEnvelope\CommandEnvelopeTests.cpp">
       <Filter>CommandEnvelope</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameShard\GameShardTests.cpp">
+      <Filter>GameShard</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\CommandEnvelope.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\GameShard.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -211,6 +220,12 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\CommandEnvelope.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\GameShard.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\BusChannels.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\UserRepository.h">

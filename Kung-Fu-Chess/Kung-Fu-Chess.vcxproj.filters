@@ -60,6 +60,9 @@
     <ClCompile Include="src\CommandEnvelope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameShard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\PqxxSmokeCheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +123,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\CommandEnvelope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameShard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BusChannels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\PqxxSmokeCheck.h">
