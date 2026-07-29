@@ -9,6 +9,7 @@
 #include "PostgresUserRepository.h"
 #include "PqxxSmokeCheck.h"
 #include "ProtocolIO.h"
+#include "RedisSmokeCheck.h"
 
 namespace {
 
@@ -69,6 +70,9 @@ int main(int argc, char** argv) {
     }
     if (argc >= 2 && std::string(argv[1]) == "--user-repo-smoke-check") {
         return run_user_repo_smoke_check();
+    }
+    if (argc >= 2 && std::string(argv[1]) == "--redis-smoke-check") {
+        return run_redis_smoke_check();
     }
 
     ProtocolIO io(std::cin, std::cout);
