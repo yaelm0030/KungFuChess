@@ -77,3 +77,70 @@ target_link_libraries(kfc_db_redis PUBLIC kfc_core)
 find_package(libpqxx CONFIG REQUIRED)
 find_package(redis++ CONFIG REQUIRED)
 target_link_libraries(kfc_db_redis PUBLIC libpqxx::pqxx redis++::redis++)
+
+# Full doctest suite, built against the three engine libs above (as opposed to
+# Kung-Fu-Chess.Tests.vcxproj, which recompiles the engine .cpp files directly).
+add_executable(kfc_tests
+    Kung-Fu-Chess.Tests/src/TestMain.cpp
+    Kung-Fu-Chess.Tests/src/Types/CellTests.cpp
+    Kung-Fu-Chess.Tests/src/Board/BoardTests.cpp
+    Kung-Fu-Chess.Tests/src/BoardMapper/BoardMapperTests.cpp
+    Kung-Fu-Chess.Tests/src/Parser/ParseBoardTests.cpp
+    Kung-Fu-Chess.Tests/src/Parser/BoardToStringTests.cpp
+    Kung-Fu-Chess.Tests/src/Parser/RoundTripTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/GameOverTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/JumpTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/PromotionTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/TickTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/PrintTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/CooldownTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/MoveHistoryTests.cpp
+    Kung-Fu-Chess.Tests/src/GameEngine/SnapshotTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/PositionJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/PixelPositionJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/EnumJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/PieceSnapshotJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/MoveRecordJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/GameSnapshot/GameSnapshotJsonTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/KingTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/QueenTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/RookTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/BishopTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/KnightTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/PawnTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/PieceFactoryTests.cpp
+    Kung-Fu-Chess.Tests/src/Piece/CanPassThroughUnitsTests.cpp
+    Kung-Fu-Chess.Tests/src/RuleEngine/RuleEngineTests.cpp
+    Kung-Fu-Chess.Tests/src/Controller/ControllerTests.cpp
+    Kung-Fu-Chess.Tests/src/CommandProcessor/CommandProcessorTests.cpp
+    Kung-Fu-Chess.Tests/src/ProtocolIO/ProtocolIOTests.cpp
+    Kung-Fu-Chess.Tests/src/RealTimeArbiter/RealTimeArbiterTests.cpp
+    Kung-Fu-Chess.Tests/src/ClientCommand/ClientCommandTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerLifecycleTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerBroadcastTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerColorAssignmentTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerInboundTests.cpp
+    Kung-Fu-Chess.Tests/src/GameServer/GameServerUsernameTests.cpp
+    Kung-Fu-Chess.Tests/src/UserRepository/FakeUserRepositoryTests.cpp
+    Kung-Fu-Chess.Tests/src/MessageBus/InProcessMessageBusTests.cpp
+    Kung-Fu-Chess.Tests/src/CommandEnvelope/CommandEnvelopeTests.cpp
+    Kung-Fu-Chess.Tests/src/GameShard/GameShardTests.cpp
+    Kung-Fu-Chess.Tests/src/GameShard/GameShardLifecycleTests.cpp
+    Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayColorAssignmentTests.cpp
+    Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayBroadcastTests.cpp
+    Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayInboundTests.cpp
+    Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayLifecycleTests.cpp
+    Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayUsernameTests.cpp
+    Kung-Fu-Chess.Tests/src/RedisSmokeCheck/RedisUriTests.cpp
+    Kung-Fu-Chess.Tests/src/SubscriptionGuard/SubscriptionGuardTests.cpp
+)
+
+target_include_directories(kfc_tests PRIVATE
+    Kung-Fu-Chess.Tests/include
+    Kung-Fu-Chess.Tests/src
+)
+
+target_link_libraries(kfc_tests PRIVATE kfc_core kfc_net kfc_db_redis)
+
+target_compile_features(kfc_tests PRIVATE cxx_std_20)
