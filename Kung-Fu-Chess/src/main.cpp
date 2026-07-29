@@ -6,9 +6,12 @@
 #include "CommandProcessor.h"
 #include "Controller.h"
 #include "GameServer.h"
+#include "GameShard.h"
+#include "Parser.h"
 #include "PostgresUserRepository.h"
 #include "PqxxSmokeCheck.h"
 #include "ProtocolIO.h"
+#include "RedisMessageBus.h"
 #include "RedisSmokeCheck.h"
 
 namespace {
@@ -59,6 +62,35 @@ int run_server(uint16_t port) {
     return 0;
 }
 
+// Standard chess starting position; no board is read from stdin here since this
+// process is meant to run unattended (e.g. under Compose, with no TTY to pipe one in).
+Board standard_starting_board() {
+    return Parser::parse_board({
+        "bR bN bB bQ bK bB bN bR",
+        "bP bP bP bP bP bP bP bP",
+        ".  .  .  .  .  .  .  .",
+        ".  .  .  .  .  .  .  .",
+        ".  .  .  .  .  .  .  .",
+        ".  .  .  .  .  .  .  .",
+        "wP wP wP wP wP wP wP wP",
+        "wR wN wB wQ wK wB wN wR",
+    });
+}
+
+// Runs a GameShard as a standalone process wired to Redis instead of an in-process bus.
+int run_shard() {
+    RedisMessageBus bus(redis_uri());
+    GameShard shard(standard_starting_board(), bus);
+    shard.start();
+    std::cout << "Shard running. Press Enter to stop.\n";
+
+    std::string discard;
+    std::getline(std::cin, discard);
+
+    shard.stop();
+    return 0;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -73,6 +105,9 @@ int main(int argc, char** argv) {
     }
     if (argc >= 2 && std::string(argv[1]) == "--redis-smoke-check") {
         return run_redis_smoke_check();
+    }
+    if (argc >= 2 && std::string(argv[1]) == "--serve-shard") {
+        return run_shard();
     }
 
     ProtocolIO io(std::cin, std::cout);
