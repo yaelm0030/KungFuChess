@@ -70,6 +70,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -186,6 +190,7 @@
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayInboundTests.cpp" />
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayLifecycleTests.cpp" />
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayUsernameTests.cpp" />
+    <ClCompile Include="src\RedisSmokeCheck\RedisUriTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -234,6 +239,12 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\WebSocketGateway.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RedisMessageBus.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\RedisSmokeCheck.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -264,6 +275,8 @@
     <ClInclude Include="..\Kung-Fu-Chess\include\MessageBus.h" />
     <ClInclude Include="src\MessageBus\InProcessMessageBus.h" />
     <ClInclude Include="src\WebSocketGateway\ShardAndGateway.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\RedisMessageBus.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\RedisSmokeCheck.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
