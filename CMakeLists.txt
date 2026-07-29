@@ -133,6 +133,7 @@ add_executable(kfc_tests
     Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayLifecycleTests.cpp
     Kung-Fu-Chess.Tests/src/WebSocketGateway/WebSocketGatewayUsernameTests.cpp
     Kung-Fu-Chess.Tests/src/RedisSmokeCheck/RedisUriTests.cpp
+    Kung-Fu-Chess.Tests/src/PqxxSmokeCheck/DatabaseUriTests.cpp
     Kung-Fu-Chess.Tests/src/SubscriptionGuard/SubscriptionGuardTests.cpp
 )
 

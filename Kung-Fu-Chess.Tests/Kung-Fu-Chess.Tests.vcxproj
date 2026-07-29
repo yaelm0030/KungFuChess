@@ -191,6 +191,7 @@
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayLifecycleTests.cpp" />
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayUsernameTests.cpp" />
     <ClCompile Include="src\RedisSmokeCheck\RedisUriTests.cpp" />
+    <ClCompile Include="src\PqxxSmokeCheck\DatabaseUriTests.cpp" />
     <ClCompile Include="src\SubscriptionGuard\SubscriptionGuardTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
@@ -244,6 +245,9 @@
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\RedisSmokeCheck.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\PqxxSmokeCheck.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\SubscriptionGuard.cpp">

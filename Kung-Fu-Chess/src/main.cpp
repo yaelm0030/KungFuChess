@@ -22,7 +22,7 @@ int run_user_repo_smoke_check() {
     try {
         const std::string username = "__user_repo_smoke_check__";
 
-        PostgresUserRepository repository(kDatabaseConnectionString);
+        PostgresUserRepository repository(database_uri());
 
         int first = repository.ensure_user(username);
         std::cout << "ensure_user(\"" << username << "\") first call: " << first << "\n";
@@ -51,7 +51,7 @@ int run_server(uint16_t port) {
         return 0;
     }
 
-    PostgresUserRepository repository(kDatabaseConnectionString);
+    PostgresUserRepository repository(database_uri());
     GameServer server(std::move(*board), repository);
     server.start(port);
     std::cout << "Server listening on port " << server.port() << ". Press Enter to stop.\n";
@@ -95,7 +95,7 @@ int run_shard() {
 // Runs a WebSocketGateway as a standalone process wired to Redis instead of an in-process bus.
 int run_gateway(uint16_t port) {
     RedisMessageBus bus(redis_uri());
-    PostgresUserRepository repository(kDatabaseConnectionString);
+    PostgresUserRepository repository(database_uri());
     WebSocketGateway gateway(bus, repository);
     gateway.start(port);
     std::cout << "Gateway listening on port " << gateway.port() << ". Press Enter to stop.\n";
