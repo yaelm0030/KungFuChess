@@ -13,6 +13,7 @@
 #include "ProtocolIO.h"
 #include "RedisMessageBus.h"
 #include "RedisSmokeCheck.h"
+#include "WebSocketGateway.h"
 
 namespace {
 
@@ -91,6 +92,21 @@ int run_shard() {
     return 0;
 }
 
+// Runs a WebSocketGateway as a standalone process wired to Redis instead of an in-process bus.
+int run_gateway(uint16_t port) {
+    RedisMessageBus bus(redis_uri());
+    PostgresUserRepository repository(kDatabaseConnectionString);
+    WebSocketGateway gateway(bus, repository);
+    gateway.start(port);
+    std::cout << "Gateway listening on port " << gateway.port() << ". Press Enter to stop.\n";
+
+    std::string discard;
+    std::getline(std::cin, discard);
+
+    gateway.stop();
+    return 0;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -108,6 +124,9 @@ int main(int argc, char** argv) {
     }
     if (argc >= 2 && std::string(argv[1]) == "--serve-shard") {
         return run_shard();
+    }
+    if (argc >= 3 && std::string(argv[1]) == "--serve-gateway") {
+        return run_gateway(static_cast<uint16_t>(std::stoi(argv[2])));
     }
 
     ProtocolIO io(std::cin, std::cout);
