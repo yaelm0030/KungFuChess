@@ -26,3 +26,38 @@ target_include_directories(kfc_core PUBLIC
 )
 
 target_compile_features(kfc_core PUBLIC cxx_std_20)
+
+# Networking layer: WebSocket transport (GameServer/WebSocketGateway) and the
+# MessageBus-driven GameShard. UserRepository/MessageBus are abstract interfaces
+# at this layer, so this target still has zero vcpkg deps — the Postgres/Redis
+# backed implementations arrive in a later step.
+add_library(kfc_net STATIC
+    Kung-Fu-Chess/src/GameServer.cpp
+    Kung-Fu-Chess/src/WebSocketGateway.cpp
+    Kung-Fu-Chess/src/GameShard.cpp
+)
+
+target_include_directories(kfc_net PUBLIC
+    third_party/asio/include
+    third_party/websocketpp
+)
+
+target_link_libraries(kfc_net PUBLIC kfc_core)
+
+# Matches Kung-Fu-Chess.vcxproj's PreprocessorDefinitions: standalone (non-Boost)
+# Asio, and force websocketpp onto its C++11 STL path (MSVC doesn't report
+# __cplusplus >= 201103L unless /Zc:__cplusplus is set, which this build isn't).
+target_compile_definitions(kfc_net PUBLIC
+    ASIO_STANDALONE
+    _WEBSOCKETPP_CPP11_STL_
+)
+
+find_package(Threads REQUIRED)
+target_link_libraries(kfc_net PUBLIC Threads::Threads)
+
+if(WIN32)
+    # Windows 7+ API level for asio's socket backend, plus the Windows socket
+    # libs asio needs; both match Kung-Fu-Chess.vcxproj. No-op on Linux.
+    target_compile_definitions(kfc_net PUBLIC _WIN32_WINNT=0x0601)
+    target_link_libraries(kfc_net PUBLIC ws2_32 mswsock)
+endif()
