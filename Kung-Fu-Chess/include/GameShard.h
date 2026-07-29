@@ -10,6 +10,7 @@
 #include "Controller.h"
 #include "GameEngine.h"
 #include "MessageBus.h"
+#include "SubscriptionGuard.h"
 
 // One game's worth of Controller, driven by commands arriving over a MessageBus
 // instead of direct calls; publishes a snapshot after every tick.
@@ -38,6 +39,7 @@ private:
 
     Controller controller_;
     MessageBus& bus_;
+    SubscriptionGuard subscription_guard_;
     std::mutex queue_mutex_; // guards queue_ only; controller_ is touched solely by tick()
     std::deque<CommandEnvelope> queue_;
 

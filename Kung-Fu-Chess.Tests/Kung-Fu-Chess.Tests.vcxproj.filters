@@ -49,6 +49,9 @@
     <Filter Include="RedisSmokeCheck">
       <UniqueIdentifier>{3041c020-2828-4117-c207-071718293a42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SubscriptionGuard">
+      <UniqueIdentifier>{4152d131-3939-4228-d318-182829304b53}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad02}</UniqueIdentifier>
     </Filter>
@@ -205,6 +208,9 @@
     <ClCompile Include="src\RedisSmokeCheck\RedisUriTests.cpp">
       <Filter>RedisSmokeCheck</Filter>
     </ClCompile>
+    <ClCompile Include="src\SubscriptionGuard\SubscriptionGuardTests.cpp">
+      <Filter>SubscriptionGuard</Filter>
+    </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\GameServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -221,6 +227,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\Kung-Fu-Chess\src\RedisSmokeCheck.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\SubscriptionGuard.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -289,6 +298,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Kung-Fu-Chess\include\RedisSmokeCheck.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Kung-Fu-Chess\include\SubscriptionGuard.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

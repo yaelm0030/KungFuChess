@@ -191,6 +191,7 @@
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayLifecycleTests.cpp" />
     <ClCompile Include="src\WebSocketGateway\WebSocketGatewayUsernameTests.cpp" />
     <ClCompile Include="src\RedisSmokeCheck\RedisUriTests.cpp" />
+    <ClCompile Include="src\SubscriptionGuard\SubscriptionGuardTests.cpp" />
     <ClCompile Include="..\Kung-Fu-Chess\src\Board.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
@@ -245,6 +246,9 @@
     <ClCompile Include="..\Kung-Fu-Chess\src\RedisSmokeCheck.cpp">
       <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\Kung-Fu-Chess\src\SubscriptionGuard.cpp">
+      <ObjectFileName>$(IntDir)Source\%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ThirdParty\doctest.h" />
@@ -277,6 +281,7 @@
     <ClInclude Include="src\WebSocketGateway\ShardAndGateway.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\RedisMessageBus.h" />
     <ClInclude Include="..\Kung-Fu-Chess\include\RedisSmokeCheck.h" />
+    <ClInclude Include="..\Kung-Fu-Chess\include\SubscriptionGuard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

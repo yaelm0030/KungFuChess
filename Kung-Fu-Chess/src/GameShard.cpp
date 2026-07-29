@@ -10,10 +10,12 @@
 
 GameShard::GameShard(Board board, MessageBus& bus, long long move_ms_per_cell)
     : controller_(std::move(board), move_ms_per_cell), bus_(bus) {
-    bus_.subscribe(kCommandsChannel, [this](const std::string& payload) { enqueue_command(payload); });
+    bus_.subscribe(kCommandsChannel,
+        subscription_guard_.wrap([this](const std::string& payload) { enqueue_command(payload); }));
 }
 
 GameShard::~GameShard() {
+    subscription_guard_.close();
     stop();
 }
 

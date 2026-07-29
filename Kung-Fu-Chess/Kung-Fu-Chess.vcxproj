@@ -161,6 +161,7 @@
     <ClCompile Include="src\PostgresUserRepository.cpp" />
     <ClCompile Include="src\RedisMessageBus.cpp" />
     <ClCompile Include="src\RedisSmokeCheck.cpp" />
+    <ClCompile Include="src\SubscriptionGuard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -190,6 +191,7 @@
     <ClInclude Include="include\MessageBus.h" />
     <ClInclude Include="include\RedisMessageBus.h" />
     <ClInclude Include="include\RedisSmokeCheck.h" />
+    <ClInclude Include="include\SubscriptionGuard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
