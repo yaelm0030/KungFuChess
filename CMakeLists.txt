@@ -16,6 +16,8 @@ add_library(kfc_core STATIC
     Kung-Fu-Chess/src/GameSnapshotJson.cpp
     Kung-Fu-Chess/src/Piece.cpp
     Kung-Fu-Chess/src/Parser.cpp
+    Kung-Fu-Chess/src/CommandEnvelope.cpp
+    Kung-Fu-Chess/src/SubscriptionGuard.cpp
 )
 
 target_include_directories(kfc_core PUBLIC
