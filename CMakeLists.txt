@@ -61,3 +61,19 @@ if(WIN32)
     target_compile_definitions(kfc_net PUBLIC _WIN32_WINNT=0x0601)
     target_link_libraries(kfc_net PUBLIC ws2_32 mswsock)
 endif()
+
+# Postgres/Redis-backed UserRepository and MessageBus implementations. Independent
+# of the WebSocket/GameShard layer (kfc_net), so this only needs kfc_core for the
+# interfaces it implements, plus the vcpkg-provided client libraries.
+add_library(kfc_db_redis STATIC
+    Kung-Fu-Chess/src/PostgresUserRepository.cpp
+    Kung-Fu-Chess/src/PqxxSmokeCheck.cpp
+    Kung-Fu-Chess/src/RedisMessageBus.cpp
+    Kung-Fu-Chess/src/RedisSmokeCheck.cpp
+)
+
+target_link_libraries(kfc_db_redis PUBLIC kfc_core)
+
+find_package(libpqxx CONFIG REQUIRED)
+find_package(redis++ CONFIG REQUIRED)
+target_link_libraries(kfc_db_redis PUBLIC libpqxx::pqxx redis++::redis++)
