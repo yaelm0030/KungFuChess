@@ -2,12 +2,26 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <iostream>
 #include <mutex>
 #include <string>
 #include <thread>
 
 #include "RedisMessageBus.h"
+
+std::string redis_uri() {
+    // std::getenv is flagged C4996 by MSVC in favor of getenv_s; the codebase has no
+    // blanket _CRT_SECURE_NO_WARNINGS, so suppress locally at this call site only.
+#pragma warning(push)
+#pragma warning(disable : 4996)
+    const char* env_value = std::getenv(kRedisUriEnvVar);
+#pragma warning(pop)
+    if (env_value != nullptr && env_value[0] != '\0') {
+        return env_value;
+    }
+    return kRedisConnectionUri;
+}
 
 namespace {
 
@@ -23,8 +37,9 @@ constexpr const char* kReentrantSecondPayload = "hello reentrant redis";
 // connection ("Shard"), subscribed to the same channel, actually receives it.
 int run_pubsub_check() {
     try {
-        RedisMessageBus shard_bus(kRedisConnectionUri);
-        RedisMessageBus gateway_bus(kRedisConnectionUri);
+        const std::string uri = redis_uri();
+        RedisMessageBus shard_bus(uri);
+        RedisMessageBus gateway_bus(uri);
 
         std::mutex mutex;
         std::condition_variable cv;
@@ -52,7 +67,7 @@ int run_pubsub_check() {
             return 1;
         }
 
-        std::cout << "redis smoke check OK: pub/sub round-trip via " << kRedisConnectionUri << "\n";
+        std::cout << "redis smoke check OK: pub/sub round-trip via " << uri << "\n";
         return 0;
     } catch (const std::exception& e) {
         std::cout << "redis smoke check FAILED: " << e.what() << "\n";
@@ -66,8 +81,9 @@ int run_pubsub_check() {
 // receive its own publish afterward).
 int run_reentrant_subscribe_check() {
     try {
-        RedisMessageBus shard_bus(kRedisConnectionUri);
-        RedisMessageBus gateway_bus(kRedisConnectionUri);
+        const std::string uri = redis_uri();
+        RedisMessageBus shard_bus(uri);
+        RedisMessageBus gateway_bus(uri);
 
         std::mutex mutex;
         std::condition_variable cv;
