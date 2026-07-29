@@ -16,6 +16,7 @@
 #pragma warning(pop)
 
 #include "MessageBus.h"
+#include "SubscriptionGuard.h"
 #include "Types.h"
 #include "UserRepository.h"
 
@@ -48,6 +49,7 @@ private:
     using WsServer = websocketpp::server<websocketpp::config::asio>;
 
     MessageBus& bus_;
+    SubscriptionGuard subscription_guard_;
     UserRepository& user_repository_;
     mutable std::mutex mutex_;
     std::thread io_thread_;

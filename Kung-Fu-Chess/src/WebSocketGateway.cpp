@@ -12,10 +12,12 @@
 
 WebSocketGateway::WebSocketGateway(MessageBus& bus, UserRepository& user_repository)
     : bus_(bus), user_repository_(user_repository) {
-    bus_.subscribe(kSnapshotChannel, [this](const std::string& payload) { broadcast(payload); });
+    bus_.subscribe(kSnapshotChannel,
+        subscription_guard_.wrap([this](const std::string& payload) { broadcast(payload); }));
 }
 
 WebSocketGateway::~WebSocketGateway() {
+    subscription_guard_.close();
     stop();
 }
 
