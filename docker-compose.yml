@@ -10,6 +10,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kfc -d kfc"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
 
   pgadmin:
     image: dpage/pgadmin4
@@ -20,6 +25,43 @@ services:
       - "5050:80"
     depends_on:
       - db
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  shard:
+    image: kfc-app:local
+    build:
+      context: .
+    command: ["--serve-shard"]
+    environment:
+      KFC_REDIS_URI: tcp://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  gateway:
+    image: kfc-app:local
+    build:
+      context: .
+    command: ["--serve-gateway", "8080"]
+    environment:
+      KFC_REDIS_URI: tcp://redis:6379
+      KFC_DATABASE_URI: postgresql://kfc:kfc@db:5432/kfc
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
