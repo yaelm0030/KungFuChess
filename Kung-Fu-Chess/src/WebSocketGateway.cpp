@@ -138,13 +138,20 @@ void WebSocketGateway::stop() {
     running_ = false;
 
     if (started_) {
-        // Must run on ws_server_'s own io thread to avoid racing it.
+        // stop_listening() is not thread-safe, so it must run on ws_server_'s own io
+        // thread, together with stop() so both run as a single posted unit; if run()
+        // is idle, a posted handler alone can sit unpicked-up forever. The direct
+        // stop() call below is only a hang-breaker to unblock an idle run(): it's safe
+        // to call redundantly (io_service::stop() is idempotent), and in the rare case
+        // it wins the race and run() returns before the posted job is picked up,
+        // stop_listening() is simply skipped, same as before this fix existed.
         // This is an abrupt teardown; clients just see the TCP connection drop.
         ws_server_.get_io_service().post([this]() {
             websocketpp::lib::error_code ec;
             ws_server_.stop_listening(ec);
             ws_server_.stop();
         });
+        ws_server_.stop();
         started_ = false;
     }
 
