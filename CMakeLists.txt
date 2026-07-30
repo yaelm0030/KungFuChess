@@ -18,6 +18,7 @@ add_library(kfc_core STATIC
     Kung-Fu-Chess/src/Parser.cpp
     Kung-Fu-Chess/src/CommandEnvelope.cpp
     Kung-Fu-Chess/src/SubscriptionGuard.cpp
+    Kung-Fu-Chess/src/StopSignal.cpp
 )
 
 target_include_directories(kfc_core PUBLIC
@@ -144,6 +145,7 @@ add_executable(kfc_tests
     Kung-Fu-Chess.Tests/src/RedisSmokeCheck/RedisUriTests.cpp
     Kung-Fu-Chess.Tests/src/PqxxSmokeCheck/DatabaseUriTests.cpp
     Kung-Fu-Chess.Tests/src/SubscriptionGuard/SubscriptionGuardTests.cpp
+    Kung-Fu-Chess.Tests/src/StopSignal/StopSignalTests.cpp
 )
 
 target_include_directories(kfc_tests PRIVATE

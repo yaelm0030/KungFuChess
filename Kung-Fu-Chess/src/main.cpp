@@ -1,10 +1,6 @@
-#include <atomic>
-#include <chrono>
-#include <csignal>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <thread>
 
 #include "Board.h"
 #include "CommandProcessor.h"
@@ -17,29 +13,10 @@
 #include "ProtocolIO.h"
 #include "RedisMessageBus.h"
 #include "RedisSmokeCheck.h"
+#include "StopSignal.h"
 #include "WebSocketGateway.h"
 
 namespace {
-
-// Assumes wait_for_stop_signal() is called at most once per process (true today:
-// each process runs exactly one of run_shard()/run_gateway()) — the flag is never
-// reset, so a second call would return immediately without waiting for a new signal.
-std::atomic<bool> g_stop_requested{false};
-
-extern "C" void request_stop(int /*signal*/) {
-    g_stop_requested = true;
-}
-
-// Blocks until SIGINT/SIGTERM (docker stop sends SIGTERM) instead of stdin: under
-// Compose/`docker run -d` there's no TTY, so stdin closes immediately and a
-// getline-based stop would exit the process right after it starts.
-void wait_for_stop_signal() {
-    std::signal(SIGINT, request_stop);
-    std::signal(SIGTERM, request_stop);
-    while (!g_stop_requested) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}
 
 // Proves ensure_user is idempotent: a fixed username should get the same rating both times.
 int run_user_repo_smoke_check() {
@@ -104,6 +81,8 @@ Board standard_starting_board() {
 
 // Runs a GameShard as a standalone process wired to Redis instead of an in-process bus.
 int run_shard() {
+    block_stop_signals();
+
     RedisMessageBus bus(redis_uri());
     GameShard shard(standard_starting_board(), bus);
     shard.start();
@@ -117,6 +96,8 @@ int run_shard() {
 
 // Runs a WebSocketGateway as a standalone process wired to Redis instead of an in-process bus.
 int run_gateway(uint16_t port) {
+    block_stop_signals();
+
     RedisMessageBus bus(redis_uri());
     PostgresUserRepository repository(database_uri());
     WebSocketGateway gateway(bus, repository);

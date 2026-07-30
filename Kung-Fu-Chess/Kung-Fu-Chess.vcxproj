@@ -162,6 +162,7 @@
     <ClCompile Include="src\RedisMessageBus.cpp" />
     <ClCompile Include="src\RedisSmokeCheck.cpp" />
     <ClCompile Include="src\SubscriptionGuard.cpp" />
+    <ClCompile Include="src\StopSignal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="include\RedisMessageBus.h" />
     <ClInclude Include="include\RedisSmokeCheck.h" />
     <ClInclude Include="include\SubscriptionGuard.h" />
+    <ClInclude Include="include\StopSignal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
