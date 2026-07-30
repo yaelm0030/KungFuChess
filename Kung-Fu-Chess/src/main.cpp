@@ -1,6 +1,10 @@
+#include <atomic>
+#include <chrono>
+#include <csignal>
 #include <iostream>
 #include <optional>
 #include <string>
+#include <thread>
 
 #include "Board.h"
 #include "CommandProcessor.h"
@@ -16,6 +20,26 @@
 #include "WebSocketGateway.h"
 
 namespace {
+
+// Assumes wait_for_stop_signal() is called at most once per process (true today:
+// each process runs exactly one of run_shard()/run_gateway()) — the flag is never
+// reset, so a second call would return immediately without waiting for a new signal.
+std::atomic<bool> g_stop_requested{false};
+
+extern "C" void request_stop(int /*signal*/) {
+    g_stop_requested = true;
+}
+
+// Blocks until SIGINT/SIGTERM (docker stop sends SIGTERM) instead of stdin: under
+// Compose/`docker run -d` there's no TTY, so stdin closes immediately and a
+// getline-based stop would exit the process right after it starts.
+void wait_for_stop_signal() {
+    std::signal(SIGINT, request_stop);
+    std::signal(SIGTERM, request_stop);
+    while (!g_stop_requested) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
 
 // Proves ensure_user is idempotent: a fixed username should get the same rating both times.
 int run_user_repo_smoke_check() {
@@ -83,10 +107,9 @@ int run_shard() {
     RedisMessageBus bus(redis_uri());
     GameShard shard(standard_starting_board(), bus);
     shard.start();
-    std::cout << "Shard running. Press Enter to stop.\n";
+    std::cout << "Shard running. Send SIGINT/SIGTERM to stop.\n";
 
-    std::string discard;
-    std::getline(std::cin, discard);
+    wait_for_stop_signal();
 
     shard.stop();
     return 0;
@@ -98,10 +121,9 @@ int run_gateway(uint16_t port) {
     PostgresUserRepository repository(database_uri());
     WebSocketGateway gateway(bus, repository);
     gateway.start(port);
-    std::cout << "Gateway listening on port " << gateway.port() << ". Press Enter to stop.\n";
+    std::cout << "Gateway listening on port " << gateway.port() << ". Send SIGINT/SIGTERM to stop.\n";
 
-    std::string discard;
-    std::getline(std::cin, discard);
+    wait_for_stop_signal();
 
     gateway.stop();
     return 0;
