@@ -76,7 +76,16 @@ target_link_libraries(kfc_db_redis PUBLIC kfc_core)
 
 find_package(libpqxx CONFIG REQUIRED)
 find_package(redis++ CONFIG REQUIRED)
-target_link_libraries(kfc_db_redis PUBLIC libpqxx::pqxx redis++::redis++)
+
+# redis-plus-plus exports redis++::redis++ when built shared (the Windows vcpkg
+# triplet) but redis++::redis++_static when built static (our Linux triplet).
+if(TARGET redis++::redis++)
+    set(REDISPP_TARGET redis++::redis++)
+else()
+    set(REDISPP_TARGET redis++::redis++_static)
+endif()
+
+target_link_libraries(kfc_db_redis PUBLIC libpqxx::pqxx ${REDISPP_TARGET})
 
 # Full doctest suite, built against the three engine libs above (as opposed to
 # Kung-Fu-Chess.Tests.vcxproj, which recompiles the engine .cpp files directly).

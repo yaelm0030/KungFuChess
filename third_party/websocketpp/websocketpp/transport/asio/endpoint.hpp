@@ -665,7 +665,9 @@ public:
 
     /// wraps the reset method of the internal io_service object
     void reset() {
-        m_io_service->reset();
+        // Modern standalone Asio (>= 1.15) renamed io_service::reset() to
+        // restart(); this vendored websocketpp predates that rename.
+        m_io_service->restart();
     }
 
     /// wraps the stopped method of the internal io_service object

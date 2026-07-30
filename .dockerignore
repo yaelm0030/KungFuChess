@@ -1,0 +1,22 @@
+# Windows/MSVC build output and IDE cruft — not needed for the Linux CMake build,
+# and would otherwise balloon the Docker build context by several hundred MB.
+x64/
+Debug/
+Release/
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+vcpkg_installed/
+
+# The Dockerfile's own `cmake -S . -B build` output dir — never ship a stale host
+# build tree into the image (wrong toolchain/paths would get silently reused).
+build/
+
+# Local git metadata and the Windows-only UI project; the Docker image only
+# builds kfc_app (engine + net + db_redis), not the UI.
+.git/
+Kung-Fu-Chess.UI/
+
+*.md
