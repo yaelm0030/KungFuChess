@@ -1,6 +1,8 @@
 #include "ThirdParty/doctest.h"
 
 #include <chrono>
+#include <future>
+#include <memory>
 #include <optional>
 #include <thread>
 
@@ -28,6 +30,29 @@ std::optional<PieceSnapshot> find_piece(const GameSnapshot& snap, Color color, P
         }
     }
     return std::nullopt;
+}
+
+// A regression here is "stop() hangs forever", so stop() runs on a helper thread and
+// the test waits on its future with a timeout instead of joining it directly. On
+// timeout the helper thread is detached rather than joined, so server/stopped are
+// captured by shared_ptr (not by reference) to stay alive for it: a reference into the
+// test's stack frame would dangle the moment the TEST_CASE returns and its locals are
+// destructed, racing the still-running detached thread. A confirmed regression leaks
+// the server deliberately instead of risking that use-after-free.
+bool stop_completes_within(std::shared_ptr<GameServer> server, std::chrono::milliseconds timeout) {
+    auto stopped = std::make_shared<std::promise<void>>();
+    std::future<void> stopped_future = stopped->get_future();
+    std::thread stopper([server, stopped]() {
+        server->stop();
+        stopped->set_value();
+    });
+    bool completed = stopped_future.wait_for(timeout) == std::future_status::ready;
+    if (completed) {
+        stopper.join();
+    } else {
+        stopper.detach();
+    }
+    return completed;
 }
 
 } // namespace
@@ -92,6 +117,28 @@ TEST_CASE("a server that goes out of scope while still running tears down cleanl
     }
 
     CHECK(true);
+}
+
+TEST_CASE("stop returns within a bounded time after the io thread has gone idle") {
+    FakeUserRepository repository;
+    auto server = std::make_shared<GameServer>(make_board(), repository);
+
+    server->start(0);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    CHECK(stop_completes_within(server, std::chrono::seconds(5)));
+}
+
+TEST_CASE("stop returns within a bounded time on repeated idle-then-stop cycles") {
+    for (int i = 0; i < 10; ++i) {
+        FakeUserRepository repository;
+        auto server = std::make_shared<GameServer>(make_board(), repository);
+
+        server->start(0);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+        CHECK(stop_completes_within(server, std::chrono::seconds(5)));
+    }
 }
 
 }
