@@ -145,3 +145,13 @@ target_include_directories(kfc_tests PRIVATE
 target_link_libraries(kfc_tests PRIVATE kfc_core kfc_net kfc_db_redis)
 
 target_compile_features(kfc_tests PRIVATE cxx_std_20)
+
+# The actual application binary: stdin/stdout protocol by default, or one of the
+# --serve/--serve-shard/--serve-gateway/*-smoke-check CLI modes (see main.cpp).
+add_executable(kfc_app Kung-Fu-Chess/src/main.cpp)
+
+target_link_libraries(kfc_app PRIVATE kfc_core kfc_net kfc_db_redis)
+
+target_compile_features(kfc_app PRIVATE cxx_std_20)
+
+set_target_properties(kfc_app PROPERTIES OUTPUT_NAME kung-fu-chess)
